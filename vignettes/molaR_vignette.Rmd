@@ -1,0 +1,91 @@
+<!--
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{Using molaR}
+-->
+
+Using molaR
+================
+The R package molaR provides functions that allow the user to quantitatively measure and graphically represent dental surface complexity. The following is a demonstration of the major functions in molaR.
+
+molaR utilizes three-dimensionally embedded triangular mesh files. These files can be imported to R using the "read.ply" function from the geomorph package. Here, we use 3D scan data of two teeth (details???) included in the molaR package as the objects "ex\_tooth1" and "ex\_tooth2".
+
+```{r setup, message = FALSE}
+library(molaR)
+summary(ex_tooth1)
+```
+
+Dirichlet's normal surface energy (DNE)
+----------------------------------
+Dirichlet's normal surface energy can be calculated with the DNE function. The face energy density values calculated can then be projected onto a three dimensial surface image using DNE3d.
+
+```{r webgl_setup, echo=FALSE}
+library(knitr)
+library(rgl)
+```
+
+```{r DNE_basic, webgl = TRUE}
+DNE1 = DNE(ex_tooth1)
+DNE3d(DNE1) #you will need to zoom out to see the whole tooth in an html graphics window
+```
+
+Note that the color scale on this plot is set relative to the values of the tooth. When comparing multiple teeth, setting the scale manually will ensure it is the same for all teeth. This is done with the "setRange" parameter.
+
+```{r DNE_color_scale, webgl = TRUE}
+DNE2 = DNE(ex_tooth2)
+DNE3d(DNE2, setRange = c(0, 1.3))
+```
+```{r DNE_color_scale2, webgl = TRUE}
+DNE3d(DNE1, setRange = c(0, 1.3))
+```
+
+The reported "Total Surface DNE" excludes boundary faces and the faces with the highest 0.1% energy densities. Both sets of faces can be accessed through the list object created by the DNE function
+
+```{r DNE_object}
+head(DNE1$Edge_Values)
+head(DNE1$Outliers)
+```
+
+Relief Index (RFI)
+---------------------
+The RFI function will caculate the relief index of a tooth, the three dimensional surface area of the tooth crown, and the area of the tooth crown's two dimensional foot print.
+
+```{r RFI_basic}
+RFI1 = RFI(ex_tooth1)
+```
+
+The three dimensional surface and its two dimensional footprint can be plotted adjacently using the RFI3d function.
+
+```{r RFI_plot, webgl = TRUE}
+RFI3d(RFI1)
+```
+
+Orientation Patch Count (OPC)
+------------------------
+The OPC function bins each triangular face on a mesh surface (tooth) into one of 8 groups based on the x-y orientation of the face, then determines the number of resulting "patches" on the tooth. These patches can be visualized using the OPC3d function.
+
+```{r OPC_basic, webgl = TRUE}
+OPC1 = OPC(ex_tooth1)
+OPC3d(OPC1)
+```
+
+By default, the OPC function counts any patch consisiting of two or more faces. This can be changed using the minimum\_faces parameter or overriden by the minimum\_area parameter, which sets the minimum percent (Proportion???) of total surface area a patch must contain to be counted.
+
+```{r OPC_patch_count}
+OPC2 = OPC(ex_tooth1, minimum_faces = 20)
+OPC3 = OPC(ex_tooth1, minimum_area = 0.01)
+```
+
+Due to the somewhat arbitrary boundaries of bins, differences in specimen orientation during analysis can result in minor variations of OPC. The OPCr function attempts to account for this by iteratively rotating the tooth (default is 8 iterations between 0 and 45 degrees of rotation) and calculating the OPC of each iteration. A mean OPC is reported.
+
+```{r OPCr}
+OPCr1 = OPCr(ex_tooth1)
+OPCr2 = OPCr(ex_tooth1, Steps = 5, stepSize = 9, minimum_faces = 2) #the minimum_faces and minimum_area parameters are passed to each iteration of OPC
+```
+
+The object returned by OPCr also contains the OPC values and degrees of rotation for each iteration.
+
+```{r OPCr_structure}
+OPCr1$Each_Run
+OPCr2$Each_Run
+```
+
