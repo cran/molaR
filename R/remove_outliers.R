@@ -2,7 +2,9 @@
 #'
 #' This function will block out the top 0.1 percent of the faces
 #' @param Energy_values energy density values on faces
-#' @param X percentile above which to remove 
+#' @param X percentile above which to remove
+#'
+#' 
 #' remove_outliers()
 
 remove_outliers <- function(Energy_values, X) {

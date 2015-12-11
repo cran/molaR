@@ -17,8 +17,11 @@
 #' must be oriented such that the occlusal plane is parallel to the X- and Y-axes and
 #' perpendicular to the Z-axis.
 #'
+#' @importFrom
+#' alphahull ahull
+#'
 #' @export
-#' RFI()
+#' RFI
 
 RFI <- function(plyFile) {
 	ThreeDVerts1 <- t(plyFile$vb) ## Read in and properly transform original 3D vertices

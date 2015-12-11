@@ -1,8 +1,12 @@
-#' Function will compute the DNE per face. 
+#' Function will compute the DNE per face.
 #'
 #' This will generate each Dirichlet's normal energy for each triangular face on the surface.
 #' @param plyFile a stanford PLY file 
 #' compute_energy_per_face()
+#'
+#' @importFrom
+#' psych tr
+#' 
 
 
 compute_energy_per_face <- function(plyFile) {

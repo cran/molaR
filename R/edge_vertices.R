@@ -1,7 +1,9 @@
 #' Function for finding the edge vertices
 #' 
 #' Function will sort through all the vertices of the surface and find the ones which are on the edge. This will be needed for identifying which should be masked and not inlcuded in the calculation of the final DNE value.
-#' @param plyFile a stanford PLY file  
+#' @param plyFile a stanford PLY file
+#'
+#' 
 #' edge_vertices()
 
 edge_vertices <- function(plyFile) {

@@ -1,7 +1,9 @@
 #' Index of paired faces with directions
 #'
 #' This does some heavy lifting to pull together faces which are paired together. This is needed for many later functions for compiling OPC
-#' @param plyFile a stanford PLY file 
+#' @param plyFile a stanford PLY file
+#'
+#' 
 #' index_paired_directed_faces()
 
 index_paired_directed_faces <- function(plyFile) {

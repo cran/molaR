@@ -24,14 +24,17 @@
 #' See the details for the OPC function for more information about preparing mesh
 #' surfaces and the effects of minimum_faces and minimum_area.
 #'
+#' @import
+#' utils
+#'
 #' @export
-#' OPCr()
+#' OPCr
 
 
 
 
 
-OPCr <- function(plyFile, Steps=8, stepSize=5.625, minimum_faces=2, minimum_area=0){
+OPCr <- function(plyFile, Steps=8, stepSize=5.625, minimum_faces=3, minimum_area=0){
   
   options(expressions=50000)
   Output <- matrix(nrow=Steps, ncol=2)

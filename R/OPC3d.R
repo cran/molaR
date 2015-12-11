@@ -11,8 +11,13 @@
 #' field of view in dregrees of the resulting rgl window
 #' @param legend Logical indicating whether or not a legend should
 #' be displayed
-#' @param colors Allows the user to change the colors filled in for
+#' @param binColors Allows the user to change the colors filled in for
 #' each directional bin
+#' @param patchOutline logical whether or not to outline the patches
+#' @param outlineColor parameter designating which color to outline the patches in
+#' @param maskDiscard logical indicating whether to discard the unused patches
+#' @param minimum_faces value for the minimum number of faces a patch must contain
+#' to avoid being discarded
 #' 
 #' @details This function will assign a uniform color to all faces on the mesh
 #' surface that share one of the 8 orientations identified by the OPC function. The
@@ -28,44 +33,90 @@
 #' draws from the hsv color space to evenly space color information, however user
 #' can supply a list of RGB values, character strings, or integers in place.
 #'
+#' @import
+#' rgl
+#'
 #' @export
-#' OPC3d()
+#' OPC3d
 
 
-OPC3d <- function(OPC_Output_Object, fieldofview=0, legend=TRUE,
-	colors=hsv(h=(seq(10, 290, 35)/360), s=.8, v=.9)) {
+OPC3d <- function (OPC_Output_Object, fieldofview = 0, legend = TRUE, 
+          binColors = hsv(h = (seq(10, 290, 40)/360), s = .9, v = .85),
+          patchOutline = FALSE, outlineColor="black", maskDiscard = FALSE, minimum_faces=3) 
+{
   plyFile <- OPC_Output_Object$plyFile
-  fieldofview=fieldofview
+  fieldofview = fieldofview
   bins <- plyFile$Directional_Bins
-  Ones <- which(bins==1)
-  bins[Ones] <- colors[1]
-  Twos <- which(bins==2)
-  bins[Twos] <- colors[2]
-  Threes <- which(bins==3)
-  bins[Threes] <- colors[3]
-  Fours <- which(bins==4)
-  bins[Fours] <- colors[4]
-  Fives <- which(bins==5)
-  bins[Fives] <- colors[5]
-  Sixes <- which(bins==6)
-  bins[Sixes] <- colors[6]
-  Sevens <- which(bins==7)
-  bins[Sevens] <- colors[7]
-  Eights <- which(bins==8)
-  bins[Eights] <- colors[8]
-  colormatrix <- rep(bins, 3)
-  colormatrix <- matrix(colormatrix, nrow=3, byrow=T)
-  
-  open3d()
-  par3d(windowRect=c(100,100,900,900))  # Create a larger window for good legend rendering
-  rgl.viewpoint(fov=fieldofview)  # Alter the field of view to preference. Default is to orthogonal view
-  
-  if(legend==TRUE){
-    legend3d(x='right', legend=c(1:8), fill=colors,
-            title="Orientations\nby Bin", bty='n', cex=1.75)
+  BinCount <- as.numeric(length(unique(plyFile$Directional_Bins)))
+  BlackPatch <- NULL
+  for(i in 1:BinCount){
+    Bin <- which(bins == i)
+    bins[Bin] <- binColors[i]
+    if(maskDiscard==TRUE){
+      PatchList <- unlist(OPC_Output_Object$Patches[i], recursive=F)
+      SmallPatch <- names(which(lapply(PatchList, length) < minimum_faces))
+      Discarded <- as.numeric(unlist(PatchList[SmallPatch]))
+      BlackPatch <- c(BlackPatch, Discarded)
+    }
   }
-  
-  shade3d(plyFile, color=colormatrix)
-  
+  colormatrix <- bins
+  if(maskDiscard==TRUE){
+    colormatrix[BlackPatch] <- '#000000'
+  }
+  colormatrix <- rep(colormatrix, 3)
+  colormatrix <- matrix(colormatrix, nrow = 3, byrow = T)
+  open3d()
+  par3d(windowRect = c(100, 100, 900, 900))
+  rgl.viewpoint(fov = fieldofview)
+  if(legend == TRUE) {
+    Fills <- rep('#FFFFFF', BinCount)
+    for(i in 1:BinCount){
+      Fills[i] <- binColors[i]
+    }
+    legend3d(x = "right", legend = c(1:8), fill = Fills, 
+             title = "Orientations\nby Bin", bty = "n", cex = 1.75)
+    if(maskDiscard == TRUE){
+      legend3d(x = "right", legend = c(1:8, "Discarded"), fill = c(Fills, '#000000'), 
+               title = "Orientations\nby Bin", bty = "n", cex = 1.75)
+    }
+  }
+  if(patchOutline==TRUE){
+    for(i in 1:BinCount){
+      Orientation <- OPC_Output_Object$Patches[i]
+      PatchCount <- as.numeric(length(Orientation[[1]]))
+      for(j in 1:PatchCount){
+        Patch <- Orientation[[1]][j]
+        Patch <- as.numeric(Patch[[1]])
+        Faces <- t(plyFile$it[,Patch])
+        fnum <- length(Faces[,1])
+        vorder <- vector('list', fnum)
+        for (i in 1:fnum) {
+          vorder[[i]] <- unlist(sort(Faces[i,]))
+        }
+        edges <- vector('list', fnum)
+        for (i in 1:fnum) {
+          Ordered <- vorder[[i]]
+          G1 <- Ordered[1]
+          G2 <- Ordered[2]
+          G3 <- Ordered[3]
+          ED1 <- paste(G1, G2, sep='_')
+          ED2 <- paste(G1, G3, sep='_')
+          ED3 <- paste(G2, G3, sep='_')
+          edges[[i]] <- paste(ED1, ED2, ED3, sep=',')
+        }
+        for (i in 1:fnum) {
+          edges[[i]] <- unlist(strsplit(edges[[i]], ','))
+        }
+        string <- unlist(edges)
+        edgeframe <- data.frame(names=string)
+        UniqueEdge <- aggregate(edgeframe, list(edgeframe$names), FUN=length)
+        PatchEdge <- subset(UniqueEdge, UniqueEdge$names==1)
+        EdgeVerts <- as.numeric(unlist(strsplit(as.character(unlist(PatchEdge$Group.1)), '_')))
+        EdgeCoords <- plyFile$vb[1:3,EdgeVerts]
+        segments3d(t(EdgeCoords), color=outlineColor, lwd=1.25, shininess=120)
+      }
+    }
+  }
+  shade3d(plyFile, color = colormatrix, shininess=120)
 }
 

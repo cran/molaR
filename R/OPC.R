@@ -31,7 +31,7 @@
 #' 
 #'
 #' @export
-#' OPC()
+#' OPC
 
 
 OPC <- function(plyFile, rotation=0, minimum_faces=3, minimum_area=0) {

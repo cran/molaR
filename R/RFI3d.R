@@ -30,9 +30,12 @@
 #' fieldofview is set to a default of 0, which is an isometric projection. Increasing it
 #' alters the degree of parallax in the perspective view, up to a maximum of 179
 #' degrees.
+#'
+#' @import
+#' rgl
 #' 
 #' @export
-#' RFI3d()
+#' RFI3d
 
 
 

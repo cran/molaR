@@ -20,8 +20,11 @@
 #' the top 0.1 percent of calculated energy densities as outliers. Mesh orientation does not
 #' affect for this calculation.
 #'
+#' @importFrom
+#' stats quantile aggregate
+#'
 #' @export
-#' DNE()
+#' DNE
 
 
 
