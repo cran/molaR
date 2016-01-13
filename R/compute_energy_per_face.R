@@ -52,7 +52,7 @@ compute_energy_per_face <- function(plyFile) {
 		
 	}
 	
-	Values_Per_Face <- data.frame(DNE_Values=e, Face_Areas=face_area)
+	Values_Per_Face <- data.frame(Dirichlet_Energy_Densities=e, Face_Areas=face_area)
 	return(Values_Per_Face)
 	
 }

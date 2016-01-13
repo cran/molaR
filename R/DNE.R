@@ -7,7 +7,9 @@
 #' ajpa.21489
 #'
 #' @param plyFile An object of class 'mesh3d' and 'shape3d' with calculated normals
-#' 
+#' @param outliers The percentile of Dirichlet energy density values to be excluded 
+#' defaults to top 0.1 percent
+#'
 #' @details The function requires an object created by reading in a ply file utilizing
 #' either the read.ply or the read.AVIZO.ply function, with calculated normals.
 #'
@@ -16,9 +18,9 @@
 #' editing program. 
 #'
 #' The function does not include boundary vertices in the calculation, and therefore the
-#' analyzed surface cannot be closed (i.e., it must contain a hole). The function removes
-#' the top 0.1 percent of calculated energy densities as outliers. Mesh orientation does not
-#' affect for this calculation.
+#' analyzed surface cannot be closed (i.e., it must contain a hole). The function defaults to
+#' remove the top 0.1 percent of calculated energy densities as outliers. Mesh orientation
+#' does not affect for this calculation.
 #'
 #' @importFrom
 #' stats quantile aggregate
@@ -30,7 +32,7 @@
 
 
 
-DNE <- function(plyFile) {
+DNE <- function(plyFile, outliers=0.1) {
 	
 	ply <- Equal_Vertex_Normals(plyFile) ## Correct the Vertex Normals Calculation
 	Es <- compute_energy_per_face(ply) ## Compute DNE values for each face of the surface
@@ -48,13 +50,14 @@ DNE <- function(plyFile) {
 	
 	Edge_Values <- Es[EdgeEs,] ## This to be Exported, values of edge faces
 	
-	Es[EdgeEs,]$DNE_Values <- 0
+	Es[EdgeEs,]$Dirichlet_Energy_Densities <- 0
 	
 	### Extracting and removing outliers
+	outs <- (100-outliers)/100
 	
-	DNEs <- Es$DNE_Values
+	DNEs <- Es$Dirichlet_Energy_Densities
 	FAs <- Es$Face_Areas
-	Q <- quantile(DNEs, probs=c(0.999))
+	Q <- quantile(DNEs, probs=c(outs))
 	
 	Outlier_List <- which(DNEs > Q)
 	
@@ -62,9 +65,9 @@ DNE <- function(plyFile) {
 	
 	DNEs[Outlier_List] <- 0
 	
-	CleanEs <- data.frame(DNE_Values=DNEs, Face_Areas=FAs)
+	CleanEs <- data.frame(Dirichlet_Energy_Densities=DNEs, Face_Areas=FAs)
 	
-	Surface_DNE <- sum(CleanEs$DNE_Values*CleanEs$Face_Areas)
+	Surface_DNE <- sum(CleanEs$Dirichlet_Energy_Densities*CleanEs$Face_Areas)
 	
 	Out <- list(Surface_DNE=Surface_DNE, Face_Values=CleanEs, Edge_Values=Edge_Values, Outliers=Outliers, "plyFile"=plyFile)
 	print("Total Surface DNE")

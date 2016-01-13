@@ -1,7 +1,7 @@
-6146359cd0bd3e6db1ba41601ae674a4 *DESCRIPTION
+95598c607cd39d2bef750d648938067a *DESCRIPTION
 5b59c414d9deb40cb152287c276f927c *NAMESPACE
-6890a3d9072b93635701d1d29619d104 *R/DNE.R
-9b95c049ba196f8c7ceb9653ef08b2be *R/DNE3d.R
+4b963cd6f830f96c22cd6a4bda5d25ab *R/DNE.R
+c7a55b5adb5eeb0bc5169724f063822a *R/DNE3d.R
 0dfb319d5b539389f736b76782fd1c83 *R/DNE_Legend.R
 f2e419fce686f6793c7828fc8d22310d *R/Directional_Bins.R
 f5c3363e8258424795bf532419d1668f *R/Equal_Vertex_Normals.R
@@ -12,7 +12,7 @@ f4c5eaaca7f2cb25c0ab6b57c0658786 *R/OPC.R
 e4730c17ee53f3cdf40db42708b0debd *R/RFI.R
 0ccf9d134cd907d470e3f64507dbb7b5 *R/RFI3d.R
 8cf641f68c981c0c675f7cd4cbdae570 *R/clustered_patches.R
-b185606c06c151c0f219d09339f0cda6 *R/compute_energy_per_face.R
+94b3436113112e71a41c358e09a3451f *R/compute_energy_per_face.R
 09c8fad89dfa3ecf700d58d0c62fe21c *R/edge_vertices.R
 88b721c16ed9ccc28d686847f9cc235b *R/face_areas.R
 ad55503c214db469e08ac2e3e7f732a8 *R/index_paired_directed_faces.R
@@ -23,14 +23,14 @@ e2dac965ec26ed4f117b0df193b3c39e *R/read.AVIZO.ply.R
 fca88e65d9072b4ae55fa44bfffc9f12 *R/remove_boundary_faces.R
 72500b9038e5fdd099e1d2c08291d5fc *R/remove_outliers.R
 6dc7fd960f7a80e9e4050181fb5e7bbf *R/vertex_to_face_list.R
-b5415c63da5899af1bec2aa0fe01e404 *build/molaR.pdf
+ec95ab14700365d857cd035509a68882 *build/molaR.pdf
 d4a9699b3f256a37da78f07028d3d4bc *build/vignette.rds
 a42a7520b2c5e8ee9f0ce04718e4cb16 *data/ex_tooth1.RData
 0b9518525b0d4acafd1c6a36dc568514 *data/ex_tooth2.RData
 e511614b656e0045260f4835ecb63e16 *inst/doc/molaR_vignette.R
 a3fcd6a0d88b4a2a51f08179ad7c7a11 *inst/doc/molaR_vignette.Rmd
 071b297cc6b73b7d49242b8028953069 *inst/doc/molaR_vignette.html
-9f5bf5be529abab1401f9a60b497d77b *man/DNE.Rd
+1ee1fb28a0c0a0d192aeebc32ab66ada *man/DNE.Rd
 ac9c0cca697b0174eef106562307ce5c *man/DNE3d.Rd
 e122b7e40246e155ea02d4093713b489 *man/DNE_Legend.Rd
 b4a76fc9fdd654794522c9d8d5482402 *man/Directional_Bins.Rd
@@ -55,4 +55,4 @@ c36b845aab18a1b7cdb2aa2a9be37181 *man/patches_for_each_direction.Rd
 18d39d33b4e5de9932f96db6b80fba3a *man/remove_boundary_faces.Rd
 1f12926979f17572d705082b614568be *man/remove_outliers.Rd
 e4f3cbc19ed5c4200613f39bba81582f *man/vertex_to_face_list.Rd
-a3fcd6a0d88b4a2a51f08179ad7c7a11 *vignettes/molaR_vignette.Rmd
+8f6e309b77a5037030552146df933b8e *vignettes/molaR_vignette.Rmd

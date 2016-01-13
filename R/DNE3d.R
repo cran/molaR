@@ -69,7 +69,7 @@
 DNE3d <- function(DNE_File, setRange = c(0,0), edgeMask=TRUE, outlierMask=TRUE, logColors=TRUE,
                         showEdgePts=FALSE, fieldofview=0, legend=TRUE){
 
-  DNEs <- DNE_File$Face_Values$DNE_Values*DNE_File$Face_Values$Face_Areas
+  DNEs <- DNE_File$Face_Values$Dirichlet_Energy_Densities*DNE_File$Face_Values$Face_Areas
   
   # Obtain plotting color scheme relative to DNE analysis accepted as input (setRange disabled):
   if(setRange[1]==0 && setRange[2]==0){

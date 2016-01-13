@@ -4,10 +4,13 @@
 \alias{DNE}
 \title{Calculate Dirichlet normal energy of a surface}
 \usage{
-DNE(plyFile)
+DNE(plyFile, outliers = 0.1)
 }
 \arguments{
 \item{plyFile}{An object of class 'mesh3d' and 'shape3d' with calculated normals}
+
+\item{outliers}{The percentile of Dirichlet energy density values to be excluded 
+defaults to top 0.1 percent}
 }
 \description{
 A function that calculates Dirichlet normal energy following the method of Bunn et
@@ -25,8 +28,8 @@ have already been simplified to 10,000 faces and pre-smoothed in a 3D data
 editing program. 
 
 The function does not include boundary vertices in the calculation, and therefore the
-analyzed surface cannot be closed (i.e., it must contain a hole). The function removes
-the top 0.1 percent of calculated energy densities as outliers. Mesh orientation does not
-affect for this calculation.
+analyzed surface cannot be closed (i.e., it must contain a hole). The function defaults to
+remove the top 0.1 percent of calculated energy densities as outliers. Mesh orientation
+does not affect for this calculation.
 }
 

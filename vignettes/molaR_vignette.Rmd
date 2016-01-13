@@ -1,3 +1,6 @@
+---
+output: pdf_document
+---
 <!--
 %\VignetteEngine{knitr::knitr}
 %\VignetteIndexEntry{Using molaR}
@@ -7,7 +10,7 @@ Using molaR
 ================
 The R package molaR provides functions that allow the user to quantitatively measure and graphically represent dental surface complexity. The following is a demonstration of the major functions in molaR.
 
-molaR utilizes three-dimensionally embedded triangular mesh files. These files can be imported to R using the "read.ply" function from the geomorph package. Here, we use 3D scan data of two teeth (details???) included in the molaR package as the objects "ex\_tooth1" and "ex\_tooth2".
+molaR utilizes three-dimensionally embedded triangular mesh files. These files can be imported to R using the "read.ply" function from the geomorph package. Here, we use 3D scan data of two teeth included in the molaR package as the objects "ex\_tooth1" (DU-LP 09, Male *Aloutta palliata* lower M1) and "ex\_tooth2" (DU-LP 07, Female *Aloutta palliata* lower M1).
 
 ```{r setup, message = FALSE}
 library(molaR)
@@ -25,7 +28,7 @@ library(rgl)
 
 ```{r DNE_basic, webgl = TRUE}
 DNE1 = DNE(ex_tooth1)
-DNE3d(DNE1) #you will need to zoom out to see the whole tooth in an html graphics window
+DNE3d(DNE1)
 ```
 
 Note that the color scale on this plot is set relative to the values of the tooth. When comparing multiple teeth, setting the scale manually will ensure it is the same for all teeth. This is done with the "setRange" parameter.
@@ -35,7 +38,7 @@ DNE2 = DNE(ex_tooth2)
 DNE3d(DNE2, setRange = c(0, 1.3))
 ```
 ```{r DNE_color_scale2, webgl = TRUE}
-DNE3d(DNE1, setRange = c(0, 1.3))
+DNE3d(DNE1, setRange =  c(0, 1.3))
 ```
 
 The reported "Total Surface DNE" excludes boundary faces and the faces with the highest 0.1% energy densities. Both sets of faces can be accessed through the list object created by the DNE function
@@ -68,7 +71,7 @@ OPC1 = OPC(ex_tooth1)
 OPC3d(OPC1)
 ```
 
-By default, the OPC function counts any patch consisiting of two or more faces. This can be changed using the minimum\_faces parameter or overriden by the minimum\_area parameter, which sets the minimum percent (Proportion???) of total surface area a patch must contain to be counted.
+By default, the OPC function counts any patch consisiting of two or more faces. This can be changed using the minimum\_faces parameter or overriden by the minimum\_area parameter, which sets the minimum proportion of total surface area a patch must contain to be counted.
 
 ```{r OPC_patch_count}
 OPC2 = OPC(ex_tooth1, minimum_faces = 20)
