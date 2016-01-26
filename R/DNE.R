@@ -25,6 +25,9 @@
 #' @importFrom
 #' stats quantile aggregate
 #'
+#' @importFrom
+#' Rvcg vcgGetEdge
+#'
 #' @export
 #' DNE
 
@@ -38,17 +41,12 @@ DNE <- function(plyFile, outliers=0.1) {
 	Es <- compute_energy_per_face(ply) ## Compute DNE values for each face of the surface
 	
 	
-	### Extracting and removing Edge Faces
-	EdgeVs <- edge_vertices(ply) ## ID vertices on Edge
-	Vert_to_Face <- vertex_to_face_list(ply) ## Match Verts to faces they touch
+	### Extracting and removing Edge Facess
+	edges <- vcgGetEdge(plyFile)
+	temp <- subset(edges, edges$border==1)
+	EdgeEs <- sort(as.numeric(temp$facept))
 	
-	EdgesTemp <- sort(unlist(Vert_to_Face[EdgeVs]))
-	ttemp <- data.frame(table(EdgesTemp))
-	Etemp <- ttemp[ttemp$Freq>1,]
-	EdgeEEs <- as.vector(Etemp$EdgesTemp)
-	EdgeEs <- as.numeric(EdgeEEs)
-	
-	Edge_Values <- Es[EdgeEs,] ## This to be Exported, values of edge faces
+	Boundary_Values <- Es[EdgeEs,] ## This to be Exported, values of edge faces
 	
 	Es[EdgeEs,]$Dirichlet_Energy_Densities <- 0
 	
@@ -69,7 +67,7 @@ DNE <- function(plyFile, outliers=0.1) {
 	
 	Surface_DNE <- sum(CleanEs$Dirichlet_Energy_Densities*CleanEs$Face_Areas)
 	
-	Out <- list(Surface_DNE=Surface_DNE, Face_Values=CleanEs, Edge_Values=Edge_Values, Outliers=Outliers, "plyFile"=plyFile)
+	Out <- list(Surface_DNE=Surface_DNE, Face_Values=CleanEs, Boundary_Values=Boundary_Values, Outliers=Outliers, "plyFile"=plyFile)
 	print("Total Surface DNE")
 	print(Surface_DNE)
 	return(Out)

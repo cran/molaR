@@ -15,8 +15,8 @@
 #' @param minimum_area Minimual percentage of total surface area a
 #' patch must occupy to be counted towards the total patch count
 #' 
-#' @details The function requires an object created by reading in a ply file utilizing
-#'  either the read.ply or the read.AVIZO.ply function
+#' @details The function requires a mesh object created by reading in a ply file utilizing
+#'  either the read.ply, vcgPlyread, or read.AVIZO.ply function
 #' 
 #' Orientation patch count is calculated on meshes that represent specimen surfaces
 #' and have already been downsampled to 10,000 faces and pre-smoothed in a 3D
@@ -60,7 +60,14 @@ OPC <- function(plyFile, rotation=0, minimum_faces=3, minimum_area=0) {
 	minimum_area <- minimum_area
 	patch_count <- patches_per(patch_details, plyFile, minimum_faces, minimum_area)
 	
-	out <- list("Patch_Count"=patch_count, "Patch_Details"=patch_details, "plyFile"=plyFile, "Patches"=binned_patches)
+	### Recording User Set Parameters ###
+	Rot <- rotation
+	MinFace <- minimum_faces
+	MinArea <- minimum_area
+	params <- list(Degrees_Rotated= Rot, Minimum_Faces=MinFace, Minimum_Area=MinArea)
+	
+	
+	out <- list("Patch_Count"=patch_count, "Patch_Details"=patch_details, "plyFile"=plyFile, "Patches"=binned_patches, "Parameters"=params)
 	print(patch_count)
 	
 	return(out)

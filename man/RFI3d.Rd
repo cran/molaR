@@ -5,7 +5,7 @@
 \title{Plot 3D and 2D areas of a mesh used to calculate relief index}
 \usage{
 RFI3d(RFI_Output, displace = "Up", SurfaceColor = "gray",
-  FootColor = "red", fieldofview = 0, Transparency = 1, legend = F)
+  FootColor = "red", fieldofview = 0, Opacity = 1, legend = F)
 }
 \arguments{
 \item{RFI_Output}{An object that stores the output of the RFI
@@ -21,7 +21,7 @@ all}
 \item{fieldofview}{Passes an argument to par3d changing the
 field of view in degrees of the resulting rgl window}
 
-\item{Transparency}{adjusts the transparency of the 3D mesh
+\item{Opacity}{adjusts the opacity of the 3D mesh
 surface}
 
 \item{legend}{Logical indicating whether or not to include a
@@ -38,7 +38,7 @@ This function can help to visualize the three-dimensional and two
 dimensional areas that are used in calculating the relief index of a surface by
 displaying both at the same time. The RFI function must be performed first.
 
-Transparency can be adjusted in a range from fully opaque (1) to fully
+Opacity can be adjusted in a range from fully opaque (1) to fully
 transparent (0) in order to help visualize the footprint. The vertical placement of
 the footprint along the Z axis can be altered with displace depending on how the
 user wishes to view the surface, or on the original mesh orientation.

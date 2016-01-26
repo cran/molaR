@@ -27,8 +27,8 @@ similarity of dentitions in carnivorans and rodents.Nature 445:78-81 doi: 10.103
 nature05433
 }
 \details{
-The function requires an object created by reading in a ply file utilizing
- either the read.ply or the read.AVIZO.ply function
+The function requires a mesh object created by reading in a ply file utilizing
+ either the read.ply, vcgPlyread, or read.AVIZO.ply function
 
 Orientation patch count is calculated on meshes that represent specimen surfaces
 and have already been downsampled to 10,000 faces and pre-smoothed in a 3D

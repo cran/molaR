@@ -136,7 +136,7 @@ DNE3d <- function(DNE_File, setRange = c(0,0), edgeMask=TRUE, outlierMask=TRUE, 
 
   # Mask the faces that are not included in surface DNE calculation (optional):
   if(edgeMask==TRUE){
-    edges <- as.numeric(rownames(DNE_File$Edge_Values))  # Identify which faces are edges, from original DNE calculation
+    edges <- as.numeric(rownames(DNE_File$Boundary_Values))  # Identify which faces are edges, from original DNE calculation
     DNE_colors[edges] <- "#000000"  # Paint those faces black
   }
   if(outlierMask==TRUE){

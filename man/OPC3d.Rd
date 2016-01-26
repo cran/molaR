@@ -6,7 +6,7 @@
 \usage{
 OPC3d(OPC_Output_Object, fieldofview = 0, legend = TRUE, binColors = hsv(h
   = (seq(10, 290, 40)/360), s = 0.9, v = 0.85), patchOutline = FALSE,
-  outlineColor = "black", maskDiscard = FALSE, minimum_faces = 3)
+  outlineColor = "black", maskDiscard = FALSE)
 }
 \arguments{
 \item{OPC_Output_Object}{An object that stores the output of
@@ -26,9 +26,6 @@ each directional bin}
 \item{outlineColor}{parameter designating which color to outline the patches in}
 
 \item{maskDiscard}{logical indicating whether to discard the unused patches}
-
-\item{minimum_faces}{value for the minimum number of faces a patch must contain
-to avoid being discarded}
 }
 \description{
 A function that produces a three-dimensional rendering of face
