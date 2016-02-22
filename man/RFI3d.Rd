@@ -4,22 +4,20 @@
 \alias{RFI3d}
 \title{Plot 3D and 2D areas of a mesh used to calculate relief index}
 \usage{
-RFI3d(RFI_Output, displace = "Up", SurfaceColor = "gray",
-  FootColor = "red", fieldofview = 0, Opacity = 1, legend = F)
+RFI3d(RFI_Output, displace = "Down", SurfaceColor = "gray",
+  FootColor = "red", Opacity = 1, legend = F, legendScale = 1,
+  leftOffset = 0, fieldofview = 0)
 }
 \arguments{
 \item{RFI_Output}{An object that stores the output of the RFI
 function}
 
-\item{displace}{Moves the surface footprint up, down, or not at
-all}
+\item{displace}{Moves the surface footprint Up, Down, or not at
+all with None. Defaults to Down}
 
 \item{SurfaceColor}{changes the color of the 3D surface mesh}
 
 \item{FootColor}{changes color of the 2D surface footprint}
-
-\item{fieldofview}{Passes an argument to par3d changing the
-field of view in degrees of the resulting rgl window}
 
 \item{Opacity}{adjusts the opacity of the 3D mesh
 surface}
@@ -27,6 +25,14 @@ surface}
 \item{legend}{Logical indicating whether or not to include a
 legend of the colors chosen to represent the 3D surface and
 footprint}
+
+\item{legendScale}{cex style numeric relative scaling factor for the legend}
+
+\item{leftOffset}{how numeric between -1 and 1 for which to offset the surface
+relative to the legend.}
+
+\item{fieldofview}{Passes an argument to par3d changing the
+field of view in degrees of the resulting rgl window}
 }
 \description{
 A function that plots a three-dimensional model of the mesh

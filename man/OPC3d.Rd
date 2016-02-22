@@ -4,19 +4,15 @@
 \alias{OPC3d}
 \title{Plot results of OPC analysis of a surface}
 \usage{
-OPC3d(OPC_Output_Object, fieldofview = 0, legend = TRUE, binColors = hsv(h
-  = (seq(10, 290, 40)/360), s = 0.9, v = 0.85), patchOutline = FALSE,
-  outlineColor = "black", maskDiscard = FALSE)
+OPC3d(OPC_Output_Object, binColors = hsv(h = (seq(10, 290, 40)/360), s = 0.9,
+  v = 0.85), patchOutline = FALSE, outlineColor = "black",
+  maskDiscard = FALSE, legend = TRUE, legendScale = 1,
+  legendTextCol = "black", legendLineCol = "black", leftOffset = 1,
+  fieldofview = 0)
 }
 \arguments{
 \item{OPC_Output_Object}{An object that stores the output of
 the OPC function}
-
-\item{fieldofview}{Passes an argument to par3d changing the
-field of view in dregrees of the resulting rgl window}
-
-\item{legend}{Logical indicating whether or not a legend should
-be displayed}
 
 \item{binColors}{Allows the user to change the colors filled in for
 each directional bin}
@@ -26,6 +22,20 @@ each directional bin}
 \item{outlineColor}{parameter designating which color to outline the patches in}
 
 \item{maskDiscard}{logical indicating whether to discard the unused patches}
+
+\item{legend}{Logical indicating whether or not a legend should
+be displayed}
+
+\item{legendScale}{cex style scaling factor for the legend}
+
+\item{legendTextCol}{parameter designating color for the legend text}
+
+\item{legendLineCol}{parameter designating the color for the legend lines}
+
+\item{leftOffset}{numeric parameters disginating how far to offset the surface}
+
+\item{fieldofview}{Passes an argument to par3d changing the
+field of view in dregrees of the resulting rgl window}
 }
 \description{
 A function that produces a three-dimensional rendering of face
@@ -40,9 +50,18 @@ function returns a colored shade3d of the mesh so that patches can be visually
 inspected. Future versions will include the option to black out patches not
 included in the orientation patch count.
 
-fieldofview is set to a default of 0, which is an isometric projection. Increasing it
-alters the degree of parallax in the perspective view, up to a maximum of 179
-degrees.
+Several legend plotting options are availble including customizing the line and
+text colors using color names with legendTextCol and legendLineCol, both default
+to black. legendScale works like cex for setting the size of the relative size
+of the legend.
+
+leftOffset will determine how far the plotted surface is moved to the left to
+avoid obstructing the legend. Users shold choose between -1 and 1. 
+
+fieldofview is set to a default of 0, which is an isometric projection.
+Increasing it alters the degree of parallax in the perspective view, up to a
+maximum of 179 degrees.
+
 colors will support any vector of 8 colors, in any coloration scheme. Default
 draws from the hsv color space to evenly space color information, however user
 can supply a list of RGB values, character strings, or integers in place.

@@ -5,7 +5,8 @@
 \title{Make legend for DNE3d plot}
 \usage{
 DNE_Legend(start, end, colors, DNELabels, scaled = F, edgeMask = F,
-  outlierMask = F, logColors = F)
+  outlierMask = F, logColors = F, lineSize = 2, textSize = 1.75,
+  rectSize = 1)
 }
 \arguments{
 \item{start}{value for the legend to start with, i.e. bottome value}
@@ -24,6 +25,12 @@ and that information to be included in the legend}
 \item{outlierMask}{logical indicating whether outliers are masked}
 
 \item{logColors}{logical indicating colors are on log scale}
+
+\item{lineSize}{numerical value to determine line thickness in the legend}
+
+\item{textSize}{numerical value determinining the size of the text}
+
+\item{rectSize}{numerical value setting size of the legend box}
 }
 \description{
 plotting subfunction
@@ -33,5 +40,6 @@ This is an internal function which builds a better DNE plot legend
 
 The legend will reflect the elements used in the plot. This is an internal
 function. Users will have little need or call to interact with it.
+DNE_Legend()
 }
 

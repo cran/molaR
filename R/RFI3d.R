@@ -6,8 +6,8 @@
 #' 
 #' @param RFI_Output An object that stores the output of the RFI
 #' function
-#' @param displace Moves the surface footprint up, down, or not at
-#' all
+#' @param displace Moves the surface footprint Up, Down, or not at
+#' all with None. Defaults to Down
 #' @param SurfaceColor changes the color of the 3D surface mesh
 #' @param FootColor changes color of the 2D surface footprint
 #' @param fieldofview Passes an argument to par3d changing the
@@ -17,6 +17,9 @@
 #' @param legend Logical indicating whether or not to include a
 #' legend of the colors chosen to represent the 3D surface and
 #' footprint
+#' @param legendScale cex style numeric relative scaling factor for the legend
+#' @param leftOffset how numeric between -1 and 1 for which to offset the surface
+#' relative to the legend. 
 #' 
 #' @details This function can help to visualize the three-dimensional and two
 #' dimensional areas that are used in calculating the relief index of a surface by
@@ -39,73 +42,93 @@
 
 
 
-RFI3d <- function (RFI_Output, displace = "Up", SurfaceColor = "gray", 
-          FootColor = "red", fieldofview = 0, Opacity = 1, legend = F) 
+RFI3d <- function (RFI_Output, displace="Down", SurfaceColor="gray", FootColor="red",
+                          Opacity=1, legend=F, legendScale=1, leftOffset=0, fieldofview=0)
 {
+  if(leftOffset > 1){warning("Left offset greater than 1 will restrict mesh visibility")}
+  if(leftOffset < -1){warning("Left offset less than -1 will restrict mesh visibility")}
+  leftOffset <- leftOffset * 0.2
   plyFile <- RFI_Output$plyFile
-  alpha = Opacity
-  ToothColor = SurfaceColor
+  Vertices <- plyFile$vb
+  x <- Vertices[1,] - mean(Vertices[1,])
+  y <- Vertices[2,] - mean(Vertices[2,])
+  z <- Vertices[3,] - mean(Vertices[3,])
+  n <- rep(1, length(Vertices))
+  Shifted <- as.matrix(rbind(x, y, z, n))
+  ShiftedPly <- plyFile
+  ShiftedPly$vb <- Shifted
   FootColor = FootColor
   open3d()
   par3d(windowRect = c(100, 100, 900, 900))
-  rgl.viewpoint(fov = fieldofview)
-  plyFile <- plyFile
-  newPoints1 <- RFI_Output$Translated_Pts
-  newPoints2 <- cbind(newPoints1, rep(1, length(newPoints1[, 
-                                                           1])))
-  newPoints3 <- t(newPoints2)
-  plyFile$vb <- newPoints3
-  shade3d(plyFile, color = ToothColor, alpha = alpha)
-  if (displace == "Up") {
-    FootprintPts1 <- RFI_Output$Flattened_Pts
-    xy <- FootprintPts1[, 1:2]
-    displaceA <- max(plyFile$vb[3, ])
-    displaceB <- min(plyFile$vb[3, ])
-    displace <- 0.9 * (displaceA - displaceB)
-    z <- FootprintPts1[, 3] - displace
-    xyz <- cbind(xy, z)
-    FootprintPts2 <- cbind(xyz, rep(1, length(z)))
-    FootprintPts3 <- t(FootprintPts2)
+  if(legend == T){
+    textSizeFactor <- 1.75*legendScale
+    lineSizeFactor <- 2*legendScale
+    legSizeFactor <- legendScale
+    lastRgl <- length(rgl.dev.list())
+    isQuartz <- names(rgl.dev.list()[lastRgl])=="glX"
+    if(isQuartz==FALSE){
+      bgplot3d(RFI_Legend(surfCol = SurfaceColor, footCol = FootColor, lineSize = lineSizeFactor,
+                          textSize = textSizeFactor, legSize = legSizeFactor, opac = Opacity))
+    }
+    if(isQuartz==TRUE){
+      textSizeFactor <- 0.5*textSizeFactor
+      lineSizeFactor <- 0.7*lineSizeFactor
+      legSizeFactor <- 0.7*legSizeFactor
+      bgplot3d_XQuartz(RFI_Legend(surfCol = SurfaceColor, footCol = FootColor,
+                                  lineSize = lineSizeFactor, textSize = textSizeFactor,
+                                  legSize = legSizeFactor, opac = Opacity))
+    }
+  }
+  shade3d(ShiftedPly, color = SurfaceColor, alpha = Opacity)
+  if(displace!="Down" && displace!="Up" && displace!="None"){
+    warning("Displace parameter must be set to either 'Up', 'Down', or 'None'.")
+  }
+  FootprintPts <- RFI_Output$Flattened_Pts
+  xy <- FootprintPts[, 1:2]
+  MeshHeight <- max(plyFile$vb[3,])-min(plyFile$vb[3,])
+  displaceDist <- 0.9 * MeshHeight
+  if(displace == "Up"){
+    zpts <- FootprintPts[, 3] + displaceDist
+    xyz <- cbind(xy, zpts)
+    FootprintVertices <- cbind(xyz, rep(1, length(zpts)))
+    FootprintVertices <- t(FootprintVertices)
     triangles <- t(RFI_Output$Footprint_Triangles)
-    Footprint <- list(vb = FootprintPts3, it = triangles, 
+    Footprint <- list(vb = FootprintVertices, it = triangles, 
                       primitivetype = "triangle", material = NULL)
     class(Footprint) <- c("mesh3d", "shape3d")
     shade3d(Footprint, color = FootColor)
   }
   if (displace == "Down") {
-    FootprintPts1 <- RFI_Output$Flattened_Pts
-    xy <- FootprintPts1[, 1:2]
-    displaceA <- max(plyFile$vb[3, ])
-    displaceB <- min(plyFile$vb[3, ])
-    displace <- 0.9 * (displaceB - displaceA)
-    z <- FootprintPts1[, 3] - displace
-    xyz <- cbind(xy, z)
-    FootprintPts2 <- cbind(xyz, rep(1, length(z)))
-    FootprintPts3 <- t(FootprintPts2)
+    zpts <- FootprintPts[, 3] - displaceDist
+    xyz <- cbind(xy, zpts)
+    FootprintVertices <- cbind(xyz, rep(1, length(zpts)))
+    FootprintVertices <- t(FootprintVertices)
     triangles <- t(RFI_Output$Footprint_Triangles)
-    Footprint <- list(vb = FootprintPts3, it = triangles, 
+    Footprint <- list(vb = FootprintVertices, it = triangles, 
                       primitivetype = "triangle", material = NULL)
     class(Footprint) <- c("mesh3d", "shape3d")
     shade3d(Footprint, color = FootColor)
   }
   if (displace == "None") {
-    FootprintPts1 <- RFI_Output$Flattened_Pts
-    xy <- FootprintPts1[, 1:2]
-    displaceA <- max(plyFile$vb[3, ])
-    displaceB <- min(plyFile$vb[3, ])
-    displace <- 0 * (displaceA - displaceB)
-    z <- FootprintPts1[, 3] - displace
-    xyz <- cbind(xy, z)
-    FootprintPts2 <- cbind(xyz, rep(1, length(z)))
-    FootprintPts3 <- t(FootprintPts2)
+    zpts <- FootprintPts[, 3]
+    xyz <- cbind(xy, zpts)
+    FootprintVertices <- cbind(xyz, rep(1, length(zpts)))
+    FootprintVertices <- t(FootprintVertices)
     triangles <- t(RFI_Output$Footprint_Triangles)
-    Footprint <- list(vb = FootprintPts3, it = triangles, 
+    Footprint <- list(vb = FootprintVertices, it = triangles, 
                       primitivetype = "triangle", material = NULL)
     class(Footprint) <- c("mesh3d", "shape3d")
     shade3d(Footprint, color = FootColor)
   }
-  if (legend == T) {
-    legend3d(x = "right", legend = c("3D Surface", "2D Footprint"), 
-             fill = c(ToothColor, FootColor), bty="n", cex=1.75)
+  rgl.viewpoint(fov=fieldofview)
+  ZView <- par3d('observer')[3]
+  XMin <- abs(min(x))
+  XMax <- abs(max(x))
+  if(XMin > XMax){
+    XView <- leftOffset*XMin
   }
+  if(XMax >= XMin){
+    XView <- leftOffset*XMax
+  }
+  observer3d(XView, 0, ZView)
 }

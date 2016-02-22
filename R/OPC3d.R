@@ -16,6 +16,10 @@
 #' @param patchOutline logical whether or not to outline the patches
 #' @param outlineColor parameter designating which color to outline the patches in
 #' @param maskDiscard logical indicating whether to discard the unused patches
+#' @param legendScale cex style scaling factor for the legend
+#' @param legendTextCol parameter designating color for the legend text
+#' @param legendLineCol parameter designating the color for the legend lines
+#' @param leftOffset numeric parameters disginating how far to offset the surface
 #' 
 #' @details This function will assign a uniform color to all faces on the mesh
 #' surface that share one of the 8 orientations identified by the OPC function. The
@@ -23,10 +27,18 @@
 #' inspected. Future versions will include the option to black out patches not
 #' included in the orientation patch count.
 #' 
-#' fieldofview is set to a default of 0, which is an isometric projection. Increasing it
-#' alters the degree of parallax in the perspective view, up to a maximum of 179
-#' degrees.
-
+#' Several legend plotting options are availble including customizing the line and
+#' text colors using color names with legendTextCol and legendLineCol, both default
+#' to black. legendScale works like cex for setting the size of the relative size
+#' of the legend.
+#' 
+#' leftOffset will determine how far the plotted surface is moved to the left to
+#' avoid obstructing the legend. Users shold choose between -1 and 1. 
+#' 
+#' fieldofview is set to a default of 0, which is an isometric projection.
+#' Increasing it alters the degree of parallax in the perspective view, up to a
+#' maximum of 179 degrees.
+#' 
 #' colors will support any vector of 8 colors, in any coloration scheme. Default
 #' draws from the hsv color space to evenly space color information, however user
 #' can supply a list of RGB values, character strings, or integers in place.
@@ -38,12 +50,15 @@
 #' OPC3d
 
 
-OPC3d <- function (OPC_Output_Object, fieldofview = 0, legend = TRUE, 
-          binColors = hsv(h = (seq(10, 290, 40)/360), s = 0.9, v = 0.85), 
-          patchOutline = FALSE, outlineColor = "black", maskDiscard = FALSE) 
+OPC3d <- function (OPC_Output_Object, binColors = hsv(h=(seq(10, 290, 40)/360), s=0.9, v=0.85),
+                          patchOutline = FALSE, outlineColor = "black", maskDiscard = FALSE,
+                          legend = TRUE, legendScale= 1, legendTextCol = "black",
+                          legendLineCol = "black", leftOffset = 1, fieldofview = 0) 
 {
+  if(leftOffset > 1){warning("Left offset greater than 1 will restrict mesh visibility")}
+  if(leftOffset < -1){warning("Left offset less than -1 will restrict mesh visibility")}
+  leftOffset <- leftOffset * 0.1
   plyFile <- OPC_Output_Object$plyFile
-  fieldofview = fieldofview
   bins <- plyFile$Directional_Bins
   BinCount <- as.numeric(length(unique(plyFile$Directional_Bins)))
   BlackPatch <- NULL
@@ -61,7 +76,8 @@ OPC3d <- function (OPC_Output_Object, fieldofview = 0, legend = TRUE,
       }
       if(OPC_Output_Object$Parameters$Minimum_Area>0){
         AreaList <- as.vector(OPC_Output_Object$Patch_Details[[i]][,2])
-        MinAreaPercentage <- sum(OPC_Output_Object$plyFile$Face_Areas)*OPC_Output_Object$Parameters$Minimum_Area
+        MinAreaPercentage <- sum(OPC_Output_Object$plyFile$Face_Areas)*
+          OPC_Output_Object$Parameters$Minimum_Area
         SmallPatchList <- which(AreaList < MinAreaPercentage)
         Discarded <- as.numeric(unlist(OPC_Output_Object$Patches[[i]][SmallPatchList]))
       }
@@ -76,18 +92,30 @@ OPC3d <- function (OPC_Output_Object, fieldofview = 0, legend = TRUE,
   colormatrix <- matrix(colormatrix, nrow = 3, byrow = T)
   open3d()
   par3d(windowRect = c(100, 100, 900, 900))
-  rgl.viewpoint(fov = fieldofview)
   if (legend == TRUE) {
     Fills <- rep("#FFFFFF", BinCount)
     for (i in 1:BinCount) {
       Fills[i] <- binColors[i]
     }
-    legend3d(x = "right", legend = c(1:8), fill = Fills, 
-             title = "Orientations\nby Bin", bty = "n", cex = 1.75)
-    if (maskDiscard == TRUE) {
-      legend3d(x = "right", legend = c(1:8, "Discarded"), 
-               fill = c(Fills, "#000000"), title = "Orientations\nby Bin", 
-               bty = "n", cex = 1.75)
+    textSizeFactor <- 1.75*legendScale
+    lineSizeFactor <- 2*legendScale
+    circSizeFactor <- legendScale
+    lastRgl <- length(rgl.dev.list())
+    isQuartz <- names(rgl.dev.list()[lastRgl])=="glX"
+    if(isQuartz==FALSE){
+      bgplot3d(OPC_Legend(binColors=Fills, binNumber = BinCount, maskDiscard = maskDiscard,
+                          lineSize = lineSizeFactor, textSize = textSizeFactor,
+                          circSize = circSizeFactor, textCol=legendTextCol,
+                          lineCol=legendLineCol))
+    }
+    if(isQuartz==TRUE){
+      textSizeFactor <- 0.7*textSizeFactor
+      lineSizeFactor <- 0.7*lineSizeFactor
+      circSizeFactor <- 0.7*circSizeFactor
+      bgplot3d_XQuartz(OPC_Legend(binColors=Fills, binNumber = BinCount, maskDiscard = maskDiscard,
+                                  lineSize = lineSizeFactor, textSize = textSizeFactor,
+                                  circSize = circSizeFactor, textCol=legendTextCol,
+                                  lineCol=legendLineCol))
     }
   }
   if (patchOutline == TRUE) {
@@ -132,4 +160,9 @@ OPC3d <- function (OPC_Output_Object, fieldofview = 0, legend = TRUE,
     }
   }
   shade3d(plyFile, color = colormatrix, shininess = 120)
+  rgl.viewpoint(fov=fieldofview)
+  ZView <- par3d('observer')[3]
+  XMesh <- max(plyFile$vb[1,])-min(plyFile$vb[1,])
+  XView <- leftOffset*XMesh
+  observer3d(XView, 0, ZView)
 }

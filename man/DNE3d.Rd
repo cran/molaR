@@ -4,8 +4,9 @@
 \alias{DNE3d}
 \title{Plot results of a DNE analysis of a surface}
 \usage{
-DNE3d(DNE_File, setRange = c(0, 0), edgeMask = TRUE, outlierMask = TRUE,
-  logColors = TRUE, showEdgePts = FALSE, fieldofview = 0, legend = TRUE)
+DNE3d(DNE_File, setRange = c(0, 0), logColors = TRUE, edgeMask = TRUE,
+  outlierMask = TRUE, showEdgePts = FALSE, legend = TRUE,
+  legendScale = 1, leftOffset = 0.75, fieldofview = 0)
 }
 \arguments{
 \item{DNE_File}{An object that stores the output of the DNE
@@ -14,22 +15,28 @@ function}
 \item{setRange}{User-defined range for plotting color scheme, see
 Details}
 
+\item{logColors}{Logical that log transforms the color scheme}
+
 \item{edgeMask}{Logical that colors edge faces black to indicate their
 lack of contribution to the total Dirichlet normal energy}
 
 \item{outlierMask}{Logical that colors outlier faces dark gray to
 indicate their lack of contribution to the Dirichlet normal energy}
 
-\item{logColors}{Logical that log transforms the color scheme}
-
 \item{showEdgePts}{Logical that highlights the edge vertices in red
 to indicate their lack of contribution ot the total Dirichlet normal energy}
 
-\item{fieldofview}{Passes an argument to par3d changing the field of
-view in degrees of the resulting rgl}
-
 \item{legend}{Logical indicating whether or not a legend
 shold be displayed}
+
+\item{legendScale}{numeric value setting the relative size of the legend similar
+in function to cex}
+
+\item{leftOffset}{numeric value between -1 and 1 setting the degree of offset
+for the plotted surface to the left. Larger values set further to right.}
+
+\item{fieldofview}{Passes an argument to par3d changing the field of
+view in degrees of the resulting rgl}
 }
 \description{
 plotting function
@@ -71,6 +78,11 @@ minimum. The user should choose reasonable bounds for the
 maximum and minimum that are near the maximum and minimum
 Dirichlet normal energies calculated for their surfaces. setRange will
 not accept negative values.
+
+The leftOffset value sets how far to the left the surface will appear, intended
+to help avoid overlap with the legend. Defaults to 0.75.
+
+legendScale sets the relative size of the scale in the same way cex works
 
 fieldofview is set to a default of 0, which is an isometric projection.
 Increasing it alters the degree of parallax in the perspective view, up to

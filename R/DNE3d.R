@@ -17,7 +17,11 @@
 #' view in degrees of the resulting rgl 
 #' @param legend Logical indicating whether or not a legend
 #' shold be displayed
-#' 
+#' @param legendScale numeric value setting the relative size of the legend similar
+#' in function to cex
+#' @param leftOffset numeric value between -1 and 1 setting the degree of offset
+#' for the plotted surface to the left. Larger values set further to right. 
+#'
 #' @details This function creates a heat map on the mesh surface
 #' corresponding to the Dirichlet normal energy of each face calculated by
 #' the DNE function. Hottest colors represent highest normal energy
@@ -55,6 +59,11 @@
 #' Dirichlet normal energies calculated for their surfaces. setRange will
 #' not accept negative values.
 #' 
+#' The leftOffset value sets how far to the left the surface will appear, intended
+#' to help avoid overlap with the legend. Defaults to 0.75.
+#' 
+#' legendScale sets the relative size of the scale in the same way cex works
+#' 
 #' fieldofview is set to a default of 0, which is an isometric projection.
 #' Increasing it alters the degree of parallax in the perspective view, up to
 #' a maximum of 179 degrees.
@@ -66,9 +75,15 @@
 #' @export
 #' DNE3d
 
-DNE3d <- function(DNE_File, setRange = c(0,0), edgeMask=TRUE, outlierMask=TRUE, logColors=TRUE,
-                        showEdgePts=FALSE, fieldofview=0, legend=TRUE){
-
+DNE3d <- function(DNE_File, setRange = c(0,0), logColors=TRUE, edgeMask=TRUE, outlierMask=TRUE,
+                             showEdgePts=FALSE, legend=TRUE, legendScale=1, leftOffset=0.75,
+                             fieldofview=0)
+{
+  if(leftOffset > 1){warning("Left offset greater than 1 will restrict mesh visibility")}
+  if(leftOffset < -1){warning("Left offset less than -1 will restrict mesh visibility")}
+  leftOffset <- leftOffset * 0.1
+  plyFile <- DNE_File$plyFile
+  
   DNEs <- DNE_File$Face_Values$Dirichlet_Energy_Densities*DNE_File$Face_Values$Face_Areas
   
   # Obtain plotting color scheme relative to DNE analysis accepted as input (setRange disabled):
@@ -92,7 +107,7 @@ DNE3d <- function(DNE_File, setRange = c(0,0), edgeMask=TRUE, outlierMask=TRUE, 
       log_legend_labels <- round(exp(seq(log(max(DNEs)), log(min(DNEs)), l=10)), digits=4)
     }
   }
-
+  
   # Obtain plotting color scheme based on end points selected by user (setRange enabled):
   if(setRange[1]!=0 | setRange[2]!=0){
     setMax <- max(setRange)
@@ -133,7 +148,7 @@ DNE3d <- function(DNE_File, setRange = c(0,0), edgeMask=TRUE, outlierMask=TRUE, 
       log_legend_labels <- round(exp(seq(log(setMax), log(setMin), l=10)), digits=4)
     }
   }
-
+  
   # Mask the faces that are not included in surface DNE calculation (optional):
   if(edgeMask==TRUE){
     edges <- as.numeric(rownames(DNE_File$Boundary_Values))  # Identify which faces are edges, from original DNE calculation
@@ -147,34 +162,94 @@ DNE3d <- function(DNE_File, setRange = c(0,0), edgeMask=TRUE, outlierMask=TRUE, 
   # Basic plotting necessities:
   open3d()
   par3d(windowRect=c(100,100,900,900))  # Create a larger window for good legend rendering
-  rgl.viewpoint(fov=fieldofview)  # Alter the field of view to preference. Default is to orthogonal view
-  
+ 
   # Create legend of DNE value range.
   # Create an appropriate legend based on user-defined options:
   color_range <- sort(color_range)
   if(legend==TRUE){
+    textSizeFactor <- 1.75*legendScale
+    lineSizeFactor <- 2*legendScale
+    rectSizeFactor <- legendScale
+    lastRgl <- length(rgl.dev.list())
+    isQuartz <- names(rgl.dev.list()[lastRgl])=="glX"
     if(setRange[1]==0 && setRange[2]==0){
       if(logColors==TRUE){
-        bgplot3d(
-        DNE_Legend(start=0, end=0.575, colors=color_range, DNELabels=rev(log_legend_labels), scaled=F, edgeMask=edgeMask, outlierMask=outlierMask, logColors=logColors)
-        )
+        if(isQuartz==FALSE){
+          bgplot3d(
+            DNE_Legend(start=0, end=0.575, colors=color_range, DNELabels=rev(log_legend_labels),
+                              scaled=F, edgeMask=edgeMask, outlierMask=outlierMask, logColors=logColors,
+                              lineSize=lineSizeFactor, textSize=textSizeFactor, rectSize=rectSizeFactor)
+          )
+        }
+        if(isQuartz==TRUE){
+          textSizeFactor <- 0.7*textSizeFactor
+          lineSizeFactor <- 0.7*lineSizeFactor
+          rectSizeFactor <- 0.7*rectSizeFactor
+          bgplot3d_XQuartz(
+            DNE_Legend(start=0, end=0.575, colors=color_range, DNELabels=rev(log_legend_labels),
+                              scaled=F, edgeMask=edgeMask, outlierMask=outlierMask, logColors=logColors,
+                              lineSize=lineSizeFactor, textSize=textSizeFactor, rectSize=rectSizeFactor)
+          )
+        }
       }
       if(logColors==FALSE){
-        bgplot3d(
-          DNE_Legend(start=0, end=0.575, colors=color_range, DNELabels=rev(legend_labels), scaled=F, edgeMask=edgeMask, outlierMask=outlierMask, logColors=logColors)
-        )
+        if(isQuartz==FALSE){
+          bgplot3d(
+            DNE_Legend(start=0, end=0.575, colors=color_range, DNELabels=rev(legend_labels),
+                              scaled=F, edgeMask=edgeMask, outlierMask=outlierMask, logColors=logColors,
+                              lineSize=lineSizeFactor, textSize=textSizeFactor, rectSize=rectSizeFactor)
+          )
+        }
+        if(isQuartz==TRUE){
+          textSizeFactor <- 0.7*textSizeFactor
+          lineSizeFactor <- 0.7*lineSizeFactor
+          rectSizeFactor <- 0.7*rectSizeFactor
+          bgplot3d_XQuartz(
+            DNE_Legend(start=0, end=0.575, colors=color_range, DNELabels=rev(legend_labels),
+                              scaled=F, edgeMask=edgeMask, outlierMask=outlierMask, logColors=logColors,
+                              lineSize=lineSizeFactor, textSize=textSizeFactor, rectSize=rectSizeFactor)
+          )
+        }
       }
     }
     if(setRange[1]!=0 | setRange[2]!=0){
       if(logColors==TRUE){
-        bgplot3d(
-          DNE_Legend(start=0, end=0.575, DNELabels=rev(log_legend_labels), scaled=T, edgeMask=edgeMask, outlierMask=outlierMask, logColors=logColors)
-        )
+        if(isQuartz==FALSE){
+          bgplot3d(
+            DNE_Legend(start=0, end=0.575, DNELabels=rev(log_legend_labels), scaled=T,
+                              edgeMask=edgeMask, outlierMask=outlierMask, logColors=logColors,
+                              lineSize=lineSizeFactor, textSize=textSizeFactor, rectSize=rectSizeFactor)
+          )
+        }
+        if(isQuartz==TRUE){
+          textSizeFactor <- 0.7*textSizeFactor
+          lineSizeFactor <- 0.7*lineSizeFactor
+          rectSizeFactor <- 0.7*rectSizeFactor
+          bgplot3d_XQuartz(
+            DNE_Legend(start=0, end=0.575, DNELabels=rev(log_legend_labels), scaled=T,
+                              edgeMask=edgeMask, outlierMask=outlierMask, logColors=logColors,
+                              lineSize=lineSizeFactor, textSize=textSizeFactor, rectSize=rectSizeFactor)
+          )
+        }
       }
       if(logColors==FALSE){
-        bgplot3d(
-          DNE_Legend(start=0, end=0.575, DNELabels=rev(legend_labels), scaled=T, edgeMask=edgeMask, outlierMask=outlierMask, logColors=logColors)
-        )
+        if(isQuartz==FALSE){
+          bgplot3d(
+            DNE_Legend(start=0, end=0.575, DNELabels=rev(legend_labels), scaled=T,
+                              edgeMask=edgeMask, outlierMask=outlierMask, logColors=logColors,
+                              lineSize=lineSizeFactor, textSize=textSizeFactor, rectSize=rectSizeFactor)
+          )
+        }
+        if(isQuartz==TRUE){
+          textSizeFactor <- 0.7*textSizeFactor
+          lineSizeFactor <- 0.7*lineSizeFactor
+          rectSizeFactor <- 0.7*rectSizeFactor
+          bgplot3d_XQuartz(
+            DNE_Legend(start=0, end=0.575, DNELabels=rev(legend_labels), scaled=T,
+                              edgeMask=edgeMask, outlierMask=outlierMask, logColors=logColors,
+                              lineSize=lineSizeFactor, textSize=textSizeFactor, rectSize=rectSizeFactor)
+          )
+        }
       }
     }
   }
@@ -182,8 +257,12 @@ DNE3d <- function(DNE_File, setRange = c(0,0), edgeMask=TRUE, outlierMask=TRUE, 
   # Repeat face colors into a 3 x n matrix to correctly color faces of a shaded 3d mesh
   colormatrix <- rep(DNE_colors, 3)
   colormatrix <- matrix(colormatrix, nrow=3, byrow=TRUE)
-  plyFile <- DNE_File$plyFile
   shade3d(plyFile, color=colormatrix, shininess=110)  # Draws the mesh
+  rgl.viewpoint(fov=fieldofview)
+  ZView <- par3d('observer')[3]
+  XMesh <- max(plyFile$vb[1,])-min(plyFile$vb[1,])
+  XView <- leftOffset*XMesh
+  observer3d(XView, 0, ZView)
   
   # Indicates edge vertices (optional):
   if(showEdgePts==TRUE){

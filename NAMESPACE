@@ -2,7 +2,6 @@
 
 export(DNE)
 export(DNE3d)
-export(DNE_Legend)
 export(OPC)
 export(OPC3d)
 export(OPCr)
