@@ -71,8 +71,14 @@ RFI <- function(plyFile) {
   
   pancake <- as.matrix(cbind(Shifted[,1:2], z=rep(0, length(Shifted[,1])))) ## Flattens points to single plane
   
-  alphAdjust <- abs(log(centSize))*0.05 ## adjust alpha based on centroid size
-  hull <- ahull(pancake[,1:2], alpha=alphAdjust) ## calculate alpha hull which rings the flattened point cloud
+   if(centSize<500){
+    alphAdjust <- abs(log(centSize))*0.05 ## adjust alpha based on centroid size
+    hull <- ahull(pancake[,1:2], alpha=alphAdjust) ## calculate alpha hull which rings the flattened point cloud
+  }
+  
+  if(centSize>=500){
+    hull <- ahull(pancake[,1:2], alpha=0.6208) ## calculate alpha hull which rings the flattened point cloud
+  }
   
   arcs <- hull$arcs ## Begin building pie-slice triangles
   STedges <- arcs[,'end1']
