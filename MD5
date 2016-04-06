@@ -1,6 +1,6 @@
-2c412169a6bbe0047a2c8d773d17e97f *DESCRIPTION
-18af7a059c5269ab66dbc12d659351c8 *NAMESPACE
-f4b280deeb915748482c3c46bd17280b *R/DNE.R
+767722289b5e7cc937609e18031516bb *DESCRIPTION
+035c0c9fe5116b3846559f7e9047e322 *NAMESPACE
+bacd64e86a165e54f7f7e3bbca1d076e *R/DNE.R
 58bac37f80862d6fb6b85bc3ff0d54de *R/DNE3d.R
 83dd40996f2bec4f4944b0460ff4896a *R/DNE_Legend.R
 f2e419fce686f6793c7828fc8d22310d *R/Directional_Bins.R
@@ -10,12 +10,13 @@ d6dec0c0afc05fd1232e28cb7c96030d *R/OPC.R
 326c643f1dcdbcf5d8a96d1570b16085 *R/OPC3d.R
 f1b55d04a8bed1d3560cc84f57e3524f *R/OPC_Legend.R
 97af64975c054686939103f8f1e45b40 *R/OPCr.R
-c73ce8c935b28acefe2ab250790a0a8d *R/RFI.R
+b3e96d5a917cdd4654d75338803a0153 *R/RFI.R
 b4517ce8ec5d1739d45d15c1a059b666 *R/RFI3d.R
 ec7caa37033f5b3bb40176ceaad3f493 *R/RFI_Legend.R
 d3217c4d0136d80d29d07ee19655ddcf *R/bgplot3d_XQuartz.R
+699022d109805357b8975cc3896d1f9f *R/cSize.R
 8cf641f68c981c0c675f7cd4cbdae570 *R/clustered_patches.R
-94b3436113112e71a41c358e09a3451f *R/compute_energy_per_face.R
+a5fce2e1c2381fa1fb8ae596055cbe57 *R/compute_energy_per_face.R
 09c8fad89dfa3ecf700d58d0c62fe21c *R/edge_vertices.R
 88b721c16ed9ccc28d686847f9cc235b *R/face_areas.R
 ad55503c214db469e08ac2e3e7f732a8 *R/index_paired_directed_faces.R
@@ -26,9 +27,10 @@ cce6472e85b18bc9781f629910f8fd65 *R/molaR_Batch.R
 e2dac965ec26ed4f117b0df193b3c39e *R/read.AVIZO.ply.R
 fca88e65d9072b4ae55fa44bfffc9f12 *R/remove_boundary_faces.R
 72500b9038e5fdd099e1d2c08291d5fc *R/remove_outliers.R
+260f11d64a8b7b880b51b60869830909 *R/tr.R
 6dc7fd960f7a80e9e4050181fb5e7bbf *R/vertex_to_face_list.R
-4f9d52711161db8ea4771efa53d7291f *build/molaR.pdf
-9215d853ab866867e43ea26128156ebf *build/vignette.rds
+ad9984ff08f78df7678b45f479270954 *build/molaR.pdf
+724a1e711d53209e0d506d6dfe97c812 *build/vignette.rds
 a42a7520b2c5e8ee9f0ce04718e4cb16 *data/ex_tooth1.RData
 0b9518525b0d4acafd1c6a36dc568514 *data/ex_tooth2.RData
 e511614b656e0045260f4835ecb63e16 *inst/doc/molaR_vignette.R
@@ -48,6 +50,7 @@ c3ebea0553ead9b98f4f4a5822e3db5e *man/RFI.Rd
 b349f1aeeee9153382ea310265685b5a *man/RFI3d.Rd
 4de4951ffb71c88cb1feb11ca8a695af *man/RFI_Legend.Rd
 3053de1e97be294eca9b814c4718c182 *man/bgplot3d_XQuartz.Rd
+1019989af27ed03aa89e0b253654b06d *man/cSize.Rd
 d0566a3463ec5b1547ba415abfd7c479 *man/clustered_patches.Rd
 583b49460750f9653f7244bfdfde336b *man/compute_energy_per_face.Rd
 ef60e1d9a5143dd2eef7e6782c064c42 *man/edge_vertices.Rd
@@ -62,5 +65,6 @@ c36b845aab18a1b7cdb2aa2a9be37181 *man/patches_for_each_direction.Rd
 2361595ebf8a6e5f03399b32b9f21005 *man/read.AVIZO.ply.Rd
 18d39d33b4e5de9932f96db6b80fba3a *man/remove_boundary_faces.Rd
 1f12926979f17572d705082b614568be *man/remove_outliers.Rd
+0544892cb731467101f5a463974d6c52 *man/tr.Rd
 e4f3cbc19ed5c4200613f39bba81582f *man/vertex_to_face_list.Rd
 8f6e309b77a5037030552146df933b8e *vignettes/molaR_vignette.Rmd

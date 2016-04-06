@@ -4,8 +4,6 @@
 #' @param plyFile a stanford PLY file 
 #' compute_energy_per_face()
 #'
-#' @importFrom
-#' psych tr
 #' 
 
 

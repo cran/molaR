@@ -37,6 +37,9 @@
 
 DNE <- function(plyFile, outliers=0.1) {
 	
+	size <- cSize(plyFile$vb)
+	plyFile$vb <- plyFile$vb/size*100
+	
 	ply <- Equal_Vertex_Normals(plyFile) ## Correct the Vertex Normals Calculation
 	Es <- compute_energy_per_face(ply) ## Compute DNE values for each face of the surface
 	
@@ -66,6 +69,17 @@ DNE <- function(plyFile, outliers=0.1) {
 	CleanEs <- data.frame(Dirichlet_Energy_Densities=DNEs, Face_Areas=FAs)
 	
 	Surface_DNE <- sum(CleanEs$Dirichlet_Energy_Densities*CleanEs$Face_Areas)
+	
+	CleanEs[,1] <- CleanEs[,1]/size*100
+	CleanEs[,2] <- CleanEs[,2]*size/100
+	
+	Outliers[,1] <- Outliers[,1]/size*100
+	Outliers[,2] <- Outliers[,2]*size/100
+	
+	Boundary_Values[,1] <- Boundary_Values[,1]/size*100
+	Boundary_Values[,2] <- Boundary_Values[,2]*size/100
+	
+	plyFile$vb <- plyFile$vb*size/100
 	
 	Out <- list(Surface_DNE=Surface_DNE, Face_Values=CleanEs, Boundary_Values=Boundary_Values, Outliers=Outliers, "plyFile"=plyFile)
 	print("Total Surface DNE")
