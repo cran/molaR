@@ -19,7 +19,7 @@
 #' other software (such as MeshLab) can be read using read.ply.
 #'
 #' @import
-#' rgl geomorph grDevices
+#' rgl grDevices
 #'
 #' 
 #' @export

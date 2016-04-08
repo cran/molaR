@@ -5,9 +5,10 @@
 \title{Run a batch of molaR analyses}
 \usage{
 molaR_Batch(pathname = getwd(), DNE = TRUE, RFI = TRUE, OPCr = TRUE,
-  OPC = FALSE, Details = FALSE, DNE_outliers = 0.1, OPCr_steps = 8,
-  OPCr_stepSize = 5.626, OPCr_minimum_faces = 3, OPCr_minimum_area = 0,
-  OPC_rotation = 0, OPC_minimum_faces = 3, OPC_minimum_area = 0)
+  OPC = FALSE, Details = FALSE, DNE_outliers = 0.1, RFI_alpha = 0.01,
+  OPCr_steps = 8, OPCr_stepSize = 5.626, OPCr_minimum_faces = 3,
+  OPCr_minimum_area = 0, OPC_rotation = 0, OPC_minimum_faces = 3,
+  OPC_minimum_area = 0)
 }
 \arguments{
 \item{pathname}{The path to the file containing all the PLY surfaces to be
@@ -30,6 +31,9 @@ OPCr calculations}
 
 \item{DNE_outliers}{the percentile at which outliers will be excluded is passed to
 the DNE function, defaults to 0.1}
+
+\item{RFI_alpha}{the size of the alpha passed to RFI
+function, defaults to 0.01}
 
 \item{OPCr_steps}{the number of steps the OPCr function should take, is passed to
 the OPCr function. Defaults to 8}

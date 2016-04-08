@@ -4,20 +4,28 @@
 \alias{RFI3d}
 \title{Plot 3D and 2D areas of a mesh used to calculate relief index}
 \usage{
-RFI3d(RFI_Output, displace = "Down", SurfaceColor = "gray",
-  FootColor = "red", Opacity = 1, legend = F, legendScale = 1,
-  leftOffset = 0, fieldofview = 0)
+RFI3d(RFI_Output, displacement = -1.9, SurfaceColor = "gray",
+  FootColor = "red", FootPts = FALSE, FootPtsColor = "black",
+  Opacity = 1, legend = F, legendScale = 1, leftOffset = 0,
+  fieldofview = 0)
 }
 \arguments{
 \item{RFI_Output}{An object that stores the output of the RFI
 function}
 
-\item{displace}{Moves the surface footprint Up, Down, or not at
-all with None. Defaults to Down}
+\item{displacement}{Moves the surface footprint some
+proportion of the height of the mesh. 0 is no
+displacement. Expects a value, negative values displace
+the footprint downward.}
 
 \item{SurfaceColor}{changes the color of the 3D surface mesh}
 
 \item{FootColor}{changes color of the 2D surface footprint}
+
+\item{FootPts}{logical indicating whether to plot the
+flattened points of the footprint from the original ply file}
+
+\item{FootPtsColor}{color for the plotted footprint points}
 
 \item{Opacity}{adjusts the opacity of the 3D mesh
 surface}

@@ -37,7 +37,7 @@
 
 DNE <- function(plyFile, outliers=0.1) {
 	
-	size <- cSize(plyFile$vb)
+	size <- cSize(plyFile$vb[-4,])
 	plyFile$vb <- plyFile$vb/size*100
 	
 	ply <- Equal_Vertex_Normals(plyFile) ## Correct the Vertex Normals Calculation
@@ -79,7 +79,11 @@ DNE <- function(plyFile, outliers=0.1) {
 	Boundary_Values[,1] <- Boundary_Values[,1]/size*100
 	Boundary_Values[,2] <- Boundary_Values[,2]*size/100
 	
-	plyFile$vb <- plyFile$vb*size/100
+	nor <- ply$vb[4,]
+	vbs <- plyFile$vb*size/100
+	vbs <- vbs[-4,]
+	rebuild <- rbind(vbs, nor)
+	plyFile$vb <- rebuild
 	
 	Out <- list(Surface_DNE=Surface_DNE, Face_Values=CleanEs, Boundary_Values=Boundary_Values, Outliers=Outliers, "plyFile"=plyFile)
 	print("Total Surface DNE")

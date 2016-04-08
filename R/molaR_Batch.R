@@ -17,6 +17,8 @@
 #' OPCr calculations
 #' @param DNE_outliers the percentile at which outliers will be excluded is passed to
 #' the DNE function, defaults to 0.1
+#' @param RFI_alpha the size of the alpha passed to RFI
+#' function, defaults to 0.01
 #' @param OPCr_steps the number of steps the OPCr function should take, is passed to
 #' the OPCr function. Defaults to 8
 #' @param OPCr_stepSize the size of each rotation. Passed to the OPCr function.
@@ -46,7 +48,7 @@
 
 
 molaR_Batch <- function(pathname=getwd(), DNE=TRUE, RFI=TRUE, OPCr=TRUE, OPC=FALSE, Details=FALSE,
-                        DNE_outliers=0.1, OPCr_steps=8, OPCr_stepSize=5.626,
+                        DNE_outliers=0.1, RFI_alpha=0.01, OPCr_steps=8, OPCr_stepSize=5.626,
                         OPCr_minimum_faces = 3, OPCr_minimum_area=0, OPC_rotation=0,
                         OPC_minimum_faces=3, OPC_minimum_area=0) {
 
@@ -86,7 +88,7 @@ molaR_Batch <- function(pathname=getwd(), DNE=TRUE, RFI=TRUE, OPCr=TRUE, OPC=FAL
       DNE_Output <- c(DNE_Output, DNE_Result)
     }
     if(RFI==TRUE){
-      invisible(capture.output({RFI_Specimen <- RFI(Specimen)}))
+      invisible(capture.output({RFI_Specimen <- RFI(Specimen, alpha=RFI_alpha)}))
       RFI_Result <- RFI_Specimen$Surface_RFI
       RFI_Output <- c(RFI_Output, RFI_Result)
         if(Details==TRUE){

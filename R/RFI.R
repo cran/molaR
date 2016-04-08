@@ -5,6 +5,7 @@
 #' other mammals. J Hum Evol 55:1118-1137 doi: 10.1016/j.jhevol.2008.08.002
 #'
 #' @param plyFile An object of classes 'mesh3d' and 'shape3d'
+#' @param alpha Step size for calculating the outline. See details
 #'
 #' @details The function requires an object created by reading in a ply file utilizing
 #' either the read.ply or the read.AVIZO.ply function, with calculated normals.
@@ -17,15 +18,22 @@
 #' must be oriented such that the occlusal plane is parallel to the X- and Y-axes and
 #' perpendicular to the Z-axis.
 #'
+#' Some files may fail with pancake[TempF,] : subscript out
+#' of bounds. In these files it may be necessary to increase
+#' the alpha value which is default set to 0.01. Increasing the
+#' alpha value can cause the RFI function to over-estimate
+#' the size of the footprint. Caution should be exercised when
+#' troubleshooting by adjusting alpha
+#'
 #' @importFrom
 #' alphahull ahull
 #'
 #' @export
 #' RFI
 
-RFI <- function(plyFile) {
+RFI <- function(plyFile, alpha=0.01) {
   
-  size <- cSize(plyFile$vb)
+  size <- cSize(plyFile$vb[-4,])
   plyFile$vb <- plyFile$vb/size*100
   
   ThreeDVerts1 <- t(plyFile$vb) ## Read in and properly transform original 3D vertices
@@ -59,7 +67,7 @@ RFI <- function(plyFile) {
 	
 	pancake <- as.matrix(cbind(Shifted[,1:2], z=rep(0, length(Shifted[,1]))))
 	
-	hull <- ahull(pancake[,1:2], alpha=0.01)  ## calculate alpha hull which rings the flattened point cloud
+	hull <- ahull(pancake[,1:2], alpha=alpha)  ## calculate alpha hull which rings the flattened point cloud
 	
 	arcs <- hull$arcs ## Begin building pie-slice triangles
 	STedges <- arcs[,'end1']

@@ -4,10 +4,12 @@
 \alias{RFI}
 \title{Calculate Boyer's (2008) relief index for a surface}
 \usage{
-RFI(plyFile)
+RFI(plyFile, alpha = 0.01)
 }
 \arguments{
 \item{plyFile}{An object of classes 'mesh3d' and 'shape3d'}
+
+\item{alpha}{Step size for calculating the outline. See details}
 }
 \description{
 A function that calculates relief index following Boyer (2008) Relief index of
@@ -25,5 +27,12 @@ will have a large effect on patch orientation and must be done in a 3D data edit
 program or {auto3dgm} prior to creating and reading in the ply file. The mesh
 must be oriented such that the occlusal plane is parallel to the X- and Y-axes and
 perpendicular to the Z-axis.
+
+Some files may fail with pancake[TempF,] : subscript out
+of bounds. In these files it may be necessary to increase
+the alpha value which is default set to 0.01. Increasing the
+alpha value can cause the RFI function to over-estimate
+the size of the footprint. Caution should be exercised when
+troubleshooting by adjusting alpha
 }
 
