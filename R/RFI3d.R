@@ -15,8 +15,6 @@
 #' @param FootPts logical indicating whether to plot the
 #' flattened points of the footprint from the original ply file
 #' @param FootPtsColor color for the plotted footprint points
-#' @param fieldofview Passes an argument to par3d changing the
-#' field of view in degrees of the resulting rgl window
 #' @param Opacity adjusts the opacity of the 3D mesh
 #' surface
 #' @param legend Logical indicating whether or not to include a
@@ -24,7 +22,9 @@
 #' footprint
 #' @param legendScale cex style numeric relative scaling factor for the legend
 #' @param leftOffset how numeric between -1 and 1 for which to offset the surface
-#' relative to the legend. 
+#' relative to the legend.
+#' @param fieldofview Passes an argument to par3d changing the
+#' field of view in degrees of the resulting rgl window. 
 #' 
 #' @details This function can help to visualize the three-dimensional and two
 #' dimensional areas that are used in calculating the relief index of a surface by
@@ -48,17 +48,10 @@
 
 
 RFI3d <- function (RFI_Output, displacement = -1.9, SurfaceColor = "gray",
-                          FootColor = "red", FootPts = FALSE, FootPtsColor = "black",
-                          Opacity = 1, legend = F, legendScale = 1, leftOffset = 0,
-                          fieldofview = 0) 
+                   FootColor = "red", FootPts = FALSE, FootPtsColor = "black",
+                   Opacity = 1, legend = F, legendScale = 1, leftOffset = 0,
+                   fieldofview = 0) 
 {
-  if (leftOffset > 1) {
-    warning("Left offset greater than 1 will restrict mesh visibility")
-  }
-  if (leftOffset < -1) {
-    warning("Left offset less than -1 will restrict mesh visibility")
-  }
-  leftOffset <- leftOffset * 0.2
   plyFile <- RFI_Output$plyFile
   Vertices <- plyFile$vb
   x <- Vertices[1, ] - mean(Vertices[1, ])
@@ -71,28 +64,15 @@ RFI3d <- function (RFI_Output, displacement = -1.9, SurfaceColor = "gray",
   FootColor = FootColor
   open3d()
   par3d(windowRect = c(100, 100, 900, 900))
+  shade3d(ShiftedPly, color = SurfaceColor, alpha = Opacity, shininess=110)
   if (legend == T) {
-    textSizeFactor <- 1.75 * legendScale
-    lineSizeFactor <- 2 * legendScale
-    legSizeFactor <- legendScale
-    lastRgl <- length(rgl.dev.list())
-    isQuartz <- names(rgl.dev.list()[lastRgl]) == "glX"
-    if (isQuartz == FALSE) {
-      bgplot3d(RFI_Legend(surfCol = SurfaceColor, footCol = FootColor, 
-                          lineSize = lineSizeFactor, textSize = textSizeFactor, 
-                          legSize = legSizeFactor, opac = Opacity))
+    if(legendScale <= 0){stop("legendScale must be a positive number")}
+    if(legendScale > 1.25){
+      warning("legendScale greater than 1.25 will restrict legend visibility")
     }
-    if (isQuartz == TRUE) {
-      textSizeFactor <- 0.5 * textSizeFactor
-      lineSizeFactor <- 0.7 * lineSizeFactor
-      legSizeFactor <- 0.7 * legSizeFactor
-      bgplot3d_XQuartz(RFI_Legend(surfCol = SurfaceColor, 
-                                  footCol = FootColor, lineSize = lineSizeFactor, 
-                                  textSize = textSizeFactor, legSize = legSizeFactor, 
-                                  opac = Opacity))
-    }
+    molaR_bgplot(RFI_Legend(surfCol = SurfaceColor, footCol = FootColor,
+                                   size = legendScale, opac = Opacity))
   }
-  shade3d(ShiftedPly, color = SurfaceColor, alpha = Opacity)
   FootprintPts <- RFI_Output$Flattened_Pts
   MeshHeight <- abs(max(plyFile$vb[3, ]) - min(plyFile$vb[3, ]))
   displaceDist <- displacement*0.5*MeshHeight
@@ -103,19 +83,14 @@ RFI3d <- function (RFI_Output, displacement = -1.9, SurfaceColor = "gray",
   }
   FootprintVertices <- t(cbind(xyz, rep(1, length(zpts))))
   triangles <- t(RFI_Output$Footprint_Triangles)
-  Footprint <- list(vb=FootprintVertices, it=triangles, primitivetype="triangle",
-                    material=NULL)
+  Footprint <- list(vb=FootprintVertices, it=triangles, primitivetype="triangle", material=NULL)
   class(Footprint) <- c("mesh3d", "shape3d")
   shade3d(Footprint, color=FootColor)
   rgl.viewpoint(fov = fieldofview)
+  if (leftOffset > 1) {warning("Left offset greater than 1 may restrict mesh visibility")}
+  if (leftOffset < -1) {warning("Left offset less than -1 may restrict mesh visibility")}
+  rgl.viewpoint(fov = fieldofview)
   ZView <- par3d("observer")[3]
-  XMin <- abs(min(x))
-  XMax <- abs(max(x))
-  if (XMin > XMax) {
-    XView <- leftOffset * XMin
-  }
-  if (XMax >= XMin) {
-    XView <- leftOffset * XMax
-  }
+  XView <- leftOffset * ZView *0.055
   observer3d(XView, 0, ZView)
 }

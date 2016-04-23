@@ -6,20 +6,20 @@
 #' performed prior to using the OPC3d function. 
 #'
 #' @param OPC_Output_Object An object that stores the output of
-#' the OPC function 
-#' @param fieldofview Passes an argument to par3d changing the
-#' field of view in dregrees of the resulting rgl window
-#' @param legend Logical indicating whether or not a legend should
-#' be displayed
+#' the OPC function
 #' @param binColors Allows the user to change the colors filled in for
-#' each directional bin
+#' each directional bin 
 #' @param patchOutline logical whether or not to outline the patches
 #' @param outlineColor parameter designating which color to outline the patches in
 #' @param maskDiscard logical indicating whether to discard the unused patches
+#' @param legend Logical indicating whether or not a legend should
+#' be displayed
 #' @param legendScale cex style scaling factor for the legend
 #' @param legendTextCol parameter designating color for the legend text
 #' @param legendLineCol parameter designating the color for the legend lines
 #' @param leftOffset numeric parameters disginating how far to offset the surface
+#' @param fieldofview Passes an argument to par3d changing the
+#' field of view in dregrees of the resulting rgl window
 #' 
 #' @details This function will assign a uniform color to all faces on the mesh
 #' surface that share one of the 8 orientations identified by the OPC function. The
@@ -50,14 +50,12 @@
 #' OPC3d
 
 
-OPC3d <- function (OPC_Output_Object, binColors = hsv(h=(seq(10, 290, 40)/360), s=0.9, v=0.85),
-                          patchOutline = FALSE, outlineColor = "black", maskDiscard = FALSE,
-                          legend = TRUE, legendScale= 1, legendTextCol = "black",
-                          legendLineCol = "black", leftOffset = 1, fieldofview = 0) 
+OPC3d <- function (OPC_Output_Object, 
+                   binColors = hsv(h=(seq(10, 290, 40)/360), s=0.9, v=0.85),
+                   patchOutline = FALSE, outlineColor = "black", maskDiscard = FALSE,
+                   legend = TRUE, legendScale= 1, legendTextCol = "black",
+                   legendLineCol = "black", leftOffset = 1, fieldofview = 0) 
 {
-  if(leftOffset > 1){warning("Left offset greater than 1 will restrict mesh visibility")}
-  if(leftOffset < -1){warning("Left offset less than -1 will restrict mesh visibility")}
-  leftOffset <- leftOffset * 0.1
   plyFile <- OPC_Output_Object$plyFile
   bins <- plyFile$Directional_Bins
   BinCount <- as.numeric(length(unique(plyFile$Directional_Bins)))
@@ -92,32 +90,6 @@ OPC3d <- function (OPC_Output_Object, binColors = hsv(h=(seq(10, 290, 40)/360), 
   colormatrix <- matrix(colormatrix, nrow = 3, byrow = T)
   open3d()
   par3d(windowRect = c(100, 100, 900, 900))
-  if (legend == TRUE) {
-    Fills <- rep("#FFFFFF", BinCount)
-    for (i in 1:BinCount) {
-      Fills[i] <- binColors[i]
-    }
-    textSizeFactor <- 1.75*legendScale
-    lineSizeFactor <- 2*legendScale
-    circSizeFactor <- legendScale
-    lastRgl <- length(rgl.dev.list())
-    isQuartz <- names(rgl.dev.list()[lastRgl])=="glX"
-    if(isQuartz==FALSE){
-      bgplot3d(OPC_Legend(binColors=Fills, binNumber = BinCount, maskDiscard = maskDiscard,
-                          lineSize = lineSizeFactor, textSize = textSizeFactor,
-                          circSize = circSizeFactor, textCol=legendTextCol,
-                          lineCol=legendLineCol))
-    }
-    if(isQuartz==TRUE){
-      textSizeFactor <- 0.7*textSizeFactor
-      lineSizeFactor <- 0.7*lineSizeFactor
-      circSizeFactor <- 0.7*circSizeFactor
-      bgplot3d_XQuartz(OPC_Legend(binColors=Fills, binNumber = BinCount, maskDiscard = maskDiscard,
-                                  lineSize = lineSizeFactor, textSize = textSizeFactor,
-                                  circSize = circSizeFactor, textCol=legendTextCol,
-                                  lineCol=legendLineCol))
-    }
-  }
   if (patchOutline == TRUE) {
     for (i in 1:BinCount) {
       Orientation <- OPC_Output_Object$Patches[i]
@@ -128,9 +100,7 @@ OPC3d <- function (OPC_Output_Object, binColors = hsv(h=(seq(10, 290, 40)/360), 
         Faces <- t(plyFile$it[, Patch])
         fnum <- length(Faces[, 1])
         vorder <- vector("list", fnum)
-        for (i in 1:fnum) {
-          vorder[[i]] <- unlist(sort(Faces[i, ]))
-        }
+        for (i in 1:fnum) {vorder[[i]] <- unlist(sort(Faces[i, ]))}
         edges <- vector("list", fnum)
         for (i in 1:fnum) {
           Ordered <- vorder[[i]]
@@ -142,27 +112,35 @@ OPC3d <- function (OPC_Output_Object, binColors = hsv(h=(seq(10, 290, 40)/360), 
           ED3 <- paste(G2, G3, sep = "_")
           edges[[i]] <- paste(ED1, ED2, ED3, sep = ",")
         }
-        for (i in 1:fnum) {
-          edges[[i]] <- unlist(strsplit(edges[[i]], ","))
-        }
+        for (i in 1:fnum) {edges[[i]] <- unlist(strsplit(edges[[i]], ","))}
         string <- unlist(edges)
         edgeframe <- data.frame(names = string)
-        UniqueEdge <- aggregate(edgeframe, list(edgeframe$names), 
-                                FUN = length)
-        PatchEdge <- subset(UniqueEdge, UniqueEdge$names == 
-                              1)
-        EdgeVerts <- as.numeric(unlist(strsplit(as.character(unlist(PatchEdge$Group.1)), 
-                                                "_")))
+        UniqueEdge <- aggregate(edgeframe, list(edgeframe$names), FUN = length)
+        PatchEdge <- subset(UniqueEdge, UniqueEdge$names == 1)
+        EdgeVerts <- as.numeric(unlist(strsplit(as.character(unlist(PatchEdge$Group.1)), "_")))
         EdgeCoords <- plyFile$vb[1:3, EdgeVerts]
         segments3d(t(EdgeCoords), color = outlineColor, 
                    lwd = 1.25, shininess = 120)
       }
     }
   }
-  shade3d(plyFile, color = colormatrix, shininess = 120)
-  rgl.viewpoint(fov=fieldofview)
-  ZView <- par3d('observer')[3]
-  XMesh <- max(plyFile$vb[1,])-min(plyFile$vb[1,])
-  XView <- leftOffset*XMesh
+  shade3d(plyFile, color = colormatrix, shininess = 110)
+  if (legend == TRUE) {
+    if(legendScale <= 0){stop("legendScale must be a positive number")}
+    if(legendScale > 1.05){
+      warning("legendScale greater than 1.05 will restrict legend visibility")
+    }
+    Fills <- rep("#FFFFFF", BinCount)
+    for (i in 1:BinCount) {
+      Fills[i] <- binColors[i]
+    }
+    molaR_bgplot(OPC_Legend(binColors=Fills, binNumber = BinCount, maskDiscard = maskDiscard,
+                            size = legendScale, textCol=legendTextCol, lineCol=legendLineCol))
+  }
+  if (leftOffset > 1) {warning("Left offset greater than 1 may restrict mesh visibility")}
+  if (leftOffset < -1) {warning("Left offset less than -1 may restrict mesh visibility")}
+  rgl.viewpoint(fov = fieldofview)
+  ZView <- par3d("observer")[3]
+  XView <- leftOffset * ZView *0.055
   observer3d(XView, 0, ZView)
 }

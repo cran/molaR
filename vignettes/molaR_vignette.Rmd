@@ -53,7 +53,7 @@ Relief Index (RFI)
 The RFI function will caculate the relief index of a tooth, the three dimensional surface area of the tooth crown, and the area of the tooth crown's two dimensional foot print.
 
 ```{r RFI_basic}
-RFI1 = RFI(ex_tooth1)
+RFI1 = RFI(ex_tooth1, alpha=0.5)
 ```
 
 The three dimensional surface and its two dimensional footprint can be plotted adjacently using the RFI3d function.

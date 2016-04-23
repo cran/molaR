@@ -4,20 +4,14 @@
 \alias{RFI_Legend}
 \title{function for building a legend for RFI}
 \usage{
-RFI_Legend(surfCol = "gray", footCol = "red", lineSize = 2,
-  textSize = 1.75, legSize = 1, opac = 1)
+RFI_Legend(surfCol = "gray", footCol = "red", size = 1, opac = 1)
 }
 \arguments{
 \item{surfCol}{color for the 3D surface defaults to gray}
 
 \item{footCol}{color for the 2D footprint defualts to red}
 
-\item{lineSize}{numeric for setting size of the line for legend}
-
-\item{textSize}{numeric for setting the size of the text in the legend works like
-cex}
-
-\item{legSize}{sets relative size of legend}
+\item{size}{cex style scaling parameter}
 
 \item{opac}{sets the value for the opacity of the tooth surface when that is
 engaged

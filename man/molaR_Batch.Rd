@@ -4,15 +4,18 @@
 \alias{molaR_Batch}
 \title{Run a batch of molaR analyses}
 \usage{
-molaR_Batch(pathname = getwd(), DNE = TRUE, RFI = TRUE, OPCr = TRUE,
-  OPC = FALSE, Details = FALSE, DNE_outliers = 0.1, RFI_alpha = 0.01,
+molaR_Batch(pathname = getwd(), filename = "molaR_Batch.csv", DNE = TRUE,
+  RFI = TRUE, OPCr = TRUE, OPC = FALSE, Details = FALSE,
+  DNE_outliers = 0.1, DNE_BoundaryDiscard = "Leg", RFI_alpha = 0.01,
   OPCr_steps = 8, OPCr_stepSize = 5.626, OPCr_minimum_faces = 3,
   OPCr_minimum_area = 0, OPC_rotation = 0, OPC_minimum_faces = 3,
-  OPC_minimum_area = 0)
+  OPC_minimum_area = 0, Parameters = FALSE)
 }
 \arguments{
 \item{pathname}{The path to the file containing all the PLY surfaces to be
 analyzed. Defaults to the working directory}
+
+\item{filename}{Name for the output csv file. Users must include .csv suffix}
 
 \item{DNE}{logical indicating whether or not to perform DNE calculation Defaults
 to true}
@@ -31,6 +34,10 @@ OPCr calculations}
 
 \item{DNE_outliers}{the percentile at which outliers will be excluded is passed to
 the DNE function, defaults to 0.1}
+
+\item{DNE_BoundaryDiscard}{is a logical indicating how
+to handle the exclusion of the faces on the edge of the surface, defaults to excluding
+faces which have a leg on the boundary.}
 
 \item{RFI_alpha}{the size of the alpha passed to RFI
 function, defaults to 0.01}
@@ -56,6 +63,9 @@ counted in the OPC function. Defaults to 3.}
 
 \item{OPC_minimum_area}{minimum percentage of the surface area a patch must
 make up to be counted in the OPC function. Defaults to off}
+
+\item{Parameters}{defaults to off. When engaged a list of all the parameters used
+during molaR analysis will be appended to the output file.}
 }
 \description{
 A function which automats molaR analyses. User simply sets up the functions they

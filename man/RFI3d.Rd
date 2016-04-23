@@ -40,7 +40,7 @@ footprint}
 relative to the legend.}
 
 \item{fieldofview}{Passes an argument to par3d changing the
-field of view in degrees of the resulting rgl window}
+field of view in degrees of the resulting rgl window.}
 }
 \description{
 A function that plots a three-dimensional model of the mesh

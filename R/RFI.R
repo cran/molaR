@@ -70,14 +70,20 @@ RFI <- function(plyFile, alpha=0.01) {
 	hull <- ahull(pancake[,1:2], alpha=alpha)  ## calculate alpha hull which rings the flattened point cloud
 	
 	arcs <- hull$arcs ## Begin building pie-slice triangles
+	if(length(arcs[,7])!=length(unique(arcs[,7]))){
+		stop('alpha adjustment required')
+	}
 	STedges <- arcs[,'end1']
 	EDedges <- arcs[,'end2']
+	test <- STedges-EDedges
+	if(length(which(test==0))>0) {
+		stop('alpha adjustment required')
+	}
 	Or <- length(Shifted[,1])
 	center <- rep(Or, length(STedges))
 	slices <- cbind(center, STedges, EDedges)
 	
 	TwoDFace_areas <- numeric(length(slices[,1])) ## Repository vector for 2D face areas
-	
 	for (i in 1:length(TwoDFace_areas)) {
 		TempF <- slices[i,] ## Pull each slice one at a time
 		TempV <- pancake[TempF,] ## Pull each flattened vert from the designated face

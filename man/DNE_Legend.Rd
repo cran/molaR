@@ -4,17 +4,10 @@
 \alias{DNE_Legend}
 \title{Make legend for DNE3d plot}
 \usage{
-DNE_Legend(start, end, colors, DNELabels, scaled = F, edgeMask = F,
-  outlierMask = F, logColors = F, lineSize = 2, textSize = 1.75,
-  rectSize = 1)
+DNE_Legend(DNELabels, scaled = F, edgeMask = F, outlierMask = F,
+  logColors = F, size = 1)
 }
 \arguments{
-\item{start}{value for the legend to start with, i.e. bottome value}
-
-\item{end}{value for the legend to end with, i.e. top value}
-
-\item{colors}{range of values, defaulting to heat colors}
-
 \item{DNELabels}{values for the labels}
 
 \item{scaled}{logical indicating whether the values are scaled}
@@ -26,11 +19,7 @@ and that information to be included in the legend}
 
 \item{logColors}{logical indicating colors are on log scale}
 
-\item{lineSize}{numerical value to determine line thickness in the legend}
-
-\item{textSize}{numerical value determinining the size of the text}
-
-\item{rectSize}{numerical value setting size of the legend box}
+\item{size}{legend scaling factor}
 }
 \description{
 plotting subfunction

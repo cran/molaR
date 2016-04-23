@@ -5,8 +5,8 @@
 \title{Plot results of a DNE analysis of a surface}
 \usage{
 DNE3d(DNE_File, setRange = c(0, 0), logColors = TRUE, edgeMask = TRUE,
-  outlierMask = TRUE, showEdgePts = FALSE, legend = TRUE,
-  legendScale = 1, leftOffset = 0.75, fieldofview = 0)
+  outlierMask = TRUE, legend = TRUE, legendScale = 1, leftOffset = 1,
+  fieldofview = 0)
 }
 \arguments{
 \item{DNE_File}{An object that stores the output of the DNE
@@ -23,17 +23,14 @@ lack of contribution to the total Dirichlet normal energy}
 \item{outlierMask}{Logical that colors outlier faces dark gray to
 indicate their lack of contribution to the Dirichlet normal energy}
 
-\item{showEdgePts}{Logical that highlights the edge vertices in red
-to indicate their lack of contribution ot the total Dirichlet normal energy}
-
 \item{legend}{Logical indicating whether or not a legend
 shold be displayed}
 
-\item{legendScale}{numeric value setting the relative size of the legend similar
-in function to cex}
+\item{legendScale}{numeric value setting the relative size of the legend
+similar in function to cex}
 
-\item{leftOffset}{numeric value between -1 and 1 setting the degree of offset
-for the plotted surface to the left. Larger values set further to right.}
+\item{leftOffset}{numeric value between -1 and 1 setting the degree of
+offset for the plotted surface to the left. Larger values set further to right.}
 
 \item{fieldofview}{Passes an argument to par3d changing the field of
 view in degrees of the resulting rgl}

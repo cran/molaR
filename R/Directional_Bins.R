@@ -30,6 +30,15 @@ if(rotation!=0) {
 }
 
 DBins <- .bincode(Direction, c(-pi, -3/4*pi, -1/2*pi, -1/4*pi, 0, 1/4*pi, 1/2*pi, 3/4*pi, pi))
+bads <- which(is.na(DBins))
+for(i in bads) {
+	replace = i+1
+	while(is.na(DBins[replace])){
+		if(replace+1 > length(DBins)) replace=1
+		replace=replace+1
+	}
+	DBins[i] <- DBins[replace]
+}
 
 plyFile$Directional_Bins <- DBins
 return(plyFile)

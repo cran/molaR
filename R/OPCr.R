@@ -41,13 +41,15 @@ OPCr <- function(plyFile, Steps=8, stepSize=5.625, minimum_faces=3, minimum_area
   colnames(Output) <- c("Degrees_Rotated", "Calculated_OPC")
   j <- 0
   
-  ## Run OPC function for the specified number of rotations, rotating by the specified stepSize each time: ##
+  ## Run OPC function for the specified number of rotations, rotating by the specified stepSize 
+  ## each time: ##
   for(i in 1:Steps){
     Dummy <- NULL
     Run <- NULL
     
     ## Runs OPC, but supresses output, taking only the total patch count ##
-    Dummy <- capture.output(Run <- OPC(plyFile=plyFile, rotation=j, minimum_faces=minimum_faces, minimum_area=minimum_area))
+    Dummy <- capture.output(Run <- OPC(plyFile=plyFile, rotation=j, minimum_faces=minimum_faces,
+                                       minimum_area=minimum_area))
     Values <- unlist(strsplit(grep(c(" "), Dummy, value=TRUE), " "))
     Output[i,2] <- as.numeric(Values[4])
     Output[i,1] <- j
@@ -59,7 +61,6 @@ OPCr <- function(plyFile, Steps=8, stepSize=5.625, minimum_faces=3, minimum_area
   Result <- round(mean(Output[,2]), 2)
   
   out <- list("OPCR"=Result, "Each_Run"=Output)
-  print(Result)
+  cat("Average patch count after", Steps, "OPC calculations at", stepSize, "degrees \nrotated between each calculation =", Result)
   return(out)
-  
 }

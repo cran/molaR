@@ -21,7 +21,7 @@
 
 molaR_Clean <- function(plyFile, cleanType='Both'){
   if(cleanType != "Both" && cleanType != "Faces" && cleanType != "Vertices"){
-    warning("cleanType must be set to either 'Faces', 'Vertices', or 'Both'.")
+    stop("cleanType must be set to either 'Faces', 'Vertices', or 'Both'.")
   }
   if(cleanType=='Both'){
     newPly <- face_areas(plyFile)
@@ -75,4 +75,3 @@ molaR_Clean <- function(plyFile, cleanType='Both'){
   }
   return(plyFile)
 }
-

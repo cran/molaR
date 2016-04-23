@@ -22,7 +22,7 @@ head(DNE1$Edge_Values)
 head(DNE1$Outliers)
 
 ## ----RFI_basic-----------------------------------------------------------
-RFI1 = RFI(ex_tooth1)
+RFI1 = RFI(ex_tooth1, alpha=0.5)
 
 ## ----RFI_plot, webgl = TRUE----------------------------------------------
 RFI3d(RFI1)

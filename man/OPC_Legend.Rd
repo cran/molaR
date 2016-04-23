@@ -5,8 +5,7 @@
 \title{function for building a legend in OPC plots}
 \usage{
 OPC_Legend(binColors = c(1:8), binNumber = 8, maskDiscard = F,
-  lineSize = 2, textSize = 1.75, circSize = 1, textCol = "black",
-  lineCol = "black")
+  textCol = "black", size = 1, lineCol = "black")
 }
 \arguments{
 \item{binColors}{number sequence for bins and their colors}
@@ -16,13 +15,9 @@ OPC_Legend(binColors = c(1:8), binNumber = 8, maskDiscard = F,
 \item{maskDiscard}{logical determining whether faces will be blacked out because
 they are discarded}
 
-\item{lineSize}{numeric determining the thickness of the legend lines}
-
-\item{textSize}{numeric determining the size of the font}
-
-\item{circSize}{numeric for plotting size of the circle in pie chart legend}
-
 \item{textCol}{color for the text in the circle legend}
+
+\item{size}{scaling factor for the legend size}
 
 \item{lineCol}{color for the lines in the legend
 OPC_Legend()}

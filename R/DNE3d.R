@@ -6,21 +6,19 @@
 #' function
 #' @param setRange User-defined range for plotting color scheme, see
 #' Details
+#' @param logColors Logical that log transforms the color scheme
 #' @param edgeMask Logical that colors edge faces black to indicate their
 #' lack of contribution to the total Dirichlet normal energy
 #' @param outlierMask Logical that colors outlier faces dark gray to
 #' indicate their lack of contribution to the Dirichlet normal energy
-#' @param logColors Logical that log transforms the color scheme
-#' @param showEdgePts Logical that highlights the edge vertices in red
-#' to indicate their lack of contribution ot the total Dirichlet normal energy
-#' @param fieldofview Passes an argument to par3d changing the field of
-#' view in degrees of the resulting rgl 
 #' @param legend Logical indicating whether or not a legend
 #' shold be displayed
-#' @param legendScale numeric value setting the relative size of the legend similar
-#' in function to cex
-#' @param leftOffset numeric value between -1 and 1 setting the degree of offset
-#' for the plotted surface to the left. Larger values set further to right. 
+#' @param legendScale numeric value setting the relative size of the legend
+#' similar in function to cex
+#' @param leftOffset numeric value between -1 and 1 setting the degree of
+#' offset for the plotted surface to the left. Larger values set further to right. 
+#' @param fieldofview Passes an argument to par3d changing the field of
+#' view in degrees of the resulting rgl 
 #'
 #' @details This function creates a heat map on the mesh surface
 #' corresponding to the Dirichlet normal energy of each face calculated by
@@ -75,199 +73,99 @@
 #' @export
 #' DNE3d
 
-DNE3d <- function(DNE_File, setRange = c(0,0), logColors=TRUE, edgeMask=TRUE, outlierMask=TRUE,
-                             showEdgePts=FALSE, legend=TRUE, legendScale=1, leftOffset=0.75,
-                             fieldofview=0)
+DNE3d <- function (DNE_File, setRange = c(0, 0), logColors = TRUE, edgeMask = TRUE, 
+                       outlierMask = TRUE, legend = TRUE, legendScale = 1, leftOffset = 1,
+                       fieldofview = 0) 
 {
-  if(leftOffset > 1){warning("Left offset greater than 1 will restrict mesh visibility")}
-  if(leftOffset < -1){warning("Left offset less than -1 will restrict mesh visibility")}
-  leftOffset <- leftOffset * 0.1
+  if(length(DNE_File$Boundary_Values)==1){edgeMask <- FALSE}
   plyFile <- DNE_File$plyFile
-  
   DNEs <- DNE_File$Face_Values$Dirichlet_Energy_Densities*DNE_File$Face_Values$Face_Areas
-  
-  # Obtain plotting color scheme relative to DNE analysis accepted as input (setRange disabled):
-  if(setRange[1]==0 && setRange[2]==0){
-    color_range <- DNEs*(1/max(DNEs))  # Standardizes range of colors to between 0 and 1, regardless of max DNE value
-    color_range <- (color_range*-1+1)*0.575  # Reverse the color range, so that highest DNE = hottest color in hsv scale
-    # The 0.5 scalar makes the lowest DNE values a light blue. Can be altered to preference
-    DNE_colors <- hsv(color_range)  # Use the scaled DNE values per face to obtain colors in the hsv spectrum
-    legend_labels <- round(seq(max(DNEs), min(DNEs), l=10), digits = 4)
-    
-    # Alternative coloration scheme, log transforming DNE values to create more contrast in plot:
-    if(logColors==TRUE){
-      zeroes <- which(DNEs==0)  # Identify and eliminate zeroes from the list to avoid log(0) = -Inf
-      DNEs[zeroes] <- 0.000001
-      logDNEs <- log(DNEs)
-      logDNEs <- logDNEs+abs(min(logDNEs))  # Make all DNE values positive
-      color_range <- logDNEs*(1/max(logDNEs))  # Standardizes range of colors to between 0 and 1, regardless of max DNE value
-      color_range <- (color_range*-1+1)*0.575  # Reverse the color range, so that highest DNE = hottest color in hsv scale
-      # The scalar is increased here to make a greater color range for the log transformation. Can be altered to preference
-      DNE_colors <- hsv(color_range)  # Use the scaled DNE values per face to obtain colors in the hsv spectrum
-      log_legend_labels <- round(exp(seq(log(max(DNEs)), log(min(DNEs)), l=10)), digits=4)
-    }
+  if (setRange[1] == 0 && setRange[2] == 0 && logColors == FALSE) {
+    color_range <- DNEs * (1/max(DNEs))
+    color_range <- (color_range * -1 + 1) * 0.575
+    DNE_colors <- hsv(color_range)
+    legend_labels <- round(seq(max(DNEs), min(DNEs), l = 10), digits = 4)
+    scaled <- FALSE
   }
-  
-  # Obtain plotting color scheme based on end points selected by user (setRange enabled):
-  if(setRange[1]!=0 | setRange[2]!=0){
+  if (setRange[1] == 0 && setRange[2] == 0 && logColors == TRUE) {
+    zeroes <- which(DNEs == 0)
+    DNEs[zeroes] <- 1e-06
+    logDNEs <- log(DNEs)
+    logDNEs <- logDNEs + abs(min(logDNEs))
+    color_range <- logDNEs * (1/max(logDNEs))
+    color_range <- (color_range * -1 + 1) * 0.575
+    DNE_colors <- hsv(color_range)
+    legend_labels <- round(exp(seq(log(max(DNEs)), log(min(DNEs)), l = 10)), digits = 4)
+    scaled <- FALSE
+  }
+  if (setRange[1] != 0 | setRange[2] != 0 && logColors == FALSE) {
     setMax <- max(setRange)
     setMin <- min(setRange)
-    # Alert the user if the range boundaries are incompatable with plotting
-    if(setMax<max(DNEs)){warning("setRange max is less than highest calculated face energy")}
-    if(setMin>min(DNEs)){warning("setRange min is greater than lowest calculated face energy")}
-    if(setMin<0){warning("Negative values not accepted for face energy range")}
-    color_range <- DNEs*(1/setMax)  # Standaridzes range of colors to between 0 and 1, with user-defined max at 1
-    color_range <-(color_range*-1+1)*0.575  # Reverse the color range, so that the highest DNE = hottest color in the hsv scale
-    DNE_colors <- hsv(color_range)  # Use the scaled DNE values per face to obtain colors in the hsv spectrum
-    legend_labels <- round(seq(setMax, setMin, l=10), digits=4)
-    
-    # Alternative coloration scheme, log transforming DNE values to create more contrast in plot:
-    if(logColors==TRUE){
-      zeroes <- which(DNEs==0)  # Identify and eliminate zeroes from the list to avoid log(0) = -Inf
-      DNEs[zeroes] <- 0.000001
-      logDNEs <- log(DNEs)
-      Top <- log(setMax) + abs(min(logDNEs))  # Necessary in making adjustments relative to user-defined maximum, below
-      logDNEs <- logDNEs+abs(min(logDNEs))  # Make all DNE values positive
-      # Making DNE's positive can push values beyond user-defined max. Correction here:
-      if(max(logDNEs)>setMax){
-        Adjustment <- max(logDNEs)/Top  # An adjustment value that accounts for the difference between the max log(DNE) and the user-defined max
-        color_range <- logDNEs*(1/max(logDNEs))*Adjustment  # Standardizes range of colors to between 0 and 1, relative to user-defined maximum
-        color_range <- (color_range*-1+1)*0.575  # Reverse the color range, so that highest DNE = hottest color in hsv scale
-        DNE_colors <- hsv(color_range)  # Use the scaled DNE values per face to obtain colors in the hsv spectrum
-      }
-      if(max(logDNEs)<=setMax){
-        color_range <- logDNEs*(1/setMax)  # Standaridzes range of colors to between 0 and 1, with user-defined max at 1  
-        color_range <- (color_range*-1+1)*0.675  # Reverse the color range, so that highest DNE = hottest color in hsv scale
-        # The scalar is increased here to make a greater color range for the log transformation. Can be altered to preference
-        DNE_colors <- hsv(color_range)
-      }
-      # If user defined minimum was 0, must be adjusted to small positive value to avoid log(0) = -Inf
-      if(setMin==0){
-        setMin <- 0.000001
-      }
-      log_legend_labels <- round(exp(seq(log(setMax), log(setMin), l=10)), digits=4)
+    if (setMin < 0) {stop("Negative values not accepted for face energy range")}
+    if (setMax < max(DNEs)) {warning("setRange max is less than highest calculated face energy")}
+    if (setMin > min(DNEs)) {
+      warning("setRange min is greater than lowest calculated face energy")
     }
+    color_range <- DNEs * (1/setMax)
+    color_range <- (color_range * -1 + 1) * 0.575
+    DNE_colors <- hsv(color_range)
+    legend_labels <- round(seq(setMax, setMin, l = 10), digits = 4)
+    scaled <- TRUE
   }
-  
-  # Mask the faces that are not included in surface DNE calculation (optional):
-  if(edgeMask==TRUE){
-    edges <- as.numeric(rownames(DNE_File$Boundary_Values))  # Identify which faces are edges, from original DNE calculation
-    DNE_colors[edges] <- "#000000"  # Paint those faces black
+  if (setRange[1] != 0 | setRange[2] != 0 && logColors == TRUE) {
+    setMax <- max(setRange)
+    setMin <- min(setRange)
+    if (setMin < 0) {stop("Negative values not accepted for face energy range")}
+    if (setMax < max(DNEs)) {warning("setRange max is less than highest calculated face energy")}
+    if (setMin > min(DNEs)) {
+      warning("setRange min is greater than lowest calculated face energy")
+    }
+    zeroes <- which(DNEs == 0)
+    DNEs[zeroes] <- 1e-06
+    logDNEs <- log(DNEs)
+    Top <- log(setMax) + abs(min(logDNEs))
+    logDNEs <- logDNEs + abs(min(logDNEs))
+    if (max(logDNEs) > setMax) {
+      Adjustment <- max(logDNEs)/Top
+      color_range <- logDNEs * (1/max(logDNEs)) * Adjustment
+      color_range <- (color_range * -1 + 1) * 0.575
+      DNE_colors <- hsv(color_range)
+    }
+    if (max(logDNEs) <= setMax) {
+      color_range <- logDNEs * (1/setMax)
+      color_range <- (color_range * -1 + 1) * 0.675
+      DNE_colors <- hsv(color_range)
+    }
+    if (setMin == 0) {setMin <- 1e-06}
+    legend_labels <- round(exp(seq(log(setMax), log(setMin), l = 10)), digits = 4)
+    scaled <- TRUE
   }
-  if(outlierMask==TRUE){
-    outliers <- as.numeric(rownames(DNE_File$Outliers))  # Identify which faces are outliers, from original DNE calculation
-    DNE_colors[outliers] <- "#505050"  # Paint those faces dark grey
+  if (edgeMask == TRUE) {
+    edges <- as.numeric(rownames(DNE_File$Boundary_Values))
+    DNE_colors[edges] <- "#000000"
   }
-  
-  # Basic plotting necessities:
+  if (outlierMask == TRUE) {
+    outliers <- as.numeric(rownames(DNE_File$Outliers))
+    DNE_colors[outliers] <- "#505050"
+  }
   open3d()
-  par3d(windowRect=c(100,100,900,900))  # Create a larger window for good legend rendering
- 
-  # Create legend of DNE value range.
-  # Create an appropriate legend based on user-defined options:
-  color_range <- sort(color_range)
-  if(legend==TRUE){
-    textSizeFactor <- 1.75*legendScale
-    lineSizeFactor <- 2*legendScale
-    rectSizeFactor <- legendScale
-    lastRgl <- length(rgl.dev.list())
-    isQuartz <- names(rgl.dev.list()[lastRgl])=="glX"
-    if(setRange[1]==0 && setRange[2]==0){
-      if(logColors==TRUE){
-        if(isQuartz==FALSE){
-          bgplot3d(
-            DNE_Legend(start=0, end=0.575, colors=color_range, DNELabels=rev(log_legend_labels),
-                              scaled=F, edgeMask=edgeMask, outlierMask=outlierMask, logColors=logColors,
-                              lineSize=lineSizeFactor, textSize=textSizeFactor, rectSize=rectSizeFactor)
-          )
-        }
-        if(isQuartz==TRUE){
-          textSizeFactor <- 0.7*textSizeFactor
-          lineSizeFactor <- 0.7*lineSizeFactor
-          rectSizeFactor <- 0.7*rectSizeFactor
-          bgplot3d_XQuartz(
-            DNE_Legend(start=0, end=0.575, colors=color_range, DNELabels=rev(log_legend_labels),
-                              scaled=F, edgeMask=edgeMask, outlierMask=outlierMask, logColors=logColors,
-                              lineSize=lineSizeFactor, textSize=textSizeFactor, rectSize=rectSizeFactor)
-          )
-        }
-      }
-      if(logColors==FALSE){
-        if(isQuartz==FALSE){
-          bgplot3d(
-            DNE_Legend(start=0, end=0.575, colors=color_range, DNELabels=rev(legend_labels),
-                              scaled=F, edgeMask=edgeMask, outlierMask=outlierMask, logColors=logColors,
-                              lineSize=lineSizeFactor, textSize=textSizeFactor, rectSize=rectSizeFactor)
-          )
-        }
-        if(isQuartz==TRUE){
-          textSizeFactor <- 0.7*textSizeFactor
-          lineSizeFactor <- 0.7*lineSizeFactor
-          rectSizeFactor <- 0.7*rectSizeFactor
-          bgplot3d_XQuartz(
-            DNE_Legend(start=0, end=0.575, colors=color_range, DNELabels=rev(legend_labels),
-                              scaled=F, edgeMask=edgeMask, outlierMask=outlierMask, logColors=logColors,
-                              lineSize=lineSizeFactor, textSize=textSizeFactor, rectSize=rectSizeFactor)
-          )
-        }
-      }
-    }
-    if(setRange[1]!=0 | setRange[2]!=0){
-      if(logColors==TRUE){
-        if(isQuartz==FALSE){
-          bgplot3d(
-            DNE_Legend(start=0, end=0.575, DNELabels=rev(log_legend_labels), scaled=T,
-                              edgeMask=edgeMask, outlierMask=outlierMask, logColors=logColors,
-                              lineSize=lineSizeFactor, textSize=textSizeFactor, rectSize=rectSizeFactor)
-          )
-        }
-        if(isQuartz==TRUE){
-          textSizeFactor <- 0.7*textSizeFactor
-          lineSizeFactor <- 0.7*lineSizeFactor
-          rectSizeFactor <- 0.7*rectSizeFactor
-          bgplot3d_XQuartz(
-            DNE_Legend(start=0, end=0.575, DNELabels=rev(log_legend_labels), scaled=T,
-                              edgeMask=edgeMask, outlierMask=outlierMask, logColors=logColors,
-                              lineSize=lineSizeFactor, textSize=textSizeFactor, rectSize=rectSizeFactor)
-          )
-        }
-      }
-      if(logColors==FALSE){
-        if(isQuartz==FALSE){
-          bgplot3d(
-            DNE_Legend(start=0, end=0.575, DNELabels=rev(legend_labels), scaled=T,
-                              edgeMask=edgeMask, outlierMask=outlierMask, logColors=logColors,
-                              lineSize=lineSizeFactor, textSize=textSizeFactor, rectSize=rectSizeFactor)
-          )
-        }
-        if(isQuartz==TRUE){
-          textSizeFactor <- 0.7*textSizeFactor
-          lineSizeFactor <- 0.7*lineSizeFactor
-          rectSizeFactor <- 0.7*rectSizeFactor
-          bgplot3d_XQuartz(
-            DNE_Legend(start=0, end=0.575, DNELabels=rev(legend_labels), scaled=T,
-                              edgeMask=edgeMask, outlierMask=outlierMask, logColors=logColors,
-                              lineSize=lineSizeFactor, textSize=textSizeFactor, rectSize=rectSizeFactor)
-          )
-        }
-      }
-    }
-  }
-  
-  # Repeat face colors into a 3 x n matrix to correctly color faces of a shaded 3d mesh
+  par3d(windowRect = c(100, 100, 900, 900))
   colormatrix <- rep(DNE_colors, 3)
-  colormatrix <- matrix(colormatrix, nrow=3, byrow=TRUE)
-  shade3d(plyFile, color=colormatrix, shininess=110)  # Draws the mesh
-  rgl.viewpoint(fov=fieldofview)
-  ZView <- par3d('observer')[3]
-  XMesh <- max(plyFile$vb[1,])-min(plyFile$vb[1,])
-  XView <- leftOffset*XMesh
-  observer3d(XView, 0, ZView)
-  
-  # Indicates edge vertices (optional):
-  if(showEdgePts==TRUE){
-    EdgeVert <- edge_vertices(plyFile)
-    p <- t(plyFile$vb[,EdgeVert])
-    points3d(x=p[,1], y=p[,2], z=p[,3], col="red", size=5)    
+  colormatrix <- matrix(colormatrix, nrow = 3, byrow = TRUE)
+  shade3d(plyFile, color = colormatrix, shininess = 110)
+  if (legend == TRUE) {
+    if(legendScale <= 0){stop("legendScale must be a positive number")}
+    if(legendScale > 1.25){
+      warning("legendScale greater than 1.25 will restrict legend visibility")
+    }
+    molaR_bgplot(DNE_Legend(DNELabels = rev(legend_labels), scaled = scaled,
+                       edgeMask = edgeMask, outlierMask = outlierMask, logColors = logColors,
+                       size = legendScale))
   }
+  if (leftOffset > 1) {warning("Left offset greater than 1 may restrict mesh visibility")}
+  if (leftOffset < -1) {warning("Left offset less than -1 may restrict mesh visibility")}
+  rgl.viewpoint(fov = fieldofview)
+  ZView <- par3d("observer")[3]
+  XView <- leftOffset * ZView *0.05
+  observer3d(XView, 0, ZView)
 }

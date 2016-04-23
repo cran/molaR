@@ -4,13 +4,17 @@
 \alias{DNE}
 \title{Calculate Dirichlet normal energy of a surface}
 \usage{
-DNE(plyFile, outliers = 0.1)
+DNE(plyFile, outliers = 0.1, BoundaryDiscard = "Leg")
 }
 \arguments{
 \item{plyFile}{An object of class 'mesh3d' and 'shape3d' with calculated normals}
 
 \item{outliers}{The percentile of Dirichlet energy density values to be excluded 
 defaults to top 0.1 percent}
+
+\item{BoundaryDiscard}{Logical indicating how to handle the exclusion of 
+boundary faces. Defaults to Leg which exlcudes faces which have a leg on the
+boundary}
 }
 \description{
 A function that calculates Dirichlet normal energy following the method of Bunn et
@@ -27,9 +31,12 @@ Dirichlet normal energy is calculated on meshes that represent specimen surfaces
 have already been simplified to 10,000 faces and pre-smoothed in a 3D data
 editing program. 
 
-The function does not include boundary vertices in the calculation, and therefore the
-analyzed surface cannot be closed (i.e., it must contain a hole). The function defaults to
-remove the top 0.1 percent of calculated energy densities as outliers. Mesh orientation
-does not affect for this calculation.
+In the default settings, the function seeks to discard boundary faces. This can be 
+changed by adjusting the BoundaryDiscard argumen to 'None' which will not discard 
+any faces on on the boundary. Further, there are two ways of excluding boundary faces.
+Either if they have a leg on the boundary by setting BoundaryDiscard='Leg' or by 
+excluding any face which has a vertex on the boundary with BoundaryDiscard='Vertex'.
+The function defaults to remove the top 0.1 percent of calculated energy densities as 
+outliers. Mesh orientation does not affect for this calculation.
 }
 

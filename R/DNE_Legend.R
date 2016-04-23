@@ -2,18 +2,13 @@
 #'
 #' plotting subfunction
 #'
-#' @param start value for the legend to start with, i.e. bottome value
-#' @param end value for the legend to end with, i.e. top value
-#' @param colors range of values, defaulting to heat colors
 #' @param DNELabels values for the labels
 #' @param scaled logical indicating whether the values are scaled
 #' @param edgeMask logical indicating whether of not edges are being masked
 #' and that information to be included in the legend
 #' @param outlierMask logical indicating whether outliers are masked
 #' @param logColors logical indicating colors are on log scale
-#' @param lineSize numerical value to determine line thickness in the legend
-#' @param textSize numerical value determinining the size of the text
-#' @param rectSize numerical value setting size of the legend box
+#' @param size legend scaling factor
 #'
 #' @details This is an internal function which builds a better DNE plot legend
 #'
@@ -21,12 +16,16 @@
 #' function. Users will have little need or call to interact with it.
 #' DNE_Legend()
 
-DNE_Legend <- function(start, end, colors, DNELabels, scaled = F, edgeMask = F,
-                              outlierMask = F, logColors = F, lineSize = 2, textSize = 1.75,
-                              rectSize=1){
+DNE_Legend <- function(DNELabels, scaled = F, edgeMask = F, outlierMask = F,
+                              logColors = F, size=1){
   par(ann=F, mar=c(0,0,0,0))
   layout(matrix(1:2,ncol=2), widths = c(0.75, 0.25))
   plot(1,1, type='n', axes=F)
+  start <- 0
+  end <- 0.575
+  lineSize <- 2 * size
+  textSize <- 1.75 * size
+  rectSize <- size
   if(logColors==TRUE){
     ExpNumbers <- exp(seq(start,end,0.001))
     adjust <- (ExpNumbers-min(ExpNumbers))
@@ -40,21 +39,21 @@ DNE_Legend <- function(start, end, colors, DNELabels, scaled = F, edgeMask = F,
   legend_gradient <- as.raster(matrix(colorslist, ncol=1))
   edgeblack <- '#000000'
   outliergray <- '#505050'
-  XPos1 <- 1.15                      #X location of center (center of title, left edge legend text)
+  XPos1 <- 1.15                     #X location of center (center of title, left edge legend text)
   XPos2 <- XPos1-(0.55*rectSize)    #X location of left edge rectangle
   XPos3 <- XPos1-(0.05*rectSize)    #X location of right edge rectangle
   XPos4 <- XPos1-(0.45*rectSize)    #X location of inside of left tic marks
   XPos5 <- XPos1-(0.15*rectSize)    #X location of inside of right tic marks
-  YPos0 <- 0.5
+  YPos0 <- 0.5                      #Y location of center
   YPos1 <- YPos0+(0.3*rectSize)     #Y location of top of rectangle / legend text
   YPos2 <- YPos0-(0.25*rectSize)    #Y location of bottom of rectangle / legend text
-  YPos3 <- YPos0+(0.4*rectSize)   #Y location of title
-  YPos4 <- YPos0-(0.26*rectSize)    #Y location of top of box below rectangle
-  YPos5 <- YPos0-(0.31*rectSize)    #Y location of bottom of box below rectangle
-  YPos6 <- YPos0-(0.285*rectSize)   #Y location of text for box below rectangle
-  YPos7 <- YPos0-(0.32*rectSize)    #Y location of top of second box below rectangle
-  YPos8 <- YPos0-(0.37*rectSize)    #Y location of bottom of second box below rectangle
-  YPos9 <- YPos0-(0.345*rectSize)   #Y location of text for second box below rectangle
+  YPos3 <- YPos0+(0.375*rectSize)   #Y location of title
+  YPos4 <- YPos0-(0.27*rectSize)    #Y location of top of box below rectangle
+  YPos5 <- YPos0-(0.32*rectSize)    #Y location of bottom of box below rectangle
+  YPos6 <- YPos0-(0.295*rectSize)   #Y location of text for box below rectangle
+  YPos7 <- YPos0-(0.34*rectSize)    #Y location of top of second box below rectangle
+  YPos8 <- YPos0-(0.39*rectSize)    #Y location of bottom of second box below rectangle
+  YPos9 <- YPos0-(0.365*rectSize)   #Y location of text for second box below rectangle
   plot(c(0,2),c(0,1), type = 'n', axes = F,xlab = '', ylab = '')
   PlotLabels <- DNELabels
   PlotLabels <- format(PlotLabels, scientific=FALSE)
