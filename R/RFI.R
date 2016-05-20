@@ -100,6 +100,6 @@ RFI <- function(plyFile, alpha=0.01) {
   Out <- list(Surface_RFI=RFI, Three_D_Area=ThreeDArea, Two_D_Area=TwoDArea, Translated_Pts=Shifted, Flattened_Pts=pancake, Footprint_Triangles=slices, "plyFile"=plyFile)
   cat("RFI =", RFI, "\n")
   cat("3D Area =", ThreeDArea, "\n")
-  cat("2D Area =", TwoDArea)
+  cat("2D Area =", TwoDArea, "\n")
   return(Out)
 }

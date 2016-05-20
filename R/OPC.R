@@ -74,7 +74,7 @@ OPC <- function(plyFile, rotation=0, minimum_faces=3, minimum_area=0) {
   for(i in 1:length(BinSort)){
     cat("\nBin ", i, ": ", BinSort[i], sep="")
   }
-  
+  cat("\n")
   return(out)
   
 }

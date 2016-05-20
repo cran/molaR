@@ -5,7 +5,7 @@
 #'
 #' @param pathname The path to the file containing all the PLY surfaces to be
 #' analyzed. Defaults to the working directory
-#' @param filename Name for the output csv file. Users must include .csv suffix
+#' @param filename Name for the output csv file.
 #' @param DNE logical indicating whether or not to perform DNE calculation Defaults
 #' to true
 #' @param RFI logical indicating whether or not to perform RFI calculation Defaults to
@@ -59,6 +59,9 @@ molaR_Batch <- function (pathname = getwd(), filename = "molaR_Batch.csv", DNE =
           OPCr_stepSize = 5.626, OPCr_minimum_faces = 3, OPCr_minimum_area = 0, 
           OPC_rotation = 0, OPC_minimum_faces = 3, OPC_minimum_area = 0, Parameters = FALSE) 
 {
+  if((nchar(filename)-regexpr(".csv", filename, fixed=T)[[1]])!=3){
+  	filename <- paste(sep="", filename, ".csv")
+  }
   if (DNE == FALSE && RFI == FALSE && OPCr == FALSE && OPC == FALSE) {
     stop("No metrics were selected to run")
   }
@@ -178,6 +181,7 @@ molaR_Batch <- function (pathname = getwd(), filename = "molaR_Batch.csv", DNE =
   if (OPC == TRUE) {
     Output <- cbind(Output, OPC = OPC_Output)
   }
+  cat("\n")
   print(Output)
   if (Parameters == TRUE){
     paramList <- matrix(data="", nrow=2, ncol=ncol(Output))
@@ -210,5 +214,5 @@ molaR_Batch <- function (pathname = getwd(), filename = "molaR_Batch.csv", DNE =
     Output <- rbind(Output, paramList)
   }
   write.csv(Output, file = file.path(pathname, filename), row.names = FALSE)
-  cat("Results saved to directory.")
+  cat("Results saved to directory.\n")
 }

@@ -110,7 +110,7 @@ DNE <- function(plyFile, outliers=0.1, BoundaryDiscard='Leg') {
 	}
 	
 	Out <- list(Surface_DNE=Surface_DNE, Face_Values=CleanEs, Boundary_Values=Boundary_Values, Outliers=Outliers, "plyFile"=plyFile)
-	cat("Total Surface DNE =", Surface_DNE)
+	cat("Total Surface DNE =", Surface_DNE, "\n")
 	return(Out)
 	
 }

@@ -15,7 +15,7 @@ molaR_Batch(pathname = getwd(), filename = "molaR_Batch.csv", DNE = TRUE,
 \item{pathname}{The path to the file containing all the PLY surfaces to be
 analyzed. Defaults to the working directory}
 
-\item{filename}{Name for the output csv file. Users must include .csv suffix}
+\item{filename}{Name for the output csv file.}
 
 \item{DNE}{logical indicating whether or not to perform DNE calculation Defaults
 to true}
