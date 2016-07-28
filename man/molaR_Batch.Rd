@@ -5,11 +5,11 @@
 \title{Run a batch of molaR analyses}
 \usage{
 molaR_Batch(pathname = getwd(), filename = "molaR_Batch.csv", DNE = TRUE,
-  RFI = TRUE, OPCr = TRUE, OPC = FALSE, Details = FALSE,
+  RFI = TRUE, OPCr = TRUE, OPC = FALSE, Slope = TRUE, Details = FALSE,
   DNE_outliers = 0.1, DNE_BoundaryDiscard = "Leg", RFI_alpha = 0.01,
   OPCr_steps = 8, OPCr_stepSize = 5.626, OPCr_minimum_faces = 3,
   OPCr_minimum_area = 0, OPC_rotation = 0, OPC_minimum_faces = 3,
-  OPC_minimum_area = 0, Parameters = FALSE)
+  OPC_minimum_area = 0, Slope_Guess = FALSE, Parameters = FALSE)
 }
 \arguments{
 \item{pathname}{The path to the file containing all the PLY surfaces to be
@@ -28,6 +28,9 @@ Defaults to true}
 
 \item{OPC}{logical indicating whether or not to perform OPC calculation Defaults
 to false}
+
+\item{Slope}{logical indicating whether or not to perform Slope calculation, Defaults
+to true}
 
 \item{Details}{logical indicating whether or not to save the details of the RFI and
 OPCr calculations}
@@ -63,6 +66,9 @@ counted in the OPC function. Defaults to 3.}
 
 \item{OPC_minimum_area}{minimum percentage of the surface area a patch must
 make up to be counted in the OPC function. Defaults to off}
+
+\item{Slope_Guess}{logical indicating whether or not to Guess as to the orientation
+of the surface during the Slope calculation (see Slope function for details)}
 
 \item{Parameters}{defaults to off. When engaged a list of all the parameters used
 during molaR analysis will be appended to the output file.}

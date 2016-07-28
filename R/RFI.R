@@ -65,6 +65,14 @@ RFI <- function(plyFile, alpha=0.01) {
 	Origin <- c(0,0,0)
 	Shifted <- rbind(Shifted, Origin) ## Added the origin pt. 
 	
+	### New insert. Delete duplicated points on the footprint to allow ahull funciton to operate
+	Xs <- duplicated(Shifted[,1])
+	Ys <- duplicated(Shifted[,2])
+	Pairs <- cbind(Xs, Ys)
+	dropps <- which(Pairs[,1]==T & Pairs[,2]==T)
+	if(length(dropps)>0) {
+		Shifted <- Shifted[-c(dropps),]
+	}
 	pancake <- as.matrix(cbind(Shifted[,1:2], z=rep(0, length(Shifted[,1]))))
 	
 	hull <- ahull(pancake[,1:2], alpha=alpha)  ## calculate alpha hull which rings the flattened point cloud
