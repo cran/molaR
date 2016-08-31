@@ -1,4 +1,4 @@
-3715425115a33ce66448dc40cd6c5561 *DESCRIPTION
+ea9eff41897165344d143e3c61599138 *DESCRIPTION
 e9247623cd9aaf8abd0ece423f3d4f7a *NAMESPACE
 cf03aec8897f135f40b4e05f52f8eabc *R/DNE.R
 882f309c0678de00acde0c5c240acf33 *R/DNE3d.R
@@ -23,7 +23,7 @@ c7a6cb8387d597f2f93eca9350cb7ad2 *R/OPC.R
 88b721c16ed9ccc28d686847f9cc235b *R/face_areas.R
 ad55503c214db469e08ac2e3e7f732a8 *R/index_paired_directed_faces.R
 46371a2fa1b317161e06a8a428aa26c1 *R/molaR_Batch.R
-9d0673261522fa742cbf48e53ec57c49 *R/molaR_Clean.R
+1a4f20d36ffce4c78425e7b02dc1edc1 *R/molaR_Clean.R
 b6081c34324372ae15d5cc82c04e368e *R/molaR_bgplot.R
 803610bb64efbae7077cd82db469bd82 *R/patch_details.R
 922b31a107b236e41e1a010fbb9d1ec7 *R/patches_for_each_direction.R
@@ -34,7 +34,7 @@ fca88e65d9072b4ae55fa44bfffc9f12 *R/remove_boundary_faces.R
 72500b9038e5fdd099e1d2c08291d5fc *R/remove_outliers.R
 260f11d64a8b7b880b51b60869830909 *R/tr.R
 6dc7fd960f7a80e9e4050181fb5e7bbf *R/vertex_to_face_list.R
-7a69806361a2b35b5609a6a5acc55d71 *build/molaR.pdf
+55d7b8d51bc03673a10cb2f133deab5a *build/molaR.pdf
 724a1e711d53209e0d506d6dfe97c812 *build/vignette.rds
 a42a7520b2c5e8ee9f0ce04718e4cb16 *data/ex_tooth1.RData
 0b9518525b0d4acafd1c6a36dc568514 *data/ex_tooth2.RData

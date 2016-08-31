@@ -35,32 +35,34 @@ molaR_Clean <- function(plyFile, cleanType='Both'){
     Verts <- 1:ncol(plyFile$vb)
     VertList <- as.vector(plyFile$it)
     InFaces <- Verts %in% VertList
-    NotIn <- which(InFaces==FALSE)
+    NotIn <- sort(which(InFaces==FALSE))
     cat("Removed", length(NotIn), "unreferenced vertices from mesh\n")
     if(length(NotIn)>0){
+      cat("Indices of removed vertices:", NotIn, "\n")
       for(i in 1:length(NotIn)){
         plyFile$vb <- plyFile$vb[,-NotIn[i]]
         plyFile$normals <- plyFile$normals[,-NotIn[i]]
         HighFaces <- plyFile$it > NotIn[i]
         plyFile$it[HighFaces] <- plyFile$it[HighFaces]-1
+        NotIn <- NotIn-1
       }
-      cat("Indices of removed vertices:", NotIn, "\n")
     }
   }
   if(cleanType=='Vertices'){
     Verts <- 1:ncol(plyFile$vb)
     VertList <- as.vector(plyFile$it)
     InFaces <- Verts %in% VertList
-    NotIn <- which(InFaces==FALSE)
+    NotIn <- sort(which(InFaces==FALSE))
     cat("Removed", length(NotIn), "unreferenced vertices from mesh\n")
     if(length(NotIn)>0){
+      cat("Indices of removed vertices:", NotIn, "\n")
       for(i in 1:length(NotIn)){
         plyFile$vb <- plyFile$vb[,-NotIn[i]]
         plyFile$normals <- plyFile$normals[,-NotIn[i]]
         HighFaces <- plyFile$it > NotIn[i]
         plyFile$it[HighFaces] <- plyFile$it[HighFaces]-1
+        NotIn <- NotIn-1
       }
-      cat("Indices of removed vertices:", NotIn, "\n")
     }
   }
   if(cleanType=='Faces'){
