@@ -16,4 +16,3 @@ molaR_bgplot()}
 Function properly scales legends and prints them to the background of rgl
 devices
 }
-

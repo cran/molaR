@@ -13,4 +13,3 @@ tr()}
 \description{
 Matrix algebra
 }
-

@@ -14,4 +14,3 @@ Slope_Legend(colors = colors, maskNegatives = T)
 \description{
 Plotting subfunction for making slope plot legend
 }
-

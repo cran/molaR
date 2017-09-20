@@ -38,4 +38,3 @@ original definition of OPCR.
 See the details for the OPC function for more information about preparing mesh
 surfaces and the effects of minimum_faces and minimum_area.
 }
-

@@ -1,6 +1,6 @@
 Package: molaR
 Title: Dental Surface Complexity Measurement Tools
-Version: 4.2
+Version: 4.3
 Authors@R: c(person("James D.", "Pampush", role = c("aut", "cre", "cph"), email = "jdpampush@gmail.com"),
   person("Julia M.", "Winchester", role = c("aut", "cph")),
   person("Paul E.", "Morse", role = c("aut", "cph")),
@@ -18,12 +18,12 @@ LazyData: true
 Suggests: knitr, rmarkdown, rglwidget
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2016-08-30 17:25:02 UTC; jamespampush
+Packaged: 2017-09-20 14:18:55 UTC; jamespampush
 Author: James D. Pampush [aut, cre, cph],
     Julia M. Winchester [aut, cph],
     Paul E. Morse [aut, cph],
     Alexander Q. Vining [aut, cph]
 Maintainer: James D. Pampush <jdpampush@gmail.com>
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
 Repository: CRAN
-Date/Publication: 2016-08-31 01:26:14
+Date/Publication: 2017-09-20 14:32:56 UTC

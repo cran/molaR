@@ -13,4 +13,3 @@ patches_for_each_direction(indexed_pairs)
 This function will gather the patches in each of the 8 bins and ready it for
 patches_for_each_direction()
 }
-

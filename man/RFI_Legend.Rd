@@ -20,4 +20,3 @@ RFI_Legend()}
 \description{
 crucial plotting subfunction for RFI3d
 }
-

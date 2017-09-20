@@ -31,4 +31,3 @@ The legend will reflect the elements used in the plot. This is an internal
 function. Users will have little need or call to interact with it.
 DNE_Legend()
 }
-

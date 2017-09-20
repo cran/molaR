@@ -8,14 +8,14 @@ library(rgl)
 
 ## ----DNE_basic, webgl = TRUE---------------------------------------------
 DNE1 = DNE(ex_tooth1)
-DNE3d(DNE1) #you will need to zoom out to see the whole tooth in an html graphics window
+DNE3d(DNE1)
 
 ## ----DNE_color_scale, webgl = TRUE---------------------------------------
 DNE2 = DNE(ex_tooth2)
 DNE3d(DNE2, setRange = c(0, 1.3))
 
 ## ----DNE_color_scale2, webgl = TRUE--------------------------------------
-DNE3d(DNE1, setRange = c(0, 1.3))
+DNE3d(DNE1, setRange =  c(0, 1.3))
 
 ## ----DNE_object----------------------------------------------------------
 head(DNE1$Edge_Values)

@@ -25,4 +25,3 @@ OPC_Legend()}
 \description{
 crucial graphics subfunction
 }
-

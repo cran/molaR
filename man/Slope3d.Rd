@@ -35,4 +35,3 @@ This function creates a heat map on the mesh surface
 corresponding to the slope of each face calculated by
 the Slope function. Colors are customizable
 }
-

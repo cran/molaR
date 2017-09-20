@@ -66,4 +66,3 @@ colors will support any vector of 8 colors, in any coloration scheme. Default
 draws from the hsv color space to evenly space color information, however user
 can supply a list of RGB values, character strings, or integers in place.
 }
-

@@ -39,4 +39,3 @@ excluding any face which has a vertex on the boundary with BoundaryDiscard='Vert
 The function defaults to remove the top 0.1 percent of calculated energy densities as 
 outliers. Mesh orientation does not affect for this calculation.
 }
-

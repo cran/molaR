@@ -7,7 +7,7 @@
 molaR_Batch(pathname = getwd(), filename = "molaR_Batch.csv", DNE = TRUE,
   RFI = TRUE, OPCr = TRUE, OPC = FALSE, Slope = TRUE, Details = FALSE,
   DNE_outliers = 0.1, DNE_BoundaryDiscard = "Leg", RFI_alpha = 0.01,
-  OPCr_steps = 8, OPCr_stepSize = 5.626, OPCr_minimum_faces = 3,
+  OPCr_steps = 8, OPCr_stepSize = 5.625, OPCr_minimum_faces = 3,
   OPCr_minimum_area = 0, OPC_rotation = 0, OPC_minimum_faces = 3,
   OPC_minimum_area = 0, Slope_Guess = FALSE, Parameters = FALSE)
 }
@@ -74,13 +74,22 @@ of the surface during the Slope calculation (see Slope function for details)}
 during molaR analysis will be appended to the output file.}
 }
 \description{
-A function which automats molaR analyses. User simply sets up the functions they
+A function which automates molaR analyses. User simply sets up the functions they
 want run and can leave the computer to do the rest.
 }
 \details{
 This function allows a user to set the analyses from molaR they want to run,
 along with the specific parameters for each function and have a whole batch of PLY
 files analyzed and saved to a csv file. Function will perform analyses on all PLY files
-in the working directory or user can specify a file path.
-}
+in the working directory or user can specify a pathname to a folder containing PLY files.
+Output saves to the folder that contains the analyzed PLY files.
 
+This function will accept a vector of parameters for any of the function arguments if the
+user wishes to vary the settings over the course of the batch run. It is recommended that
+when making use of this feature the Parameters argument is set to TRUE for a record of
+how analyses were performed.
+
+Note that batch processing updates will not display by default if using RGui for Windows. Be
+sure to disable Misc -> Buffered output (Ctrl+W) if you wish to view batch processing
+progress in RGui for Windows.
+}

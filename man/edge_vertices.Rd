@@ -15,4 +15,3 @@ edge_vertices()}
 \description{
 Function will sort through all the vertices of the surface and find the ones which are on the edge. This will be needed for identifying which should be masked and not inlcuded in the calculation of the final DNE value.
 }
-

@@ -15,4 +15,3 @@ Directional_Bins()}
 \description{
 bins into 8 directional categories on the basis of their orientations
 }
-

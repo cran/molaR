@@ -1,10 +1,13 @@
 ---
-output: pdf_document
+title: “Using molaR”
+output: rmarkdown::html_vignette
+vignette: >
+ %\VignetteIndexEntry{Using molaR}
+ %\VignetteEngine{knitr::rmarkdown}
+ \usepackage[utf8]{inputenc}
+
+
 ---
-<!--
-%\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{Using molaR}
--->
 
 Using molaR
 ================

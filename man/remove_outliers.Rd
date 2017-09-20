@@ -17,4 +17,3 @@ remove_outliers()}
 \description{
 This function will block out the top 0.1 percent of the faces
 }
-

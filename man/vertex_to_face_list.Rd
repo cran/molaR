@@ -13,4 +13,3 @@ vertex_to_face_list()}
 \description{
 crucial function for getting a list of faces which will gather the faces per vertex.
 }
-

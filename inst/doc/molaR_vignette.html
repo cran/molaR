@@ -201,16 +201,11 @@ hr {
 </head>
 
 <body>
-<!--
-%\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{Using molaR}
--->
-
 <h1>Using molaR</h1>
 
 <p>The R package molaR provides functions that allow the user to quantitatively measure and graphically represent dental surface complexity. The following is a demonstration of the major functions in molaR.</p>
 
-<p>molaR utilizes three-dimensionally embedded triangular mesh files. These files can be imported to R using the &ldquo;read.ply&rdquo; function from the geomorph package. Here, we use 3D scan data of two teeth (details???) included in the molaR package as the objects &ldquo;ex_tooth1&rdquo; and &ldquo;ex_tooth2&rdquo;.</p>
+<p>molaR utilizes three-dimensionally embedded triangular mesh files. These files can be imported to R using the &ldquo;read.ply&rdquo; function from the geomorph package. Here, we use 3D scan data of two teeth included in the molaR package as the objects &ldquo;ex_tooth1&rdquo; (DU-LP 09, Male <em>Aloutta palliata</em> lower M1) and &ldquo;ex_tooth2&rdquo; (DU-LP 07, Female <em>Aloutta palliata</em> lower M1).</p>
 
 <pre><code class="r">library(molaR)
 summary(ex_tooth1)
@@ -231,11 +226,10 @@ summary(ex_tooth1)
 <pre><code class="r">DNE1 = DNE(ex_tooth1)
 </code></pre>
 
-<pre><code>## [1] &quot;Total Surface DNE&quot;
-## [1] 174.5563
+<pre><code>## Total Surface DNE = 174.9181
 </code></pre>
 
-<pre><code class="r">DNE3d(DNE1) #you will need to zoom out to see the whole tooth in an html graphics window
+<pre><code class="r">DNE3d(DNE1)
 </code></pre>
 
 <p>Note that the color scale on this plot is set relative to the values of the tooth. When comparing multiple teeth, setting the scale manually will ensure it is the same for all teeth. This is done with the &ldquo;setRange&rdquo; parameter.</p>
@@ -243,14 +237,13 @@ summary(ex_tooth1)
 <pre><code class="r">DNE2 = DNE(ex_tooth2)
 </code></pre>
 
-<pre><code>## [1] &quot;Total Surface DNE&quot;
-## [1] 310.6514
+<pre><code>## Total Surface DNE = 311.2332
 </code></pre>
 
 <pre><code class="r">DNE3d(DNE2, setRange = c(0, 1.3))
 </code></pre>
 
-<pre><code class="r">DNE3d(DNE1, setRange = c(0, 1.3))
+<pre><code class="r">DNE3d(DNE1, setRange =  c(0, 1.3))
 </code></pre>
 
 <p>The reported &ldquo;Total Surface DNE&rdquo; excludes boundary faces and the faces with the highest 0.1% energy densities. Both sets of faces can be accessed through the list object created by the DNE function</p>
@@ -258,40 +251,31 @@ summary(ex_tooth1)
 <pre><code class="r">head(DNE1$Edge_Values)
 </code></pre>
 
-<pre><code>##     DNE_Values  Face_Areas
-## 803  0.1526292 0.002044632
-## 804  0.7491742 0.001976580
-## 807  0.6422248 0.010534145
-## 809  0.8400568 0.008359820
-## 819  0.5944883 0.006355737
-## 821  0.3320267 0.011879445
+<pre><code>## NULL
 </code></pre>
 
 <pre><code class="r">head(DNE1$Outliers)
 </code></pre>
 
-<pre><code>##      DNE_Values   Face_Areas
-## 1492   1282.183 6.978101e-05
-## 1495   1296.258 6.506020e-05
-## 1784   2101.342 6.082532e-05
-## 2482    896.660 1.502099e-04
-## 2572   5112.554 6.119452e-05
-## 2574   5026.874 1.786014e-06
+<pre><code>##      Dirichlet_Energy_Densities   Face_Areas
+## 1492                   59883.54 1.494101e-06
+## 1495                   60540.91 1.393022e-06
+## 1784                   98141.82 1.302348e-06
+## 2482                   41877.93 3.216186e-06
+## 2572                  238778.54 1.310253e-06
+## 2574                  234776.93 3.824084e-08
 </code></pre>
 
 <h2>Relief Index (RFI)</h2>
 
 <p>The RFI function will caculate the relief index of a tooth, the three dimensional surface area of the tooth crown, and the area of the tooth crown&#39;s two dimensional foot print.</p>
 
-<pre><code class="r">RFI1 = RFI(ex_tooth1)
+<pre><code class="r">RFI1 = RFI(ex_tooth1, alpha=0.5)
 </code></pre>
 
-<pre><code>## [1] &quot;RFI&quot;
-## [1] 0.4773583
-## [1] &quot;Three D Area&quot;
-## [1] 118.6806
-## [1] &quot;Two D Area&quot;
-## [1] 45.68267
+<pre><code>## RFI = 0.4693475 
+## 3D Area = 118.6806 
+## 2D Area = 46.42047
 </code></pre>
 
 <p>The three dimensional surface and its two dimensional footprint can be plotted adjacently using the RFI3d function.</p>
@@ -306,60 +290,51 @@ summary(ex_tooth1)
 <pre><code class="r">OPC1 = OPC(ex_tooth1)
 </code></pre>
 
-<pre><code>## $`total patches`
-## [1] 113
-## 
-## $directions
-##   [,1]
-## 3   14
-## 2    9
-## 4   16
-## 5   17
-## 8   14
-## 6   15
-## 7   13
-## 1   15
+<pre><code>## Total Number of Patches = 113
+## Number of Patches per Directional Bin =
+## Bin 1: 15
+## Bin 2: 9
+## Bin 3: 14
+## Bin 4: 16
+## Bin 5: 17
+## Bin 6: 15
+## Bin 7: 13
+## Bin 8: 14
 </code></pre>
 
 <pre><code class="r">OPC3d(OPC1)
 </code></pre>
 
-<p>By default, the OPC function counts any patch consisiting of two or more faces. This can be changed using the minimum_faces parameter or overriden by the minimum_area parameter, which sets the minimum percent (Proportion???) of total surface area a patch must contain to be counted.</p>
+<p>By default, the OPC function counts any patch consisiting of two or more faces. This can be changed using the minimum_faces parameter or overriden by the minimum_area parameter, which sets the minimum proportion of total surface area a patch must contain to be counted.</p>
 
 <pre><code class="r">OPC2 = OPC(ex_tooth1, minimum_faces = 20)
 </code></pre>
 
-<pre><code>## $`total patches`
-## [1] 41
-## 
-## $directions
-##   [,1]
-## 3    6
-## 2    4
-## 4    6
-## 5    5
-## 8    5
-## 6    6
-## 7    5
-## 1    4
+<pre><code>## Total Number of Patches = 41
+## Number of Patches per Directional Bin =
+## Bin 1: 4
+## Bin 2: 4
+## Bin 3: 6
+## Bin 4: 6
+## Bin 5: 5
+## Bin 6: 6
+## Bin 7: 5
+## Bin 8: 5
 </code></pre>
 
 <pre><code class="r">OPC3 = OPC(ex_tooth1, minimum_area = 0.01)
 </code></pre>
 
-<pre><code>## $`total patches`
-## [1] 20
-## 
-## $directions
-##   [,1]
-## 3    1
-## 2    2
-## 4    3
-## 5    3
-## 8    3
-## 6    2
-## 7    4
-## 1    2
+<pre><code>## Total Number of Patches = 20
+## Number of Patches per Directional Bin =
+## Bin 1: 2
+## Bin 2: 2
+## Bin 3: 1
+## Bin 4: 3
+## Bin 5: 3
+## Bin 6: 2
+## Bin 7: 4
+## Bin 8: 3
 </code></pre>
 
 <p>Due to the somewhat arbitrary boundaries of bins, differences in specimen orientation during analysis can result in minor variations of OPC. The OPCr function attempts to account for this by iteratively rotating the tooth (default is 8 iterations between 0 and 45 degrees of rotation) and calculating the OPC of each iteration. A mean OPC is reported.</p>
@@ -367,13 +342,15 @@ summary(ex_tooth1)
 <pre><code class="r">OPCr1 = OPCr(ex_tooth1)
 </code></pre>
 
-<pre><code>## [1] 173
+<pre><code>## Average patch count after 8 OPC calculations at 5.625 degrees 
+## rotated between each calculation = 115.25
 </code></pre>
 
 <pre><code class="r">OPCr2 = OPCr(ex_tooth1, Steps = 5, stepSize = 9, minimum_faces = 2) #the minimum_faces and minimum_area parameters are passed to each iteration of OPC
 </code></pre>
 
-<pre><code>## [1] 173
+<pre><code>## Average patch count after 5 OPC calculations at 9 degrees 
+## rotated between each calculation = 173
 </code></pre>
 
 <p>The object returned by OPCr also contains the OPC values and degrees of rotation for each iteration.</p>
@@ -382,14 +359,14 @@ summary(ex_tooth1)
 </code></pre>
 
 <pre><code>##      Degrees_Rotated Calculated_OPC
-## [1,]           0.000            180
-## [2,]           5.625            179
-## [3,]          11.250            198
-## [4,]          16.875            172
-## [5,]          22.500            161
-## [6,]          28.125            167
-## [7,]          33.750            155
-## [8,]          39.375            172
+## [1,]           0.000            113
+## [2,]           5.625            129
+## [3,]          11.250            122
+## [4,]          16.875            110
+## [5,]          22.500            106
+## [6,]          28.125            122
+## [7,]          33.750            104
+## [8,]          39.375            116
 </code></pre>
 
 <pre><code class="r">OPCr2$Each_Run

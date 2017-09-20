@@ -13,4 +13,3 @@ compute_energy_per_face()}
 \description{
 This will generate each Dirichlet's normal energy for each triangular face on the surface.
 }
-

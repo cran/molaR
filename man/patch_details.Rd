@@ -15,4 +15,3 @@ patch_details()}
 \description{
 This function does some simple math to lets us know about the patches
 }
-

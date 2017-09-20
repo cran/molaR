@@ -15,4 +15,3 @@ index_paired_directed_faces()}
 \description{
 This does some heavy lifting to pull together faces which are paired together. This is needed for many later functions for compiling OPC
 }
-

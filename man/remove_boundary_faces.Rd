@@ -15,4 +15,3 @@ remove_boundary_faces()}
 \description{
 Important function for masking the edge faces
 }
-

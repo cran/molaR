@@ -13,4 +13,3 @@ clustered_patches()}
 \description{
 This function gathers linked faces into patches
 }
-

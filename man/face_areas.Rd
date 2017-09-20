@@ -13,4 +13,3 @@ face_areas()}
 \description{
 This function calculates the area of each face on a ply file
 }
-

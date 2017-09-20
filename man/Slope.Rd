@@ -34,4 +34,3 @@ and will likely underestimate the average slope of the surface.
 Regardless of if the 'Guess' parameter is engaged, the function will also return a vector
 containing all of the face slope values ("Face_Slopes")
 }
-

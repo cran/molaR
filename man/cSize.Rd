@@ -13,4 +13,3 @@ cSize}
 \description{
 Get the centroid size
 }
-

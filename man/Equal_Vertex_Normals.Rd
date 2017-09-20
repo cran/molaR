@@ -13,4 +13,3 @@ Equal_Vertex_Normals()}
 \description{
 The geomorph import function does not generate the correct vertex normals.
 }
-
