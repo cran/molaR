@@ -27,6 +27,10 @@
 #' 
 #' @export
 #' Check2D
+#'
+#' @examples
+#' RFI_output <- RFI(ex_tooth1)
+#' Check2D(RFI_output)
 
 
 Check2D <- function(RFI_Output, FootColor='red', TriPointsColor='black'){

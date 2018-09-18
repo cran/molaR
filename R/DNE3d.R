@@ -72,6 +72,10 @@
 #' 
 #' @export
 #' DNE3d
+#'
+#' @examples
+#' DNE_output <- DNE(ex_tooth1)
+#' DNE3d(DNE_output)
 
 DNE3d <- function (DNE_File, setRange = c(0, 0), logColors = TRUE, edgeMask = TRUE, 
                        outlierMask = TRUE, legend = TRUE, legendScale = 1, leftOffset = 1,

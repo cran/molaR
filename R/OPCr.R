@@ -33,7 +33,6 @@
 
 
 
-
 OPCr <- function(plyFile, Steps=8, stepSize=5.625, minimum_faces=3, minimum_area=0){
   
   options(expressions=50000)

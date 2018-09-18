@@ -75,6 +75,7 @@
 #'
 #' @export
 #' plyClip
+#'
 
 plyClip <- function(plyFile, axis = "Z", vertIndex = NA, meshInvert = FALSE, button="right",
                     displayNew = TRUE, keepBoth = FALSE, edgeRefine = FALSE)

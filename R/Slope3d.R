@@ -24,9 +24,13 @@
 #' 
 #' @export
 #' Slope3d
+#'
+#' @examples
+#' Slope_output <- Slope(ex_tooth1)
+#' Slope3d(Slope_output)
 
 
-Slope3d <- function(Slope_File, colors=c('red', 'orangered', 'orange', 'yellow', 'yellowgreen', 'green', 'cornflowerblue', 'blue'), maskNegatives=T, leftOffset=1, fieldofview=0, legend=T) 
+Slope3d <- function(Slope_File, colors=c("blue", "cornflowerblue", "green", "yellowgreen", "yellow", "orangered", "red"), maskNegatives=T, leftOffset=1, fieldofview=0, legend=T) 
 {
 	
 	colorsfunc <- colorRamp(colors)

@@ -61,3 +61,7 @@ fieldofview is set to a default of 0, which is an isometric projection. Increasi
 alters the degree of parallax in the perspective view, up to a maximum of 179
 degrees.
 }
+\examples{
+RFI_output <- RFI(ex_tooth1)
+RFI3d(RFI_output)
+}

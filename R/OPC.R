@@ -32,6 +32,10 @@
 #'
 #' @export
 #' OPC
+#'
+#' @examples
+#' OPC_output <- OPC(ex_tooth1)
+#' summary(OPC_output)
 
 
 OPC <- function(plyFile, rotation=0, minimum_faces=3, minimum_area=0) {

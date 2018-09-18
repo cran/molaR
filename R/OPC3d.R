@@ -48,6 +48,10 @@
 #'
 #' @export
 #' OPC3d
+#'
+#' @examples
+#' OPC_output <- OPC(ex_tooth1)
+#' OPC3d(OPC_output)
 
 
 OPC3d <- function (OPC_Output_Object, 

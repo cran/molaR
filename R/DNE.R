@@ -36,6 +36,10 @@
 #'
 #' @export
 #' DNE
+#'
+#' @examples
+#' DNE_output <- DNE(ex_tooth1)
+#' summary(DNE_output)
 
 
 

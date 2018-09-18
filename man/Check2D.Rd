@@ -32,3 +32,7 @@ within the boundaries of the footprint, they should assume that the alpha
 value used for the RFI calculation was too small, and they are getting
 a 2D footprint calculation which was too large.
 }
+\examples{
+RFI_output <- RFI(ex_tooth1)
+Check2D(RFI_output)
+}

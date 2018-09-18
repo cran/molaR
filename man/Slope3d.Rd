@@ -4,8 +4,8 @@
 \alias{Slope3d}
 \title{Plot results of a Slope analysis of a surface}
 \usage{
-Slope3d(Slope_File, colors = c("red", "orangered", "orange", "yellow",
-  "yellowgreen", "green", "cornflowerblue", "blue"), maskNegatives = T,
+Slope3d(Slope_File, colors = c("blue", "cornflowerblue", "green",
+  "yellowgreen", "yellow", "orangered", "red"), maskNegatives = T,
   leftOffset = 1, fieldofview = 0, legend = T)
 }
 \arguments{
@@ -34,4 +34,8 @@ plotting function
 This function creates a heat map on the mesh surface
 corresponding to the slope of each face calculated by
 the Slope function. Colors are customizable
+}
+\examples{
+Slope_output <- Slope(ex_tooth1)
+Slope3d(Slope_output)
 }

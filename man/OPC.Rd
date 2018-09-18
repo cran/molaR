@@ -41,3 +41,7 @@ perpendicular to the Z-axis.
 The default for minimum_faces is to ignore patches consisting of only a single face
 on the mesh. Changing the minimum_area value will disable minimum_faces.
 }
+\examples{
+OPC_output <- OPC(ex_tooth1)
+summary(OPC_output)
+}

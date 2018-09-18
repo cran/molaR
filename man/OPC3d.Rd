@@ -4,8 +4,8 @@
 \alias{OPC3d}
 \title{Plot results of OPC analysis of a surface}
 \usage{
-OPC3d(OPC_Output_Object, binColors = hsv(h = (seq(10, 290, 40)/360), s = 0.9,
-  v = 0.85), patchOutline = FALSE, outlineColor = "black",
+OPC3d(OPC_Output_Object, binColors = hsv(h = (seq(10, 290, 40)/360), s =
+  0.9, v = 0.85), patchOutline = FALSE, outlineColor = "black",
   maskDiscard = FALSE, legend = TRUE, legendScale = 1,
   legendTextCol = "black", legendLineCol = "black", leftOffset = 1,
   fieldofview = 0)
@@ -65,4 +65,8 @@ maximum of 179 degrees.
 colors will support any vector of 8 colors, in any coloration scheme. Default
 draws from the hsv color space to evenly space color information, however user
 can supply a list of RGB values, character strings, or integers in place.
+}
+\examples{
+OPC_output <- OPC(ex_tooth1)
+OPC3d(OPC_output)
 }

@@ -14,7 +14,7 @@ Slope_Legend <- function(colors=colors, maskNegatives=T)
 		lineSize <- 2
 		textSize <- 1.75
 		rectSize <- 1
-		colorslist <- colorsfunc(seq(0, 1, 0.001))
+		colorslist <- colorsfunc(rev(seq(0, 1, 0.001)))
 		colorslist <- apply(colorslist, 1, function(x) rgb(x[1], x[2], x[3], maxColorValue=255))
 		legend_gradient <- as.raster(matrix(colorslist, ncol=1))
 		XPos1 <- 1.15                     #X location of center (center of title, left edge legend text)

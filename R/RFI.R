@@ -33,6 +33,10 @@
 #'
 #' @export
 #' RFI
+#'
+#' @examples
+#' RFI_output <- RFI(ex_tooth1)
+#' summary(RFI_output)
 
 RFI <- function(plyFile, alpha=0.01) {
   

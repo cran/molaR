@@ -35,3 +35,7 @@ alpha value can cause the RFI function to over-estimate
 the size of the footprint. Caution should be exercised when
 troubleshooting by adjusting alpha
 }
+\examples{
+RFI_output <- RFI(ex_tooth1)
+summary(RFI_output)
+}

@@ -44,7 +44,10 @@
 #' 
 #' @export
 #' RFI3d
-
+#'
+#' @examples
+#' RFI_output <- RFI(ex_tooth1)
+#' RFI3d(RFI_output)
 
 
 RFI3d <- function (RFI_Output, displacement = -1.9, SurfaceColor = "gray",

@@ -26,6 +26,10 @@
 #'
 #' @export
 #' Slope
+#'
+#' @examples
+#' Slope_output <- Slope(ex_tooth1)
+#' summary(Slope_output)
 
 
 Slope <- function(plyFile, Guess=F) {
@@ -34,7 +38,7 @@ Slope <- function(plyFile, Guess=F) {
 	
 	
 	Norms <- plyFile$Face_Normals
-	Face_Slope <- round(asin(Norms[3,])*(180/pi))
+	Face_Slope <- round(acos(Norms[3,])*(180/pi))
 	plyFile$Face_Slopes <- Face_Slope
 	
 	if(Guess==F){

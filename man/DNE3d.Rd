@@ -4,9 +4,9 @@
 \alias{DNE3d}
 \title{Plot results of a DNE analysis of a surface}
 \usage{
-DNE3d(DNE_File, setRange = c(0, 0), logColors = TRUE, edgeMask = TRUE,
-  outlierMask = TRUE, legend = TRUE, legendScale = 1, leftOffset = 1,
-  fieldofview = 0)
+DNE3d(DNE_File, setRange = c(0, 0), logColors = TRUE,
+  edgeMask = TRUE, outlierMask = TRUE, legend = TRUE,
+  legendScale = 1, leftOffset = 1, fieldofview = 0)
 }
 \arguments{
 \item{DNE_File}{An object that stores the output of the DNE
@@ -84,4 +84,8 @@ legendScale sets the relative size of the scale in the same way cex works
 fieldofview is set to a default of 0, which is an isometric projection.
 Increasing it alters the degree of parallax in the perspective view, up to
 a maximum of 179 degrees.
+}
+\examples{
+DNE_output <- DNE(ex_tooth1)
+DNE3d(DNE_output)
 }

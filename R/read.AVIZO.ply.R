@@ -25,6 +25,7 @@
 #' @export
 #' read.AVIZO.ply
 
+
 read.AVIZO.ply <- function (file, ShowSpecimen = TRUE, addNormals = TRUE) 
 {
     plyfile <- scan(file = file, what = "char", sep = "\n", strip.white = TRUE, 
