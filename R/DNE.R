@@ -38,14 +38,14 @@
 #' DNE
 #'
 #' @examples
-#' DNE_output <- DNE(ex_tooth1)
+#' DNE_output <- DNE(Tooth)
 #' summary(DNE_output)
 
 
 
 
 
-DNE <- function(plyFile, outliers=0.1, BoundaryDiscard='Leg') {
+DNE <- function(plyFile, outliers=0.1, BoundaryDiscard='Vertex') {
 	if(BoundaryDiscard!='Leg' && BoundaryDiscard!='Vertex' && BoundaryDiscard!='None'){
 		stop("BoundaryDiscard must be set to 'Leg' 'Vertex' or 'None'. Selected 'None' if you are working with a closed surface.")
 	}

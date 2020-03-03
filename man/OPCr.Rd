@@ -4,8 +4,7 @@
 \alias{OPCr}
 \title{Calculate average orientation patch count after several rotations}
 \usage{
-OPCr(plyFile, Steps = 8, stepSize = 5.625, minimum_faces = 3,
-  minimum_area = 0)
+OPCr(plyFile, Steps = 8, stepSize = 5.625, minimum_faces = 3, minimum_area = 0)
 }
 \arguments{
 \item{plyFile}{An object of classes 'mesh3d' and 'shape3d' with

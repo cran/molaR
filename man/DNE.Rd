@@ -4,7 +4,7 @@
 \alias{DNE}
 \title{Calculate Dirichlet normal energy of a surface}
 \usage{
-DNE(plyFile, outliers = 0.1, BoundaryDiscard = "Leg")
+DNE(plyFile, outliers = 0.1, BoundaryDiscard = "Vertex")
 }
 \arguments{
 \item{plyFile}{An object of class 'mesh3d' and 'shape3d' with calculated normals}
@@ -40,6 +40,6 @@ The function defaults to remove the top 0.1 percent of calculated energy densiti
 outliers. Mesh orientation does not affect for this calculation.
 }
 \examples{
-DNE_output <- DNE(ex_tooth1)
+DNE_output <- DNE(Tooth)
 summary(DNE_output)
 }

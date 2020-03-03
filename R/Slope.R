@@ -28,7 +28,7 @@
 #' Slope
 #'
 #' @examples
-#' Slope_output <- Slope(ex_tooth1)
+#' Slope_output <- Slope(Tooth)
 #' summary(Slope_output)
 
 
@@ -79,7 +79,6 @@ Slope <- function(plyFile, Guess=F) {
 			cat('Function has Guessed that your surface is upside down and', '\n')
 			cat('it has flipped it and removed the negative slopes (overhangs)')
 		}
-		
 	}
 	
 	return(out)

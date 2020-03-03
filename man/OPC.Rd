@@ -16,7 +16,7 @@ axis}
 \item{minimum_faces}{Minimum number of ply faces required
 for a patch to be counted towards the total patch count}
 
-\item{minimum_area}{Minimual percentage of total surface area a
+\item{minimum_area}{Minimum proportion (100%=1.0) of total surface area a
 patch must occupy to be counted towards the total patch count}
 }
 \description{
@@ -42,6 +42,6 @@ The default for minimum_faces is to ignore patches consisting of only a single f
 on the mesh. Changing the minimum_area value will disable minimum_faces.
 }
 \examples{
-OPC_output <- OPC(ex_tooth1)
+OPC_output <- OPC(Tooth)
 summary(OPC_output)
 }

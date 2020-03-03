@@ -46,7 +46,7 @@
 #' RFI3d
 #'
 #' @examples
-#' RFI_output <- RFI(ex_tooth1)
+#' RFI_output <- RFI(Tooth, alpha=0.5)
 #' RFI3d(RFI_output)
 
 
@@ -67,7 +67,7 @@ RFI3d <- function (RFI_Output, displacement = -1.9, SurfaceColor = "gray",
   FootColor = FootColor
   open3d()
   par3d(windowRect = c(100, 100, 900, 900))
-  shade3d(ShiftedPly, color = SurfaceColor, alpha = Opacity, shininess=110)
+  shade3d(ShiftedPly, meschColor='faces', color = SurfaceColor, alpha = Opacity, shininess=110)
   if (legend == T) {
     if(legendScale <= 0){stop("legendScale must be a positive number")}
     if(legendScale > 1.25){

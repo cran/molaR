@@ -25,5 +25,5 @@ Running the plys through this function will allow those
 calculations to be made.
 }
 \examples{
-ex_tooth <- molaR_Clean(ex_tooth1)
+Tooth <- molaR_Clean(Tooth)
 }

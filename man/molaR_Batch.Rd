@@ -4,13 +4,28 @@
 \alias{molaR_Batch}
 \title{Run a batch of molaR analyses}
 \usage{
-molaR_Batch(pathname = getwd(), filename = "molaR_Batch.csv",
-  DNE = TRUE, RFI = TRUE, OPCr = TRUE, OPC = FALSE, Slope = TRUE,
-  Details = FALSE, DNE_outliers = 0.1, DNE_BoundaryDiscard = "Leg",
-  RFI_alpha = 0.01, OPCr_steps = 8, OPCr_stepSize = 5.625,
-  OPCr_minimum_faces = 3, OPCr_minimum_area = 0, OPC_rotation = 0,
-  OPC_minimum_faces = 3, OPC_minimum_area = 0, Slope_Guess = FALSE,
-  Parameters = FALSE)
+molaR_Batch(
+  pathname = getwd(),
+  filename = "molaR_Batch.csv",
+  DNE = TRUE,
+  RFI = TRUE,
+  OPCr = TRUE,
+  OPC = FALSE,
+  Slope = TRUE,
+  Details = FALSE,
+  DNE_outliers = 0.1,
+  DNE_BoundaryDiscard = "Leg",
+  RFI_alpha = 0.01,
+  OPCr_steps = 8,
+  OPCr_stepSize = 5.625,
+  OPCr_minimum_faces = 3,
+  OPCr_minimum_area = 0,
+  OPC_rotation = 0,
+  OPC_minimum_faces = 3,
+  OPC_minimum_area = 0,
+  Slope_Guess = FALSE,
+  Parameters = FALSE
+)
 }
 \arguments{
 \item{pathname}{The path to the file containing all the PLY surfaces to be

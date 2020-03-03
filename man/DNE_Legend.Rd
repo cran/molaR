@@ -4,8 +4,14 @@
 \alias{DNE_Legend}
 \title{Make legend for DNE3d plot}
 \usage{
-DNE_Legend(DNELabels, scaled = F, edgeMask = F, outlierMask = F,
-  logColors = F, size = 1)
+DNE_Legend(
+  DNELabels,
+  scaled = F,
+  edgeMask = F,
+  outlierMask = F,
+  logColors = F,
+  size = 1
+)
 }
 \arguments{
 \item{DNELabels}{values for the labels}

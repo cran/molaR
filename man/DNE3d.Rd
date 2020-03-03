@@ -4,9 +4,19 @@
 \alias{DNE3d}
 \title{Plot results of a DNE analysis of a surface}
 \usage{
-DNE3d(DNE_File, setRange = c(0, 0), logColors = TRUE,
-  edgeMask = TRUE, outlierMask = TRUE, legend = TRUE,
-  legendScale = 1, leftOffset = 1, fieldofview = 0)
+DNE3d(
+  DNE_File,
+  setRange = c(0, 0),
+  logColors = TRUE,
+  edgeMask = TRUE,
+  outlierMask = TRUE,
+  legend = TRUE,
+  legendScale = 1,
+  leftOffset = 1,
+  fieldofview = 0,
+  fileName = NA,
+  binary = FALSE
+)
 }
 \arguments{
 \item{DNE_File}{An object that stores the output of the DNE
@@ -24,49 +34,55 @@ lack of contribution to the total Dirichlet normal energy}
 indicate their lack of contribution to the Dirichlet normal energy}
 
 \item{legend}{Logical indicating whether or not a legend
-shold be displayed}
+should be displayed}
 
-\item{legendScale}{numeric value setting the relative size of the legend
+\item{legendScale}{numeric value setting the relative size of the legend,
 similar in function to cex}
 
 \item{leftOffset}{numeric value between -1 and 1 setting the degree of
-offset for the plotted surface to the left. Larger values set further to right.}
+offset for the plotted surface to the left; larger values set further to left
+while 0 is centered}
 
 \item{fieldofview}{Passes an argument to par3d changing the field of
-view in degrees of the resulting rgl}
+view in degrees of the resulting surface plot}
+
+\item{fileName}{String indicating a name to save the plotted surface to as a
+*.ply file; default of 'NA' will not save a file}
+
+\item{binary}{Logical indicating whether or not the saved surface plot should
+be binary, passed to vcgPlyWrite}
 }
 \description{
-plotting function
+A function that produces a three-dimensional rendering of surface DNE.
+The DNE function will identify amount of change in mesh face normal orientation
+between adjacent faces, and associate these values (adjusted for face size) to
+each face on the surface. It must be performed prior to using the DNE3d function.
 }
 \details{
 This function creates a heat map on the mesh surface
 corresponding to the Dirichlet normal energy of each face calculated by
 the DNE function. Hottest colors represent highest normal energy
-values
+values.
 
 Dirichlet normal energies for the faces of a mesh surface tend to be
 positively skewed, with a small proportion of the faces contributing
 much of the total energy for the surface. When logColors is enabled the
-function colorizes based on the log transformed Dirichlet normal
-energies, allowing for finer resolution between faces near the mode of
-the energy per face distribution. Disabling logColors will display the
+function colorizes based on the log-transformed Dirichlet normal
+energies, allowing for finer visual discriminiation between faces near the
+mode of the energy per face distribution. Disabling logColors will display the
 untransformed Dirichlet normal energies.
 
-The legend will update to reflect the other arguments chosen by the
-user. Colors currently display in the legend in bins, however the colors
-used in the displayed mesh surface are on a continuum. Ideally, the
-legend should reflect a continuous stretch of color from the lowest
-calculated Dirichlet normal energy to the highest. Future versions will
-adjust the legend to this more intuitive display.
+The legend reflects the other arguments chosen by the user, including log
+transformation, and whether or not an outlier or edge mask is enabled.
 
 By default, the function sets the lowest Dirichlet normal energy
 calculated among all faces to a cool color and the highest normal energy
 calculated among all faces to red, and then colors the remaining faces
 on a continuous color spectrum between these two end points using
-either absolute or log transformed Dirichlet normal energy values
-(depending on the status of logColors). Since the scale is relative to the
+either absolute or log-transformed Dirichlet normal energy values
+(depending on the value of logColors). Since the scale is relative to the
 energies of the input surface, visual comparisons cannot directly be
-made between  multiple plots of different surfaces. The setRange
+made between multiple plots of different surfaces. The setRange
 argument allows users to define the minimum and maximum of the
 plotting color scheme and use it in multiple plots. This enables the
 direct comparison of different surfaces to one another with red equal to
@@ -77,15 +93,26 @@ Dirichlet normal energies calculated for their surfaces. setRange will
 not accept negative values.
 
 The leftOffset value sets how far to the left the surface will appear, intended
-to help avoid overlap with the legend. Defaults to 0.75.
+to help avoid overlap with the legend. A value of 0 for this argument will center
+the surface in the plotting window and negative values will shift it to the right.
 
-legendScale sets the relative size of the scale in the same way cex works
+legendScale sets the relative size of the legend, analogous to the cex argument
+of par {graphics}.
 
-fieldofview is set to a default of 0, which is an isometric projection.
-Increasing it alters the degree of parallax in the perspective view, up to
-a maximum of 179 degrees.
+fieldofview is set to a default of 0, which is an isometric parallel projection.
+Raising it corresondingly increases the amount of obliquity used to render the
+surface in the plotting window, up to a maximum of 179 degrees.
+
+The plotted, colorized surface can be saved as a *.ply to the working directory
+by changing the fileName argument from NA to a string (e.g., "DNEPlot"). The
+resultant ply file can be opened and manipulated in other 3D visualizing programs,
+such as MeshLab, but will NOT retain its legend (a background of the plotting window).
+To retain the legend, the user is encouraged to utilize the snapshot3d function. The
+binary argument saves a file in ascii format by default, which is supported by more
+3D visualization software than is binary. However, binary files will be considerably
+smaller.
 }
 \examples{
-DNE_output <- DNE(ex_tooth1)
+DNE_output <- DNE(Tooth)
 DNE3d(DNE_output)
 }

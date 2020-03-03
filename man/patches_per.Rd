@@ -4,8 +4,7 @@
 \alias{patches_per}
 \title{A function for patches within each face}
 \usage{
-patches_per(patch_details, plyFile, minimum_faces = 3,
-  minimum_area = 0)
+patches_per(patch_details, plyFile, minimum_faces = 3, minimum_area = 0)
 }
 \arguments{
 \item{patch_details}{information on each patch}

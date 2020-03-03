@@ -5,35 +5,20 @@
 #' Face_Normals()
 
 Face_Normals <- function(plyFile){
-
 Faces <- plyFile$it
 
 plyFile$Face_Normals <- matrix(0, nrow=length(Faces[1,]), ncol=3)
-
-
 FNormals <- plyFile$Face_Normals
-
 verts <- plyFile$vb
+verts <- verts[1:3,]
 
+Vec1 <- verts[,Faces[2,]] - verts[,Faces[1,]]; 
+Vec2 <- verts[,Faces[3,]] - verts[,Faces[1,]];
 
-for (i in 1:length(FNormals[,1])) {
-	
-	pts <- Faces[,i]
-	
-	pt1 <- verts[,pts[1]]
-	pt2 <- verts[,pts[2]]
-	pt3 <- verts[,pts[3]]
-	
-	Vec1 <- pt2 - pt1
-	Vec2 <- pt3 - pt1
-	
-	pfNorm <- as.vector(c(Vec1[2]*Vec2[3]-Vec1[3]*Vec2[2], Vec1[3]*Vec2[1]-	Vec1[1]*Vec2[3],Vec1[1]*Vec2[2]-Vec1[2]*Vec2[1]))
-	Length <- sqrt(sum(pfNorm^2)) 
-	FNormals[i,] <- pfNorm/Length
-	
-}
+FNormals <- cross(Vec1,Vec2)
+FNormals <- FNormals/repmat(sqrt(colSums(FNormals^2)),3,1)
 
-plyFile$Face_Normals <- t(FNormals)
+plyFile$Face_Normals <- FNormals
 return(plyFile)
-
 }
+

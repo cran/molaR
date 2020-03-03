@@ -1,97 +1,215 @@
 ---
-title: “Using molaR”
-output: rmarkdown::html_vignette
+title: "Using molaR"
+author: "James D. Pampush & Paul E. Morse"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+  rmarkdown::html_vignette:
+    toc: yes
+    fig_width: 5
+    fig_height: 5
 vignette: >
  %\VignetteIndexEntry{Using molaR}
  %\VignetteEngine{knitr::rmarkdown}
- \usepackage[utf8]{inputenc}
-
 
 ---
 
-Using molaR
-================
-The R package molaR provides functions that allow the user to quantitatively measure and graphically represent dental surface complexity. The following is a demonstration of the major functions in molaR.
+## Introduction
 
-molaR utilizes three-dimensionally embedded triangular mesh files. These files can be imported to R using the "read.ply" function from the geomorph package. Here, we use 3D scan data of two teeth included in the molaR package as the objects "ex\_tooth1" (DU-LP 09, Male *Aloutta palliata* lower M1) and "ex\_tooth2" (DU-LP 07, Female *Aloutta palliata* lower M1).
+The R package `molaR` provides functions that allow the user to quantitatively measure and graphically represent dental surface topography. The following is a demonstration of the primary functions in `molaR`, as well as some recommended best practices.
 
+`molaR` analyzes three-dimensional embedded triangular mesh files (\*.ply files). These files can be imported into R with the function `vcgPlyRead()` from the package [`Rvcg`](https://CRAN.R-project.org/package=Rvcg), which can also clean meshes for users. Two sample mesh data files are provided with the `molaR` package for function demonstration and for users to experiment with: 'Tooth' is a scanned M<sub>1</sub> of *Chlorocebus sabaeus* (a vervet monkey: [USNM 112176](https://n2t.net/ark:/65665/3248bf80f-9f01-44a3-ab1c-26b6d0da2abb)). 'Hills' is an undulating plane produced with the formula: `z = 3cos(x/2) + 3sin(y/2)`.
 ```{r setup, message = FALSE}
 library(molaR)
-summary(ex_tooth1)
+str(Tooth)
 ```
 
-Dirichlet's normal surface energy (DNE)
-----------------------------------
-Dirichlet's normal surface energy can be calculated with the DNE function. The face energy density values calculated can then be projected onto a three dimensial surface image using DNE3d.
+### About this document
+This vignette was composed using `rmarkdown` within [RStudio](https://www.rstudio.com/) ver. 1.2.5033. It contains WebGL figures that were produced with `rglwidget()` from the [`rgl`](https://CRAN.R-project.org/package=rgl) package. To properly view WebGL figures, your browser must be running Javascript and WebGL. Visit [https://get.webgl.org](https://get.webgl.org) for further information. 3D plots in this vignette can be rotated using the left mouse button and zoomed with the mouse wheel.
 
-```{r webgl_setup, echo=FALSE}
-library(knitr)
-library(rgl)
+## Dirichlet normal energy (DNE)
+
+Dirichlet normal energy can be calculated on a surface with the `DNE()` function. Face energy density values (i.e. the measures of localized curvature) can then be rendered onto a three dimensional surface plot using `DNE3d()`. 
+`DNE()` has 2 important arguments for users:
+
+### `outliers`
+
+The first argument, `outliers`, sets the percentage range of outlier faces to be excluded from the DNE summation. Default for outlier exclusion is the top one tenth of one percent (0.001). Some surfaces will require a larger outlier exclusion value, to account for irregularities on the surface.
+
+Typically, outlier faces are associated with dimples, cracks, spikes, or other imperfections on the mesh which are not representative of the overall curvature of the surface. These imperfections can arise due to the molding, casting, scanning, or downstream digital processing of teeth, but may also be 'real' surface features. In the case of these imperfections arising from the original specimen, users should exercise their best judgment when incorporating these features into their analyses. Artifacts arising from the production of the surfaces should ideally be eliminated prior to importation of the surface into R.
+
+Outlier exclusion is very important for DNE calculation because DNE is a geometrically-based summation. As a curve tightens on a surface, the localized calculation of DNE increases exponentially—not linearly. In some cases, outlier faces will have localized DNE values larger than the rest of the surface combined. Including outliers in the DNE summation is therefore often unrepresentative of the gestalt surface curvature.  
+
+### `BoundaryDiscard`
+
+The second argument, `BoundaryDiscard`, sets the criteria for excluding surface faces on the boundary of the mesh. Excluding faces on the boundary of the mesh is important because often these faces have highly irregular and inconsistent vertex normals—due to the lack of an adjacent face with which to calibrate the orientation of the vertex normal. Because the orientations of the vertex normals are included in the DNE calculation, it is important that they be accurate, however this is often not the case with vertices on the mesh boundary. 
+
+There are three options for `BoundaryDiscard`: 'Vertex' (default) will exclude faces with at least 1 vertex on the boundary from the DNE summation. 'Leg' will exclude faces which have a leg (i.e., 2 vertices) on the boundary; this setting was formerly the default and many previous publications have used this boundary exclusion criterion. However, recent studies have shown that 'Vertex' more reliably eliminates problematic faces. 'None' will not discard any boundary faces, this option should be used when working on a closed surface (i.e., a mesh with no boundary). 
+```{r DNE_basic}
+DNE1 <- DNE(Tooth)
 ```
 
-```{r DNE_basic, webgl = TRUE}
-DNE1 = DNE(ex_tooth1)
+### `DNE3d()`
+The energy densities calculated across the surface can be plotted using the `DNE3d()` function. Due to the skewed distribution of exponentially-increasing energy densities, with relatively few mesh faces typically contributing large values to the total surface DNE, DNE plots by default display log-transformed surface energy, which users can disable with the `logColors` parameter.
+```{r DNE_plot, eval=FALSE}
 DNE3d(DNE1)
 ```
-
-Note that the color scale on this plot is set relative to the values of the tooth. When comparing multiple teeth, setting the scale manually will ensure it is the same for all teeth. This is done with the "setRange" parameter.
-
-```{r DNE_color_scale, webgl = TRUE}
-DNE2 = DNE(ex_tooth2)
-DNE3d(DNE2, setRange = c(0, 1.3))
+<center>
+```{r DNE_plot1, fig.align='center', echo=FALSE}
+DNE3d(DNE1)
+rglwidget()
 ```
-```{r DNE_color_scale2, webgl = TRUE}
+</center>
+
+Note that the color scale in this plot is set relative to the intrinsic energy values of *this* surface. When comparing multiple surfaces, setting the scale manually will ensure it is the same for all. This is done with the `setRange` parameter.
+```{r DNE_setRange, eval=FALSE}
+DNE3d(DNE1, setRange = c(0, 1.3))
+```
+<center>
+```{r DNE_setRange_plot, echo=FALSE}
 DNE3d(DNE1, setRange =  c(0, 1.3))
+rglwidget()
 ```
+</center>
 
-The reported "Total Surface DNE" excludes boundary faces and the faces with the highest 0.1% energy densities. Both sets of faces can be accessed through the list object created by the DNE function
+The reported "Total Surface DNE" excludes boundary faces and the faces with the highest 0.1% energy densities (according to the value supplied for `outliers`). Both sets of faces can be accessed through indexing the object created by the DNE function. 
 
-```{r DNE_object}
-head(DNE1$Edge_Values)
+The faces identified as being on the boundary or having the highest localized DNE values are stored in the list headers under 'Edge_Values' and 'Outliers' respectively. You can view their localized DNE values, areas, and locations. 
+```{r str_DNE, DNE_object}
+str(DNE1)
+head(DNE1$Boundary_Values)
 head(DNE1$Outliers)
 ```
 
-Relief Index (RFI)
----------------------
-The RFI function will caculate the relief index of a tooth, the three dimensional surface area of the tooth crown, and the area of the tooth crown's two dimensional foot print.
+For users trying to better understand DNE, consider exploring its properties on the 'Hills' object, which is a simple sine-cosine undulating plane. 
 
+## Relief Index (RFI)
+
+The `RFI()` function will measure the three dimensional surface area of the tooth crown and the two dimensional area of the tooth's planimetric footprint, then use these values to calculate the relief index. The `molaR` `RFI()` function relies on an alpha-shape convex hull algorithm which sometimes requires adjustment to properly measure the 2D footprint area. Thus `RFI()` has one argument, `alpha` which by default is set to the value `0.06`. 
+
+### `alpha`
+
+To calculate the 2D footprint area, all mesh vertices are compressed into a single X-Y plane. The `ahull()` algorithm from the package [`alphahull`](https://CRAN.R-project.org/package=alphahull) then traces the boundaries of the 2D footprint through successively linking points together in a step-wise manner. The upper left-most vertex is typically the starting point, and a radius equal to a percentage of the distance between the 2 furthest points then pivots around the starting point in a counter-clockwise fashion until it contacts another vertex. The newly contacted vertex is the next point in the convex hull succession and identified as part of the footprint boundary.
+
+The size of the radius used to seek the next point in the succession is determined by the `alpha` argument. Too small an `alpha` could result in stranding the succession on a point where the next is too far to reach. Too small an `alpha` sometimes results in finding a point which is interior to the boundary because the next boundary point is further away than the length of the radius. Alternatively, too large an `alpha` can result in 'short-cutting' an infolding, causing the footprint to be erroneously large.
+
+Experimentation has shown, that for the particular example tooth provided in `molaR`, the best `alpha` value is `0.08`.
 ```{r RFI_basic}
-RFI1 = RFI(ex_tooth1, alpha=0.5)
+RFI1 <- RFI(Tooth, alpha=0.08)
 ```
 
-The three dimensional surface and its two dimensional footprint can be plotted adjacently using the RFI3d function.
+### `Check2D()`
 
-```{r RFI_plot, webgl = TRUE}
+To ensure the proper `alpha` value has been chosen for your surface, it is often best to check the performance with the `Check2D()` function.
+```{r Check2D, eval=FALSE}
+Check2D(RFI1)
+```
+<center>
+```{r Check2D_plot, echo=FALSE}
+Check2D(RFI1)
+rglwidget()
+```
+</center>
+
+`Check2D()` plots the points identified as being on the boundary, and then plots slice-shaped triangles originating from the footprint center to each successive pair of the identified boundary points. The colorized footprint is the one calculated and used by the `RFI()` function. When using `Check2D()`, the user should inspect the boundary points to make sure the colorized footprint accurately and closely traces the boundary points. Additionally, users should rotate the surface looking for glinting rays originating from the central point or vertices (other than the center) located inside the apparent footprint boundary. These are indicative of extra slice-shaped triangles layered onto the 2D footprint by errant recycling of boundary points by the `ahull()` function. When it appears that infoldings are 'short-cut' by the `ahull()` function, users should reduce the alpha-value with the `alpha` argument. When there are extra pie-slice shaped triangles (see above), or the identified boundary clearly infiltrates the actual boundary of the surface, the alpha-value should be increased. 
+
+###`RFI3d()`
+
+The three dimensional surface and its two dimensional footprint can be plotted adjacently using the `RFI3d()` function. Users can adjust the opacity and color of the tooth mesh, as well as the color of the footprint with the arguments `SurfaceColor`, `Opacity`, and `FootColor`. 
+
+```{r RFI_plot, eval=FALSE}
 RFI3d(RFI1)
 ```
+(plot not shown to save on data volume)
 
-Orientation Patch Count (OPC)
-------------------------
-The OPC function bins each triangular face on a mesh surface (tooth) into one of 8 groups based on the x-y orientation of the face, then determines the number of resulting "patches" on the tooth. These patches can be visualized using the OPC3d function.
+## Orientation Patch Count (OPC)
 
-```{r OPC_basic, webgl = TRUE}
-OPC1 = OPC(ex_tooth1)
-OPC3d(OPC1)
+The `OPC()` function bins each triangular face on a mesh surface into one of 8 groups based on the X-Y orientation of the face normal, then determines the number of resulting contiguous "patches" composed of adjacent faces sharing the same orientation. Once all the patches have been identified, they are summed to get the OPC value.
+
+The OPC function has 3 arguments: `rotation` is how many degrees in the X-Y plane the surface will be rotated prior to assessing face orientations, default is `0`. `minimum_faces` sets the minimum number of faces a patch must possess to be counted for the total OPC value. Default for `minimum_faces` is `3`, following the original 2.5D implementation of OPC. Alternatively, users can disable the `minimum_faces` argument by supplying a positive value to the `minimum_area` argument, which stipulates a minimum proportion of the total surface area of the tooth each patch must meet to be counted in the total OPC. 
+
+```{r OPC_basic}
+OPC1 <- OPC(Tooth)
 ```
 
-By default, the OPC function counts any patch consisiting of two or more faces. This can be changed using the minimum\_faces parameter or overriden by the minimum\_area parameter, which sets the minimum proportion of total surface area a patch must contain to be counted.
+### OPC patch parameters
+
+As noted above, the default for the `OPC()` function counts any patch consisting of three or more faces. This can be changed using the `minimum_faces` parameter or overridden by the `minimum_area` parameter, which sets the minimum proportion of total surface area a patch must contain to be counted.
 
 ```{r OPC_patch_count}
-OPC2 = OPC(ex_tooth1, minimum_faces = 20)
-OPC3 = OPC(ex_tooth1, minimum_area = 0.01)
+OPC2 <- OPC(Tooth, minimum_faces = 20)
+OPC3 <- OPC(Tooth, minimum_area = 0.01)
 ```
 
-Due to the somewhat arbitrary boundaries of bins, differences in specimen orientation during analysis can result in minor variations of OPC. The OPCr function attempts to account for this by iteratively rotating the tooth (default is 8 iterations between 0 and 45 degrees of rotation) and calculating the OPC of each iteration. A mean OPC is reported.
+### Orientation Patch Count Rotated (OPCr)
 
-```{r OPCr}
-OPCr1 = OPCr(ex_tooth1)
-OPCr2 = OPCr(ex_tooth1, Steps = 5, stepSize = 9, minimum_faces = 2) #the minimum_faces and minimum_area parameters are passed to each iteration of OPC
+Due to the somewhat arbitrary boundaries of bins, differences in specimen orientation during analysis can result in minor variations of OPC. The `OPCr()` function attempts to account for this by iteratively rotating the tooth (default is 8 iterative rotations spanning a total of 45&deg;) and calculating the OPC of each iteration. A mean OPC is reported. Users can alter the number of rotations with the `Steps` argument, and the size of each rotation (in degrees) with the `stepSize` argument.
+
+```{r OPCr, eval=FALSE}
+OPCr_Example1 <- OPCr(Tooth)
+OPCr_Example2 <- OPCr(Tooth, Steps = 5, stepSize = 9, minimum_faces = 2) #minimum_faces & minimum_area are passed to each iteration of OPC
+```
+```{r echo=FALSE}
+OPCr_Example1
+OPCr_Example2
 ```
 
-The object returned by OPCr also contains the OPC values and degrees of rotation for each iteration.
+The object returned by `OPCr()` also contains the OPC values and degrees of rotation for each iteration:
 
 ```{r OPCr_structure}
-OPCr1$Each_Run
-OPCr2$Each_Run
+OPCr_Example1$Each_Run
+OPCr_Example2$Each_Run
 ```
 
+### `OPC3d()`
+
+With an object created by the `OPC()` function, (but importantly, **NOT** the `OPCr()` function), users can plot OPC onto their surfaces with the function `OPC3d()`.
+
+`OPC3d()` has several arguments that allow the user to customize their plots. `binColors` is a string of colors users can customize to achieve the desired appearance of their plots; default is set to a rainbow array. `patchOutline` is a logical argument that when enabled traces patches with an outline (default `FALSE`), while `outlineColor` sets the tracing color (default is black). 
+
+```{r OPC_plot, eval=FALSE}
+OPC3d(OPC1)
+```
+<center>
+```{r OPC_plot1, echo=FALSE}
+OPC3d(OPC1)
+rglwidget()
+```
+</center>
+
+OPC plots are highly customizable with color palettes and patch outlines: 
+
+```{r colors}
+colors <- c('firebrick', 'whitesmoke', 'deeppink', 'darkorchid', 'cornflowerblue', 'cyan', 'skyblue', 'turquoise')
+```
+```{r OPC_Custplot, eval=FALSE}
+OPC3d(OPC1, binColors=colors, patchOutline=T, outlineColor='yellow')
+```
+(plot not shown to save data)
+
+## Slope
+
+As of ver. 4.0, `molaR` contains the `Slope()` function, which measures the average slope of the surface. It works by assessing the slope of each individual face, weights each face by its relative area, then averages the weighted slopes. Like `RFI()` and `OPC()`, the `Slope()` function is highly reliant on the proper orientation of the analyzed surface. In the case of a tooth, it is important that the normal to the occlusal plane is parallel to the positive Z-direction. Deviations from this aligment can cause significant errors in calculating slope.
+
+Faces located on the tooth's undersurface or downward-facing overhangs will have negative slopes and are discarded from the analysis.
+
+```{r Slope}
+Slope1 <- Slope(Tooth)
+```
+
+### `Guess`
+
+`Guess` is the only argument in the `Slope()` function: a logical (default `FALSE`) through which the function will try to guess whether the tooth is oriented as described above. When activated, it will flip the tooth into what it assumes is the proper orientation. This guessing is inconsistent and not guaranteed, and should only be used when making figures-not performing actual analyses.
+
+### `Slope3d()`
+
+The slope of each face can be plotted with the `Slope3d()` function. Color control is achieved with a colorramp assembled from a sequential input string of colors, which can be adjusted with the `colors` argument. The default is a string of colors as follows: `colors=c('blue', 'cornflowerblue', 'green', 'yellowgreen', 'yellow', 'orangered', 'red')`. Negative slope faces that do not contribute to the overall surface Slope value are by default masked in black, which users can adjust with the `maskNegatives` parameter.
+
+```{r Slope_plot, eval=FALSE}
+Slope3d(Slope1)
+```
+<center>
+```{r Slope_plot1, echo=FALSE}
+Slope3d(Slope1)
+rglwidget()
+```
+</center>

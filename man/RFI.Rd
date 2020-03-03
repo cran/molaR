@@ -4,7 +4,7 @@
 \alias{RFI}
 \title{Calculate Boyer's (2008) relief index for a surface}
 \usage{
-RFI(plyFile, alpha = 0.01)
+RFI(plyFile, alpha = 0.06)
 }
 \arguments{
 \item{plyFile}{An object of classes 'mesh3d' and 'shape3d'}
@@ -30,12 +30,12 @@ perpendicular to the Z-axis.
 
 Some files may fail with pancake[TempF,] : subscript out
 of bounds. In these files it may be necessary to increase
-the alpha value which is default set to 0.01. Increasing the
+the alpha value which is default set to 0.06. Increasing the
 alpha value can cause the RFI function to over-estimate
 the size of the footprint. Caution should be exercised when
 troubleshooting by adjusting alpha
 }
 \examples{
-RFI_output <- RFI(ex_tooth1)
+RFI_output <- RFI(Tooth, alpha=0.5)
 summary(RFI_output)
 }

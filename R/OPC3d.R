@@ -7,58 +7,80 @@
 #'
 #' @param OPC_Output_Object An object that stores the output of
 #' the OPC function
-#' @param binColors Allows the user to change the colors filled in for
+#' @param binColors Allows the user to define the fill colors for
 #' each directional bin 
-#' @param patchOutline logical whether or not to outline the patches
-#' @param outlineColor parameter designating which color to outline the patches in
-#' @param maskDiscard logical indicating whether to discard the unused patches
+#' @param patchOutline Logical whether or not to outline the patches
+#' @param outlineColor Parameter defining the patch outline color
+#' @param maskDiscard Logical indicating whether or not to mask (in black) the
+#' patches excluded from the OPC value
 #' @param legend Logical indicating whether or not a legend should
 #' be displayed
-#' @param legendScale cex style scaling factor for the legend
-#' @param legendTextCol parameter designating color for the legend text
-#' @param legendLineCol parameter designating the color for the legend lines
-#' @param leftOffset numeric parameters disginating how far to offset the surface
-#' @param fieldofview Passes an argument to par3d changing the
-#' field of view in dregrees of the resulting rgl window
+#' @param legendScale numeric value setting the relative size of the legend,
+#' similar in function to cex
+#' @param legendTextCol Parameter defining color for the legend text
+#' @param legendLineCol Parameter defining the color for the legend lines
+#' @param leftOffset numeric value between -1 and 1 setting the degree of
+#' offset for the plotted surface to the left; larger values set further to left
+#' while 0 is centered
+#' @param fieldofview Passes an argument to par3d changing the field of
+#' view in degrees of the resulting surface plot
+#' @param fileName String indicating a name to save the plotted surface to as a
+#' *.ply file; default of 'NA' will not save a file
+#' @param binary Logical indicating whether or not the saved surface plot should
+#' be binary, passed to vcgPlyWrite
 #' 
 #' @details This function will assign a uniform color to all faces on the mesh
-#' surface that share one of the 8 orientations identified by the OPC function. The
-#' function returns a colored shade3d of the mesh so that patches can be visually
-#' inspected. Future versions will include the option to black out patches not
-#' included in the orientation patch count.
+#' surface that share one of the orientation bins identified by the OPC function. The
+#' function returns a colored mesh so that patches can be visually inspected.
 #' 
-#' Several legend plotting options are availble including customizing the line and
-#' text colors using color names with legendTextCol and legendLineCol, both default
-#' to black. legendScale works like cex for setting the size of the relative size
-#' of the legend.
+#' binColors will support any vector of colors, in any coloration scheme. Default
+#' draws from the HSV color space to evenly space color information, however the user
+#' can supply a list of RGB values or character strings in place. If there are fewer
+#' colors than directional bins, remaining bins will default to white.
 #' 
-#' leftOffset will determine how far the plotted surface is moved to the left to
-#' avoid obstructing the legend. Users shold choose between -1 and 1. 
+#' Several legend plotting options are availble, including customizing the line and
+#' text colors with legendTextCol and legendLineCol, which both default to black.
 #' 
-#' fieldofview is set to a default of 0, which is an isometric projection.
-#' Increasing it alters the degree of parallax in the perspective view, up to a
-#' maximum of 179 degrees.
+#' The leftOffset value sets how far to the left the surface will appear, intended
+#' to help avoid overlap with the legend. A value of 0 for this argument will center
+#' the surface in the plotting window and negative values will shift it to the right.
 #' 
-#' colors will support any vector of 8 colors, in any coloration scheme. Default
-#' draws from the hsv color space to evenly space color information, however user
-#' can supply a list of RGB values, character strings, or integers in place.
+#' legendScale sets the relative size of the legend, analogous to the cex argument
+#' of par {graphics}.
+#' 
+#' fieldofview is set to a default of 0, which is an isometric parallel projection.
+#' Raising it corresondingly increases the amount of obliquity used to render the
+#' surface in the plotting window, up to a maximum of 179 degrees.
+#' 
+#' The plotted, colorized surface can be saved as a *.ply to the working directory
+#' by changing the fileName argument from NA to a string (e.g., "OPCPlot"). The
+#' resultant ply file can be opened and manipulated in other 3D visualizing programs,
+#' such as MeshLab, but will NOT retain its legend (a background of the plotting window).
+#' To retain the legend, the user is encouraged to utilize the snapshot3d function.
+#' Patch outlines are currently not retained with surface saving. The binary argument
+#' saves a file in ascii format by default, which is supported by more 3D
+#' visualization software than is binary. However, binary files will be considerably
+#' smaller.
 #'
 #' @import
 #' rgl
+#'
+#' @importFrom
+#' Rvcg vcgPlyWrite
 #'
 #' @export
 #' OPC3d
 #'
 #' @examples
-#' OPC_output <- OPC(ex_tooth1)
+#' OPC_output <- OPC(Tooth)
 #' OPC3d(OPC_output)
-
 
 OPC3d <- function (OPC_Output_Object, 
                    binColors = hsv(h=(seq(10, 290, 40)/360), s=0.9, v=0.85),
                    patchOutline = FALSE, outlineColor = "black", maskDiscard = FALSE,
                    legend = TRUE, legendScale= 1, legendTextCol = "black",
-                   legendLineCol = "black", leftOffset = 1, fieldofview = 0) 
+                   legendLineCol = "black", leftOffset = 1, fieldofview = 0,
+                   fileName = NA, binary = FALSE)
 {
   plyFile <- OPC_Output_Object$plyFile
   bins <- plyFile$Directional_Bins
@@ -90,8 +112,6 @@ OPC3d <- function (OPC_Output_Object,
   if (maskDiscard == TRUE) {
     colormatrix[BlackPatch] <- "#000000"
   }
-  colormatrix <- rep(colormatrix, 3)
-  colormatrix <- matrix(colormatrix, nrow = 3, byrow = T)
   open3d()
   par3d(windowRect = c(100, 100, 900, 900))
   if (patchOutline == TRUE) {
@@ -128,7 +148,7 @@ OPC3d <- function (OPC_Output_Object,
       }
     }
   }
-  shade3d(plyFile, color = colormatrix, shininess = 110)
+  shade3d(plyFile, meshColor='faces', color = colormatrix, shininess = 100)
   if (legend == TRUE) {
     if(legendScale <= 0){stop("legendScale must be a positive number")}
     if(legendScale > 1.05){
@@ -147,4 +167,29 @@ OPC3d <- function (OPC_Output_Object,
   ZView <- par3d("observer")[3]
   XView <- leftOffset * ZView *0.055
   observer3d(XView, 0, ZView)
+  if(!is.na(fileName)){
+    if(!is.character(fileName)){stop("Enter a name for fileName")}
+    if(substr(fileName, nchar(fileName)-3, nchar(fileName))!=".ply"){
+      fileName <- paste(fileName, ".ply", sep="")
+    }
+    OutPly <- plyFile
+    NewVertList <- plyFile$vb[,plyFile$it[1:length(plyFile$it)]]
+    NewNormList <- plyFile$normals[,plyFile$it[1:length(plyFile$it)]]
+    NewFaceList <- matrix(1:ncol(NewVertList), nrow=3)
+    colormatrix <- matrix(rep(colormatrix, 3), nrow = 3, byrow = TRUE)
+    NewColorList <- colormatrix[1:length(colormatrix)]
+    OutPly$vb <- NewVertList
+    OutPly$it <- NewFaceList
+    OutPly$normals <- NewNormList
+    OutPly$material$color <- NewColorList
+    vcgPlyWrite(mesh=OutPly, filename = fileName, binary = binary)
+    if(binary==FALSE){
+      FileText <- readLines(con=paste(getwd(), "/", fileName, sep=""), warn = F)
+      NewCom <- paste("comment OPC plot generated in molaR",
+                      packageVersion("molaR"), "for", R.version.string)
+      NewCom <- unlist(strsplit(NewCom, split='\n'))
+      NewOut <- c(FileText[1:3], NewCom, FileText[(4):length(FileText)])
+      writeLines(NewOut, con=paste(getwd(), "/", fileName, sep=""))
+    }
+  }
 }

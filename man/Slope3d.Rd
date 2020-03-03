@@ -4,38 +4,75 @@
 \alias{Slope3d}
 \title{Plot results of a Slope analysis of a surface}
 \usage{
-Slope3d(Slope_File, colors = c("blue", "cornflowerblue", "green",
-  "yellowgreen", "yellow", "orangered", "red"), maskNegatives = T,
-  leftOffset = 1, fieldofview = 0, legend = T)
+Slope3d(
+  Slope_File,
+  colors = c("blue", "cornflowerblue", "green", "yellowgreen", "yellow", "orangered",
+    "red"),
+  maskNegatives = TRUE,
+  legend = TRUE,
+  leftOffset = 1,
+  fieldofview = 0,
+  fileName = NA,
+  binary = FALSE
+)
 }
 \arguments{
 \item{Slope_File}{An object that stores the output of the 
 Slope function}
 
-\item{colors}{A string of colors to build the color gradient}
+\item{colors}{String of colors to build the color gradient}
 
-\item{maskNegatives}{A logical indicating whether to mask 
-the negative slopes or to reflect them into positive slopes}
-
-\item{leftOffset}{numeric value between -1 and 1 setting 
-the degree of offset for the plotted surface to the left. Larger 
-values set further to right.}
-
-\item{fieldofview}{Passes an argument to par3d changing
-the field of view in degrees of the resulting rgl}
+\item{maskNegatives}{Logical indicating whether or not to mask (in  black) 
+negative slopes, or to reflect them into positive slopes}
 
 \item{legend}{Logical indicating whether or not a legend
-shold be displayed}
+should be displayed}
+
+\item{leftOffset}{numeric value between -1 and 1 setting the degree of
+offset for the plotted surface to the left; larger values set further to left
+while 0 is centered}
+
+\item{fieldofview}{Passes an argument to par3d changing the field of
+view in degrees of the resulting surface plot}
+
+\item{fileName}{String indicating a name to save the plotted surface to as a
+*.ply file; default of 'NA' will not save a file}
+
+\item{binary}{Logical indicating whether or not the saved surface plot should
+be binary, passed to vcgPlyWrite}
 }
 \description{
-plotting function
+A function that produces a three-dimensional rendering of surface slope.
+The Slope function will identify the slope of each mesh face. It must be
+performed prior to using the Slope3d function.
 }
 \details{
 This function creates a heat map on the mesh surface
 corresponding to the slope of each face calculated by
-the Slope function. Colors are customizable
+the Slope function.
+
+Colors are taken as a series inputs to define a color ramp and can be customized
+indefinitely in value or order. The default is suggested as an intuitive display
+of increasing color heat corresponding with steeper face slope.
+
+The leftOffset value sets how far to the left the surface will appear, intended
+to help avoid overlap with the legend. A value of 0 for this argument will center
+the surface in the plotting window and negative values will shift it to the right.
+
+fieldofview is set to a default of 0, which is an isometric parallel projection.
+Raising it corresondingly increases the amount of obliquity used to render the
+surface in the plotting window, up to a maximum of 179 degrees.
+
+The plotted, colorized surface can be saved as a *.ply to the working directory
+by changing the fileName argument from NA to a string (e.g., "SlopePlot"). The
+resultant ply file can be opened and manipulated in other 3D visualizing programs,
+such as MeshLab, but will NOT retain its legend (a background of the plotting window).
+To retain the legend, the user is encouraged to utilize the snapshot3d function. The
+binary argument saves a file in ascii format by default, which is supported by more
+3D visualization software than is binary. However, binary files will be considerably
+smaller.
 }
 \examples{
-Slope_output <- Slope(ex_tooth1)
+Slope_output <- Slope(Tooth)
 Slope3d(Slope_output)
 }

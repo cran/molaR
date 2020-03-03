@@ -35,6 +35,6 @@ Regardless of if the 'Guess' parameter is engaged, the function will also return
 containing all of the face slope values ("Face_Slopes")
 }
 \examples{
-Slope_output <- Slope(ex_tooth1)
+Slope_output <- Slope(Tooth)
 summary(Slope_output)
 }

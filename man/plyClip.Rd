@@ -4,9 +4,16 @@
 \alias{plyClip}
 \title{Clip a ply file}
 \usage{
-plyClip(plyFile, axis = "Z", vertIndex = NA, meshInvert = FALSE,
-  button = "right", displayNew = TRUE, keepBoth = FALSE,
-  edgeRefine = FALSE)
+plyClip(
+  plyFile,
+  axis = "Z",
+  vertIndex = NA,
+  meshInvert = FALSE,
+  button = "right",
+  displayNew = TRUE,
+  keepBoth = FALSE,
+  edgeRefine = FALSE
+)
 }
 \arguments{
 \item{plyFile}{An object of classes 'mesh3d' and 'shape3d'}

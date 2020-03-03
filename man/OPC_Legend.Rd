@@ -4,8 +4,14 @@
 \alias{OPC_Legend}
 \title{function for building a legend in OPC plots}
 \usage{
-OPC_Legend(binColors = c(1:8), binNumber = 8, maskDiscard = F,
-  textCol = "black", size = 1, lineCol = "black")
+OPC_Legend(
+  binColors = c(1:8),
+  binNumber = 8,
+  maskDiscard = F,
+  textCol = "black",
+  size = 1,
+  lineCol = "black"
+)
 }
 \arguments{
 \item{binColors}{number sequence for bins and their colors}

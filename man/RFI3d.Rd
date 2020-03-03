@@ -4,10 +4,19 @@
 \alias{RFI3d}
 \title{Plot 3D and 2D areas of a mesh used to calculate relief index}
 \usage{
-RFI3d(RFI_Output, displacement = -1.9, SurfaceColor = "gray",
-  FootColor = "red", FootPts = FALSE, FootPtsColor = "black",
-  Opacity = 1, legend = F, legendScale = 1, leftOffset = 0,
-  fieldofview = 0)
+RFI3d(
+  RFI_Output,
+  displacement = -1.9,
+  SurfaceColor = "gray",
+  FootColor = "red",
+  FootPts = FALSE,
+  FootPtsColor = "black",
+  Opacity = 1,
+  legend = F,
+  legendScale = 1,
+  leftOffset = 0,
+  fieldofview = 0
+)
 }
 \arguments{
 \item{RFI_Output}{An object that stores the output of the RFI
@@ -62,6 +71,6 @@ alters the degree of parallax in the perspective view, up to a maximum of 179
 degrees.
 }
 \examples{
-RFI_output <- RFI(ex_tooth1)
+RFI_output <- RFI(Tooth, alpha=0.5)
 RFI3d(RFI_output)
 }

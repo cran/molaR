@@ -1,45 +1,81 @@
-## ----setup, message = FALSE----------------------------------------------
+## ----setup, message = FALSE---------------------------------------------------
 library(molaR)
-summary(ex_tooth1)
+str(Tooth)
 
-## ----webgl_setup, echo=FALSE---------------------------------------------
-library(knitr)
-library(rgl)
+## ----DNE_basic----------------------------------------------------------------
+DNE1 <- DNE(Tooth)
 
-## ----DNE_basic, webgl = TRUE---------------------------------------------
-DNE1 = DNE(ex_tooth1)
+## ----DNE_plot, eval=FALSE-----------------------------------------------------
+#  DNE3d(DNE1)
+
+## ----DNE_plot1, fig.align='center', echo=FALSE--------------------------------
 DNE3d(DNE1)
+rglwidget()
 
-## ----DNE_color_scale, webgl = TRUE---------------------------------------
-DNE2 = DNE(ex_tooth2)
-DNE3d(DNE2, setRange = c(0, 1.3))
+## ----DNE_setRange, eval=FALSE-------------------------------------------------
+#  DNE3d(DNE1, setRange = c(0, 1.3))
 
-## ----DNE_color_scale2, webgl = TRUE--------------------------------------
+## ----DNE_setRange_plot, echo=FALSE--------------------------------------------
 DNE3d(DNE1, setRange =  c(0, 1.3))
+rglwidget()
 
-## ----DNE_object----------------------------------------------------------
-head(DNE1$Edge_Values)
+## ----str_DNE, DNE_object------------------------------------------------------
+str(DNE1)
+head(DNE1$Boundary_Values)
 head(DNE1$Outliers)
 
-## ----RFI_basic-----------------------------------------------------------
-RFI1 = RFI(ex_tooth1, alpha=0.5)
+## ----RFI_basic----------------------------------------------------------------
+RFI1 <- RFI(Tooth, alpha=0.08)
 
-## ----RFI_plot, webgl = TRUE----------------------------------------------
-RFI3d(RFI1)
+## ----Check2D, eval=FALSE------------------------------------------------------
+#  Check2D(RFI1)
 
-## ----OPC_basic, webgl = TRUE---------------------------------------------
-OPC1 = OPC(ex_tooth1)
+## ----Check2D_plot, echo=FALSE-------------------------------------------------
+Check2D(RFI1)
+rglwidget()
+
+## ----RFI_plot, eval=FALSE-----------------------------------------------------
+#  RFI3d(RFI1)
+
+## ----OPC_basic----------------------------------------------------------------
+OPC1 <- OPC(Tooth)
+
+## ----OPC_patch_count----------------------------------------------------------
+OPC2 <- OPC(Tooth, minimum_faces = 20)
+OPC3 <- OPC(Tooth, minimum_area = 0.01)
+
+## ----OPCr, eval=FALSE---------------------------------------------------------
+#  OPCr_Example1 <- OPCr(Tooth)
+#  OPCr_Example2 <- OPCr(Tooth, Steps = 5, stepSize = 9, minimum_faces = 2) #minimum_faces & minimum_area are passed to each iteration of OPC
+
+## ----echo=FALSE---------------------------------------------------------------
+OPCr_Example1
+OPCr_Example2
+
+## ----OPCr_structure-----------------------------------------------------------
+OPCr_Example1$Each_Run
+OPCr_Example2$Each_Run
+
+## ----OPC_plot, eval=FALSE-----------------------------------------------------
+#  OPC3d(OPC1)
+
+## ----OPC_plot1, echo=FALSE----------------------------------------------------
 OPC3d(OPC1)
+rglwidget()
 
-## ----OPC_patch_count-----------------------------------------------------
-OPC2 = OPC(ex_tooth1, minimum_faces = 20)
-OPC3 = OPC(ex_tooth1, minimum_area = 0.01)
+## ----colors-------------------------------------------------------------------
+colors <- c('firebrick', 'whitesmoke', 'deeppink', 'darkorchid', 'cornflowerblue', 'cyan', 'skyblue', 'turquoise')
 
-## ----OPCr----------------------------------------------------------------
-OPCr1 = OPCr(ex_tooth1)
-OPCr2 = OPCr(ex_tooth1, Steps = 5, stepSize = 9, minimum_faces = 2) #the minimum_faces and minimum_area parameters are passed to each iteration of OPC
+## ----OPC_Custplot, eval=FALSE-------------------------------------------------
+#  OPC3d(OPC1, binColors=colors, patchOutline=T, outlineColor='yellow')
 
-## ----OPCr_structure------------------------------------------------------
-OPCr1$Each_Run
-OPCr2$Each_Run
+## ----Slope--------------------------------------------------------------------
+Slope1 <- Slope(Tooth)
+
+## ----Slope_plot, eval=FALSE---------------------------------------------------
+#  Slope3d(Slope1)
+
+## ----Slope_plot1, echo=FALSE--------------------------------------------------
+Slope3d(Slope1)
+rglwidget()
 

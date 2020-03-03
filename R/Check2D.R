@@ -29,7 +29,7 @@
 #' Check2D
 #'
 #' @examples
-#' RFI_output <- RFI(ex_tooth1)
+#' RFI_output <- RFI(Tooth, alpha=0.5)
 #' Check2D(RFI_output)
 
 

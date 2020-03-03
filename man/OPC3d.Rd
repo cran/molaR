@@ -4,38 +4,58 @@
 \alias{OPC3d}
 \title{Plot results of OPC analysis of a surface}
 \usage{
-OPC3d(OPC_Output_Object, binColors = hsv(h = (seq(10, 290, 40)/360), s =
-  0.9, v = 0.85), patchOutline = FALSE, outlineColor = "black",
-  maskDiscard = FALSE, legend = TRUE, legendScale = 1,
-  legendTextCol = "black", legendLineCol = "black", leftOffset = 1,
-  fieldofview = 0)
+OPC3d(
+  OPC_Output_Object,
+  binColors = hsv(h = (seq(10, 290, 40)/360), s = 0.9, v = 0.85),
+  patchOutline = FALSE,
+  outlineColor = "black",
+  maskDiscard = FALSE,
+  legend = TRUE,
+  legendScale = 1,
+  legendTextCol = "black",
+  legendLineCol = "black",
+  leftOffset = 1,
+  fieldofview = 0,
+  fileName = NA,
+  binary = FALSE
+)
 }
 \arguments{
 \item{OPC_Output_Object}{An object that stores the output of
 the OPC function}
 
-\item{binColors}{Allows the user to change the colors filled in for
+\item{binColors}{Allows the user to define the fill colors for
 each directional bin}
 
-\item{patchOutline}{logical whether or not to outline the patches}
+\item{patchOutline}{Logical whether or not to outline the patches}
 
-\item{outlineColor}{parameter designating which color to outline the patches in}
+\item{outlineColor}{Parameter defining the patch outline color}
 
-\item{maskDiscard}{logical indicating whether to discard the unused patches}
+\item{maskDiscard}{Logical indicating whether or not to mask (in black) the
+patches excluded from the OPC value}
 
 \item{legend}{Logical indicating whether or not a legend should
 be displayed}
 
-\item{legendScale}{cex style scaling factor for the legend}
+\item{legendScale}{numeric value setting the relative size of the legend,
+similar in function to cex}
 
-\item{legendTextCol}{parameter designating color for the legend text}
+\item{legendTextCol}{Parameter defining color for the legend text}
 
-\item{legendLineCol}{parameter designating the color for the legend lines}
+\item{legendLineCol}{Parameter defining the color for the legend lines}
 
-\item{leftOffset}{numeric parameters disginating how far to offset the surface}
+\item{leftOffset}{numeric value between -1 and 1 setting the degree of
+offset for the plotted surface to the left; larger values set further to left
+while 0 is centered}
 
-\item{fieldofview}{Passes an argument to par3d changing the
-field of view in dregrees of the resulting rgl window}
+\item{fieldofview}{Passes an argument to par3d changing the field of
+view in degrees of the resulting surface plot}
+
+\item{fileName}{String indicating a name to save the plotted surface to as a
+*.ply file; default of 'NA' will not save a file}
+
+\item{binary}{Logical indicating whether or not the saved surface plot should
+be binary, passed to vcgPlyWrite}
 }
 \description{
 A function that produces a three-dimensional rendering of face
@@ -45,28 +65,39 @@ performed prior to using the OPC3d function.
 }
 \details{
 This function will assign a uniform color to all faces on the mesh
-surface that share one of the 8 orientations identified by the OPC function. The
-function returns a colored shade3d of the mesh so that patches can be visually
-inspected. Future versions will include the option to black out patches not
-included in the orientation patch count.
+surface that share one of the orientation bins identified by the OPC function. The
+function returns a colored mesh so that patches can be visually inspected.
 
-Several legend plotting options are availble including customizing the line and
-text colors using color names with legendTextCol and legendLineCol, both default
-to black. legendScale works like cex for setting the size of the relative size
-of the legend.
+binColors will support any vector of colors, in any coloration scheme. Default
+draws from the HSV color space to evenly space color information, however the user
+can supply a list of RGB values or character strings in place. If there are fewer
+colors than directional bins, remaining bins will default to white.
 
-leftOffset will determine how far the plotted surface is moved to the left to
-avoid obstructing the legend. Users shold choose between -1 and 1. 
+Several legend plotting options are availble, including customizing the line and
+text colors with legendTextCol and legendLineCol, which both default to black.
 
-fieldofview is set to a default of 0, which is an isometric projection.
-Increasing it alters the degree of parallax in the perspective view, up to a
-maximum of 179 degrees.
+The leftOffset value sets how far to the left the surface will appear, intended
+to help avoid overlap with the legend. A value of 0 for this argument will center
+the surface in the plotting window and negative values will shift it to the right.
 
-colors will support any vector of 8 colors, in any coloration scheme. Default
-draws from the hsv color space to evenly space color information, however user
-can supply a list of RGB values, character strings, or integers in place.
+legendScale sets the relative size of the legend, analogous to the cex argument
+of par {graphics}.
+
+fieldofview is set to a default of 0, which is an isometric parallel projection.
+Raising it corresondingly increases the amount of obliquity used to render the
+surface in the plotting window, up to a maximum of 179 degrees.
+
+The plotted, colorized surface can be saved as a *.ply to the working directory
+by changing the fileName argument from NA to a string (e.g., "OPCPlot"). The
+resultant ply file can be opened and manipulated in other 3D visualizing programs,
+such as MeshLab, but will NOT retain its legend (a background of the plotting window).
+To retain the legend, the user is encouraged to utilize the snapshot3d function.
+Patch outlines are currently not retained with surface saving. The binary argument
+saves a file in ascii format by default, which is supported by more 3D
+visualization software than is binary. However, binary files will be considerably
+smaller.
 }
 \examples{
-OPC_output <- OPC(ex_tooth1)
+OPC_output <- OPC(Tooth)
 OPC3d(OPC_output)
 }

@@ -19,7 +19,7 @@
 #' molaR_Clean
 #'
 #' @examples
-#' ex_tooth <- molaR_Clean(ex_tooth1)
+#' Tooth <- molaR_Clean(Tooth)
 
 
 molaR_Clean <- function(plyFile, cleanType='Both'){
