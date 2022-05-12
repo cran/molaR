@@ -4,6 +4,7 @@
 #' @param plyFile a stanford PLY file 
 #' compute_energy_per_face()
 #'
+#' @noRd
 
 
 compute_energy_per_face <- function(plyFile) {

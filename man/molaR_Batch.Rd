@@ -2,110 +2,85 @@
 % Please edit documentation in R/molaR_Batch.R
 \name{molaR_Batch}
 \alias{molaR_Batch}
-\title{Run a batch of molaR analyses}
+\title{Run molaR analyses on a batch of specimens}
 \usage{
 molaR_Batch(
-  pathname = getwd(),
-  filename = "molaR_Batch.csv",
+  pathName = getwd(),
+  fileName = "molaR_Batch.csv",
   DNE = TRUE,
   RFI = TRUE,
   OPCr = TRUE,
   OPC = FALSE,
   Slope = TRUE,
-  Details = FALSE,
-  DNE_outliers = 0.1,
-  DNE_BoundaryDiscard = "Leg",
-  RFI_alpha = 0.01,
-  OPCr_steps = 8,
-  OPCr_stepSize = 5.625,
-  OPCr_minimum_faces = 3,
-  OPCr_minimum_area = 0,
-  OPC_rotation = 0,
-  OPC_minimum_faces = 3,
-  OPC_minimum_area = 0,
-  Slope_Guess = FALSE,
-  Parameters = FALSE
+  details = TRUE,
+  parameters = TRUE,
+  ...
 )
 }
 \arguments{
-\item{pathname}{The path to the file containing all the PLY surfaces to be
-analyzed. Defaults to the working directory}
+\item{pathName}{The path to the folder containing all ply surfaces to be
+analyzed. Defaults to the working directory.}
 
-\item{filename}{Name for the output csv file.}
+\item{fileName}{Name for the output .csv file containing results and parameters}
 
-\item{DNE}{logical indicating whether or not to perform DNE calculation Defaults
-to true}
+\item{DNE}{Logical indicating whether or not to perform the DNE calculation}
 
-\item{RFI}{logical indicating whether or not to perform RFI calculation Defaults to
-true}
+\item{RFI}{Logical indicating whether or not to perform the RFI calculation}
 
-\item{OPCr}{logical indicating whether or not to perform OPCr calculation
-Defaults to true}
+\item{OPCr}{Logical indicating whether or not to perform the OPCr calculation}
 
-\item{OPC}{logical indicating whether or not to perform OPC calculation Defaults
-to false}
+\item{OPC}{Logical indicating whether or not to perform the OPC calculation}
 
-\item{Slope}{logical indicating whether or not to perform Slope calculation, Defaults
-to true}
+\item{Slope}{Logical indicating whether or not to perform the Slope calculation}
 
-\item{Details}{logical indicating whether or not to save the details of the RFI and
-OPCr calculations}
+\item{details}{Logical indicating whether or not to save additional output from
+some of the topographic analyses}
 
-\item{DNE_outliers}{the percentile at which outliers will be excluded is passed to
-the DNE function, defaults to 0.1}
+\item{parameters}{Logical indicating whether or not to save the list of analysis
+parameters used in the batch run}
 
-\item{DNE_BoundaryDiscard}{is a logical indicating how
-to handle the exclusion of the faces on the edge of the surface, defaults to excluding
-faces which have a leg on the boundary.}
-
-\item{RFI_alpha}{the size of the alpha passed to RFI
-function, defaults to 0.01}
-
-\item{OPCr_steps}{the number of steps the OPCr function should take, is passed to
-the OPCr function. Defaults to 8}
-
-\item{OPCr_stepSize}{the size of each rotation. Passed to the OPCr function.
-Defaults to 5.626 degrees}
-
-\item{OPCr_minimum_faces}{sets the lower boundary for number of faces a patch
-must have for inclusion in total count. Defaults to 3 or more.}
-
-\item{OPCr_minimum_area}{sets the lower boundary for percentage of the surface
-area a patch must make up for inclusion in the total patch count. Cannot be used with
-minimum_faces on. Defaults to zero}
-
-\item{OPC_rotation}{amount of rotation to apply during OPC calculation. Defaults
-to zero}
-
-\item{OPC_minimum_faces}{minimum number of faces a patch must contain to be
-counted in the OPC function. Defaults to 3.}
-
-\item{OPC_minimum_area}{minimum percentage of the surface area a patch must
-make up to be counted in the OPC function. Defaults to off}
-
-\item{Slope_Guess}{logical indicating whether or not to Guess as to the orientation
-of the surface during the Slope calculation (see Slope function for details)}
-
-\item{Parameters}{defaults to off. When engaged a list of all the parameters used
-during molaR analysis will be appended to the output file.}
+\item{...}{Additional arguments passed to the topographic analysis functions.
+See Details.}
 }
 \description{
-A function which automates molaR analyses. User simply sets up the functions they
-want run and can leave the computer to do the rest.
+A function that automates molaR analyses on multiple specimens. Several
+different analyses can be performed on each surface, with specifications for
+analysis parameters.
 }
 \details{
-This function allows a user to set the analyses from molaR they want to run,
-along with the specific parameters for each function and have a whole batch of PLY
-files analyzed and saved to a csv file. Function will perform analyses on all PLY files
-in the working directory or user can specify a pathname to a folder containing PLY files.
-Output saves to the folder that contains the analyzed PLY files.
+This function allows a user to set the analyses from molaR they want
+to run on a batch of ply files. Output is saved to a csv file. By default, the
+batch function will perform specified analyses on all ply files in the working
+directory. A different folder can be specified with \code{pathName}. Output saves
+as .csv to the folder that contains the analyzed ply files.
 
-This function will accept a vector of parameters for any of the function arguments if the
-user wishes to vary the settings over the course of the batch run. It is recommended that
-when making use of this feature the Parameters argument is set to TRUE for a record of
-how analyses were performed.
+Any of the default arguments of the various topographic analysis functions can
+be modified for the batch by specifying them when calling \code{molaR_Batch}, e.g.,
+the DNE \code{kappa} value can be changed to 'X' by specifying \code{kappa = X}. Users
+are \strong{strongly} encouraged to review the documentation for \code{\link[=DNE]{DNE()}},
+\code{\link[=RFI]{RFI()}}, \code{\link[=OPCr]{OPCr()}}, \code{\link[=OPC]{OPC()}},
+and \code{\link[=Slope]{Slope()}} and to understand the effects of alterations before making
+changes. A recommended practice for analyzing RFI in a batch of specimens is to enable
+\code{findAlpha = TRUE} given that the ideal \code{alpha} value is likely to vary among different
+specimens. However, this will increase calculation time (see documentation for
+\code{\link[=RFI]{RFI}}).
 
-Note that batch processing updates will not display by default if using RGui for Windows. Be
-sure to disable Misc -> Buffered output (Ctrl+W) if you wish to view batch processing
-progress in RGui for Windows.
+By default, the batch output will retain some additional details of the analysis.
+These include, in the case of DNE: convex and concave DNE values, convex and
+concave surface areas; in the case of RFI: 3D and 2D surface areas and analysis
+\code{alpha} values; in the case of OPCr: the surface OPC value calculated at each
+rotation; and in the case of OPC: the patch count for each bin. These results
+will be discarded and only the final result of each topographic analysis will
+be retained if \code{details = FALSE}.
+
+The function will save a list of all parameters used in all batch analyses
+to the output .csv file, below the results. This can be suppressed with
+\code{parameters = FALSE}, but is recommended as a check on how analyses were
+performed when returning to results in the future. If the function is assigned
+to an object in R, the parameters are not included in the resultant data.frame,
+but will still be included in the .csv file by default.
+
+Note that batch processing updates will not display by default if using RGui
+for Windows. Disable Misc -> Buffered output (Ctrl+W) if you wish to view
+batch processing progress in RGui for Windows.
 }

@@ -6,6 +6,7 @@
 #'
 #' 
 #' remove_outliers()
+#' @noRd
 
 remove_outliers <- function(Energy_values, X) {
 	DNEs <- Energy_values$DNE_Values

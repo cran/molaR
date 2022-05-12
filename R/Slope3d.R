@@ -11,15 +11,16 @@
 #' negative slopes, or to reflect them into positive slopes
 #' @param legend Logical indicating whether or not a legend
 #' should be displayed
-#' @param leftOffset numeric value between -1 and 1 setting the degree of
-#' offset for the plotted surface to the left; larger values set further to left
-#' while 0 is centered
-#' @param fieldofview Passes an argument to par3d changing the field of
+#' @param main String indicating plot title
+#' @param cex Numeric setting the relative size of the legend and title
+#' @param leftOffset Numeric between -1 and 1 setting the amount of offset for
+#' the plotted surface to the left. Larger values push surface farther to right.
+#' @param fieldofview Passes an argument to `par3d()` changing the field of
 #' view in degrees of the resulting surface plot
 #' @param fileName String indicating a name to save the plotted surface to as a
 #' *.ply file; default of 'NA' will not save a file
 #' @param binary Logical indicating whether or not the saved surface plot should
-#' be binary, passed to vcgPlyWrite  
+#' be binary, passed to `vcgPlyWrite()` 
 #'
 #' @details This function creates a heat map on the mesh surface
 #' corresponding to the slope of each face calculated by
@@ -29,22 +30,30 @@
 #' indefinitely in value or order. The default is suggested as an intuitive display
 #' of increasing color heat corresponding with steeper face slope.
 #' 
-#' The leftOffset value sets how far to the left the surface will appear, intended
-#' to help avoid overlap with the legend. A value of 0 for this argument will center
-#' the surface in the plotting window and negative values will shift it to the right.
+#' A title can be added to the plot by supplying a character string to the `main`
+#' argument. Title and legend size are controlled with the `cex` argument,
+#' analogous to that in the default R graphics device.
 #' 
-#' fieldofview is set to a default of 0, which is an isometric parallel projection.
-#' Raising it corresondingly increases the amount of obliquity used to render the
-#' surface in the plotting window, up to a maximum of 179 degrees.
+#' The `leftOffset` value sets how far to the left the surface will plot, intended
+#' to help avoid overlap with the legend. Value of 0 will center the surface and
+#' should be invoked if the `legend` argument is disabled. Higher values will push
+#' the surface farther left and negative values will push it to the right. It is
+#' recommended that these values be restricted between -1 and 1 to avoid plotting
+#' the surface outside of the rgl window.
+#' 
+#' `fieldofview` is set to a default of 0, which is an isometric projection.
+#' Increasing it alters the degree of parallax in the perspective view, up to
+#' a maximum of 179 degrees (see \code{\link[rgl:par3d]{rgl::par3d()}}).
 #' 
 #' The plotted, colorized surface can be saved as a *.ply to the working directory
-#' by changing the fileName argument from NA to a string (e.g., "SlopePlot"). The
+#' by changing the `fileName` argument from `NA` to a string (e.g., "SlopePlot"). The
 #' resultant ply file can be opened and manipulated in other 3D visualizing programs,
-#' such as MeshLab, but will NOT retain its legend (a background of the plotting window).
-#' To retain the legend, the user is encouraged to utilize the snapshot3d function. The
-#' binary argument saves a file in ascii format by default, which is supported by more
-#' 3D visualization software than is binary. However, binary files will be considerably
-#' smaller.
+#' such as \href{https://www.meshlab.net/}{MeshLab}, but will **NOT** retain its legend
+#' (a background of the plotting window). To retain the legend, the user is 
+#' encouraged to utilize the function 'snapshot3d()' in the rgl package. (see \code{\link[rgl:rgl.snapshot]{rgl::rgl.snapshot()}}) 
+#' The `binary` argument saves a file in ascii format by default, which is supported by 
+#' more 3D visualization software than is binary. However, binary files will be
+#' considerably smaller.
 #'
 #' @import
 #' rgl grDevices graphics utils
@@ -61,12 +70,12 @@
 
 Slope3d <- function(Slope_File,
                     colors=c("blue", "cornflowerblue", "green", "yellowgreen", "yellow", "orangered", "red"),
-                    maskNegatives = TRUE, legend = TRUE, leftOffset = 1,
-                    fieldofview = 0, fileName = NA, binary = FALSE)
+                    maskNegatives = TRUE, legend = TRUE, main = '', cex = 1,
+                    leftOffset = 1, fieldofview = 0, fileName = NA, binary = FALSE)
 {
   plyFile <- Slope_File$plyFile
 	colorsfunc <- colorRamp(colors)
-	color_range <- plyFile$Face_Slopes/90
+	color_range <- Slope_File$Face_Slopes/90
 	if(maskNegatives == FALSE) {
 	  color_range[color_range > 1] <- abs(1-(color_range[color_range > 1]-1))
 	  slope_colors <- colorsfunc(abs(color_range))
@@ -77,15 +86,21 @@ Slope3d <- function(Slope_File,
 	}
 	slope_colors <- apply(slope_colors, 1, function(x) rgb(x[1], x[2], x[3], maxColorValue=255))
 	open3d()
-	par3d(windowRect=c(100,100,900,900))
+	layout3d(matrix(c(1,2), byrow=T, nrow=2), heights=c(1,9))
+	par3d(windowRect = c(100, 100, 800, 800/.9))
+	text3d(0,0,0, main, cex=cex*2.5, font=2)
+	next3d()
 	shade3d(plyFile, color=slope_colors, meshColor='faces', shininess=100)
+	rgl.viewpoint(fov = fieldofview)
 	if (legend == TRUE) {
-		Input <- maskNegatives
-		molaR_bgplot(Slope_Legend(colors=colors, maskNegatives=maskNegatives))
+	  if(cex <= 0){stop("cex must be a positive number")}
+	  if(cex > 1.25){
+	    warning("cex greater than 1.25 will restrict legend visibility")
+	  }
+		molaR_bgplot(Slope_Legend(colors=colors, maskNegatives=maskNegatives, size=cex))
 	}
 	if (leftOffset > 1) {warning("Left offset greater than 1 may restrict mesh visibility")}
   if (leftOffset < -1) {warning("Left offset less than -1 may restrict mesh visibility")}
-  rgl.viewpoint(fov = fieldofview)
   ZView <- par3d("observer")[3]
   XView <- leftOffset * ZView *0.05
   observer3d(XView, 0, ZView)

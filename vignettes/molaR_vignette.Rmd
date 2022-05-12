@@ -3,7 +3,8 @@ title: "Using molaR"
 author: "James D. Pampush & Paul E. Morse"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 output:
-  rmarkdown::html_vignette:
+  html_document: {}
+  rmarkdown:
     toc: yes
     fig_width: 5
     fig_height: 5
@@ -13,86 +14,282 @@ vignette: >
 
 ---
 
+### About this document
+This vignette was composed using `rmarkdown` within [RStudio](https://www.rstudio.com/) ver. 1.2.5033. It contains WebGL figures that were produced with `rglwidget()` from the [`rgl`](https://CRAN.R-project.org/package=rgl) package. To properly view WebGL figures, your browser must be running Javascript and WebGL. Visit [https://get.webgl.org](https://get.webgl.org) for further information. 3D plots in this vignette can be rotated using the left mouse button and zoomed with the mouse wheel.
+
+
+
 ## Introduction
 
 The R package `molaR` provides functions that allow the user to quantitatively measure and graphically represent dental surface topography. The following is a demonstration of the primary functions in `molaR`, as well as some recommended best practices.
 
 `molaR` analyzes three-dimensional embedded triangular mesh files (\*.ply files). These files can be imported into R with the function `vcgPlyRead()` from the package [`Rvcg`](https://CRAN.R-project.org/package=Rvcg), which can also clean meshes for users. Two sample mesh data files are provided with the `molaR` package for function demonstration and for users to experiment with: 'Tooth' is a scanned M<sub>1</sub> of *Chlorocebus sabaeus* (a vervet monkey: [USNM 112176](https://n2t.net/ark:/65665/3248bf80f-9f01-44a3-ab1c-26b6d0da2abb)). 'Hills' is an undulating plane produced with the formula: `z = 3cos(x/2) + 3sin(y/2)`.
+Please note that many of embedded graphics have been left out of this document to save on data volume. CRAN only allows packages to be 5mb in size and the inclusion of these large complex rgl surfaces required too much data, and so many have been removed. 
 ```{r setup, message = FALSE}
 library(molaR)
 str(Tooth)
 ```
+Above demonstrates the data  of a typical *.ply file. The `$vb` component is a data frame containing the locations in x-, y-, z- space (in that order) for each of the vertices of the surface. The rows represent from top to bottom the x-, y-, and z- cooridnates for each vertex. The first set of cooridnates corresponds to the first vertex. The second to the second and so on. 
+```{r vertices, message=FALSE}
+Tooth$vb[,1:10]
+```
+The command above calls the first 10 vertices. The first vertex is located at: x=0.168007, y=1.90430, and z=3.217730. The last row doesn't have any meaning in this particular *.ply file but is used as a category for expressing additional information about each vertex. 
 
-### About this document
-This vignette was composed using `rmarkdown` within [RStudio](https://www.rstudio.com/) ver. 1.2.5033. It contains WebGL figures that were produced with `rglwidget()` from the [`rgl`](https://CRAN.R-project.org/package=rgl) package. To properly view WebGL figures, your browser must be running Javascript and WebGL. Visit [https://get.webgl.org](https://get.webgl.org) for further information. 3D plots in this vignette can be rotated using the left mouse button and zoomed with the mouse wheel.
+The `$it` component stores the face information. Each face is defined through a list of three vertices defining the three legs of the triangle. The convention is to use right-hand rule to indicate which side of the face is the outer vs inner side (counter-clockwise rotation around the vertices). View the first ten faces with:
+```{r faces, message=FALSE}
+Tooth$it[,1:10]
+```
+The last important part of the *.ply file is the data frame containing the vertex normals (`$normals`). Each column entry contains information about the x-, y-, z- orientation of the vertex normal and the legnth of the normal. The top 3 rows are ordered x-, y-, z- like the vertex information, and the bottom row contains the length of the normal. Typically the normals are all of unit length. 
+```{r normals, message=FALSE}
+Tooth$normals[,1:10]
+```
+The other two components describe any extra information about the surface and the class of the object (a 3d-mesh, i.e., mesh3d). 
+
+
 
 ## Dirichlet normal energy (DNE)
 
 Dirichlet normal energy can be calculated on a surface with the `DNE()` function. Face energy density values (i.e. the measures of localized curvature) can then be rendered onto a three dimensional surface plot using `DNE3d()`. 
-`DNE()` has 2 important arguments for users:
+`DNE()` has 4 important arguments for users:
 
 ### `outliers`
 
-The first argument, `outliers`, sets the percentage range of outlier faces to be excluded from the DNE summation. Default for outlier exclusion is the top one tenth of one percent (0.001). Some surfaces will require a larger outlier exclusion value, to account for irregularities on the surface.
+The first argument, `outliers`, sets the percentage range of outlier faces to be excluded from the DNE summation. Default for outlier exclusion is the top one tenth of one percent (0.001). Some surfaces will require a larger outlier exclusion value to account for irregularities on the surface.
 
-Typically, outlier faces are associated with dimples, cracks, spikes, or other imperfections on the mesh which are not representative of the overall curvature of the surface. These imperfections can arise due to the molding, casting, scanning, or downstream digital processing of teeth, but may also be 'real' surface features. In the case of these imperfections arising from the original specimen, users should exercise their best judgment when incorporating these features into their analyses. Artifacts arising from the production of the surfaces should ideally be eliminated prior to importation of the surface into R.
+Typically, outlier faces are associated with dimples, cracks, spikes, or other imperfections on the mesh which are not representative of the overall curvature of the surface. These imperfections can arise due to the molding, casting, scanning, or downstream digital processing of teeth, but may also be 'real' surface features. In the case of these imperfections arising from the original specimen, users should exercise their best judgment when incorporating these features into their analyses. Artifacts arising from the production of the surfaces should ideally be eliminated prior to importation of the surface into R. The DNE measurement is extremely sensitive to these imperfections and uncritical application to surfaces can lead to considerable mismeasurement. 
 
-Outlier exclusion is very important for DNE calculation because DNE is a geometrically-based summation. As a curve tightens on a surface, the localized calculation of DNE increases exponentially—not linearly. In some cases, outlier faces will have localized DNE values larger than the rest of the surface combined. Including outliers in the DNE summation is therefore often unrepresentative of the gestalt surface curvature.  
+Outlier exclusion is very important for DNE calculation because DNE is a geometrically-based summation. As a curve tightens on a surface, the localized calculation of DNE increases exponentially—not linearly. In some cases, outlier faces will have localized DNE values larger than the rest of the surface combined. Including outliers in the DNE summation is therefore often unrepresentative of the gestalt surface curvature, however they may represent real features or even the main focus of the investigation. Users will have to make informed decisions while considering the goals and hypotheses of each project.    
+
+### `kappa`
+
+The `kappa` value defines the partitioning of the surface into concave vs convex portions. In addition to the intensity of the curvature, the DNE function also measures surface curvature orientation. The kappa value dictates the division between putative convex and concave faces. A flat face will have a kappa value of 0, negative values are concave. Positive values are convex. The default for `kappa` is 0 but users can adjust it to ensure a large portion of the surface is considered either concave or convex, depending on their analysis goals. This value DOES NOT affect the overall calculation of DNE, it simply just determines the partitioning of the values into the concave and convex portions. Users can of course, ignore this subsetting of the DNE output and continue to use the conventional summed measurement which is  returned in a form unchanged from prior version of `molaR`. 
 
 ### `BoundaryDiscard`
 
-The second argument, `BoundaryDiscard`, sets the criteria for excluding surface faces on the boundary of the mesh. Excluding faces on the boundary of the mesh is important because often these faces have highly irregular and inconsistent vertex normals—due to the lack of an adjacent face with which to calibrate the orientation of the vertex normal. Because the orientations of the vertex normals are included in the DNE calculation, it is important that they be accurate, however this is often not the case with vertices on the mesh boundary. 
+The third argument, `BoundaryDiscard`, sets the criteria for excluding surface faces on the boundary of the mesh. Excluding faces on the boundary of the mesh is important because often these faces have highly irregular and inconsistent vertex normals—due to the lack of an adjacent face with which to calibrate the orientation of the vertex normal. Because the orientations of the vertex normals are included in the DNE calculation, it is important that they be accurate, however this is often not the case with vertices on the mesh boundary. 
 
-There are three options for `BoundaryDiscard`: 'Vertex' (default) will exclude faces with at least 1 vertex on the boundary from the DNE summation. 'Leg' will exclude faces which have a leg (i.e., 2 vertices) on the boundary; this setting was formerly the default and many previous publications have used this boundary exclusion criterion. However, recent studies have shown that 'Vertex' more reliably eliminates problematic faces. 'None' will not discard any boundary faces, this option should be used when working on a closed surface (i.e., a mesh with no boundary). 
+There are three options for `BoundaryDiscard`: 'Vertex' (default) will exclude faces with at least 1 vertex on the boundary from the DNE summation. 'Leg' will exclude faces which have a leg (i.e., 2 vertices) on the boundary; this setting was formerly the default and many previous publications have used this boundary exclusion criterion. However, recent studies have shown that 'Leg' often fails to eliminate problematic faces, so as of `molaR` 4.5 the default has been to exclude faces with any vertex on the boundary. 'None' will not discard any boundary faces, this option should be used when working on a closed surface (i.e., a mesh with no boundary).
+
+
+### `oex`
+
+Outlier exclusion partitioning, `oex` is a string with two options. `c` (default) excludes outliers off the surface by considering the entire surface as a whole and then discarding the user-defined outlier percentage. `s` splits the surface into the concave and convex portions and then discards the user-defined percentage from each of the two portions. The two options eliminate the same number of faces but the percentage of each orientation removed will be defined by this parameter. In the case of most dental surfaces, the majority of faces identified as outliers tend to be included in the concave portions of the surface. Yet in many taxa the convex portions of the surface account for the majority of the total surface area. Because of these factors, users should carefully evaluate how they want their outliers excluded. It is the recommendation of the authors not to adjust the exclusion criteria and leave it as removing the top 0.001 of faces, regardless of concavity and convexity. 
+
 ```{r DNE_basic}
 DNE1 <- DNE(Tooth)
 ```
+Running the `DNE()` function returns the Convex, Concave, and Total Surface DNE. Users uninteresed in the paritioning of the surface can ignore the Convex and Concave reportings and focus on the Total Surface DNE, which in this tooth mesh is measured at 183.9593. For more details users can explore the components of the `DNE1` object (see below). 
+
 
 ### `DNE3d()`
-The energy densities calculated across the surface can be plotted using the `DNE3d()` function. Due to the skewed distribution of exponentially-increasing energy densities, with relatively few mesh faces typically contributing large values to the total surface DNE, DNE plots by default display log-transformed surface energy, which users can disable with the `logColors` parameter.
+The energy densities calculated across the surface can be plotted using the `DNE3d()` function. Due to the skewed distribution of exponentially-increasing energy densities, with relatively few mesh faces typically contributing large values to the total surface DNE, DNE plots by default display log-transformed surface energy, which users can disable with the `logColors` parameter. Additionally, as of molaR 5.0 `DNE3d()` also applies two different color patterns—inspired from precipitation maps showing combinations of rain and snow—for the concave and convex portions. Users can disable this feature with the argument `signColor=FALSE`, restoring the conventional plotting color scheme. 
+
+Users can title the plot with the `main` argument. Font sizes are adjustable with the `cex` and `cex.main` arguments. Users can make additional tweaks to their plots with the other arguments `leftOffset` and `legend`. If the user wishes to export their plot (without the scale, however) into a surface mesh PLY file, they can by specifying a name after the `fileName` argument. This will print a DNE-colored *.ply file of the supplied name to the working directory. These files can then be imported into other visualizing software packages with the DNE coloration intact. 
 ```{r DNE_plot, eval=FALSE}
-DNE3d(DNE1)
+DNE3d(DNE1, main='Vervet Tooth')
 ```
 <center>
 ```{r DNE_plot1, fig.align='center', echo=FALSE}
-DNE3d(DNE1)
+DNE3d(DNE1, main='Vervet Tooth')
 rglwidget()
 ```
 </center>
 
-Note that the color scale in this plot is set relative to the intrinsic energy values of *this* surface. When comparing multiple surfaces, setting the scale manually will ensure it is the same for all. This is done with the `setRange` parameter.
-```{r DNE_setRange, eval=FALSE}
-DNE3d(DNE1, setRange = c(0, 1.3))
+Note that the color scale in the plot above is set relative to the intrinsic energy values of *this* particular surface. When comparing multiple surfaces, setting the scale manually will ensure it is the same for all, making comparisons much easier. This is done with the `setMax` parameter. `setMax` can be set to any positive value. It will set the top of the scale to the supplied value and color all faces exceeding the `setMax` value the max range color. Alternatively, a `setMax` value dramatically higher than any surface value will have the effect of muting the color of the surface. This may be necessary to make some surface comparisons. When a user supplies a setMax dramatically smaller than most of the values on the surface, all values exceeding the setMax will be colored with the most extreme reds and pinks. In the example below, the new max range value is set *much* higher than the original max value of 0.26318. Note how much 'duller' and 'cooler' the generated surface looks. 
+```{r DNE_setMax, eval=FALSE}
+DNE3d(DNE1, setMax = 1.3, main='Vervet Tooth')
 ```
 <center>
-```{r DNE_setRange_plot, echo=FALSE}
-DNE3d(DNE1, setRange =  c(0, 1.3))
-rglwidget()
-```
+(Plot not shown to save data volume)
 </center>
 
 The reported "Total Surface DNE" excludes boundary faces and the faces with the highest 0.1% energy densities (according to the value supplied for `outliers`). Both sets of faces can be accessed through indexing the object created by the DNE function. 
 
-The faces identified as being on the boundary or having the highest localized DNE values are stored in the list headers under 'Edge_Values' and 'Outliers' respectively. You can view their localized DNE values, areas, and locations. 
+The faces identified as being on the boundary or having the highest localized DNE values are stored in the list headers under 'Boundary_Values' and 'Outliers' respectively. You can view their localized DNE values, areas, and locations. 
 ```{r str_DNE, DNE_object}
 str(DNE1)
 head(DNE1$Boundary_Values)
 head(DNE1$Outliers)
 ```
 
+Users can also index the DED (Dirichlet Energy Density) values, areas, and kappa values on each individual face under the `$Face_Values` portion of the `DNE()` output. Users may decide that some faces should be reincorporated into their analyses, and this can be quickly done by adjusting the `outliers` and `BoundaryDiscard` arguments. 
 For users trying to better understand DNE, consider exploring its properties on the 'Hills' object, which is a simple sine-cosine undulating plane. 
+
+DNE is a very complex measurement and researchers should be careful with its application. As of molaR 5.0 there are some additional advanced plotting functions aimed at allowing users to examine their results in finer detail so they can be more confident about their conclusions. Below is a brief summary of some of these new functions. Additionally, remember that the `DNE()` function produces an object which can be indexed for many more specialized analyses.
+
+### `DNE3dDiscard()`
+This function plots the analyzed surface highlighting the faces removed from the analysis either because they were classified as outliers, or boundary faces. Users can customize the color of the surface with the arguments `boundCol` and `outlierCol`. Additionally, the user can chose to highlight the concave versus convex aspects of the surface by naming new colors in either the `baseCol`, `concaveCol`, or both arguments. Like `DNE3d()`, users can title their plot, fine adjust the view, and export a 3D ply file. This function can help users quickly identify exactly which faces are being excluded from their DNE summation, but may also offer useful ways of visualizing the concave versus convex areas of the surface. 
+
+```{r DNE3dDiscard, eval=FALSE}
+DNE3dDiscard(DNE1, concaveCol='pink', main='Vervet Tooth')
+```
+<center> 
+(plot not shown to save data)
+</center>
+
+### `DNEpie()`
+`DNEpie()` works on an object made by the `DNE()` function and plots the proportions of either area or DNE contained within the concave and convex partitions. The partitioning is determined by the user inputted `kappa` value from the original `DNE()` analysis. Surface area within each partition is the default plot, but users can plot DNE totals with `type=DNE`. Users can customize the colors in the plot with the arguments `convexCol` and `concaveCol`. 
+
+
+```{r DNEpie, eval=FALSE}
+DNEpie(DNE1, convexCol='seashell', concaveCol='purple', main='Vervet Tooth')
+DNEpie(DNE1, convexCol='seashell', concaveCol='purple', main='Vervet Tooth', type='DNE')
+```
+<center>
+```{r DNEpie_plot, echo=FALSE, fig.show='hold', out.width='40%'}
+DNEpie <- function(DNE_File, main='', type='area', convexCol='hotpink', concaveCol='deepskyblue') {
+	DNE_object <- DNE_File
+	if(type=='area') {
+	slices <- c(DNE_object$Convex_Area, DNE_object$Concave_Area)
+	}
+	if(type=='DNE'){
+	slices <- c(DNE_object$Convex_DNE, DNE_object$Concave_DNE)
+
+	}
+	if(type=='area'){
+	names <- c('Convex Area', 'Concave Area')
+	}
+	if(type=='DNE'){
+	names <- c('Convex DNE', 'Concave DNE')
+	}
+	ptc <- round(slices/sum(slices)*100)
+	labels <- paste(names, paste(ptc, '%', sep=''), sep=' ')
+	col1 <- col2rgb(convexCol)/255
+	col2 <- col2rgb(concaveCol)/255
+	pie(slices, clockwise=T, labels=labels, main=main, cex=0.85, radius=0.75, col=c(col=rgb(col1[1], col1[2], col1[3]), col=rgb(col2[1], col2[2], col2[3])))
+	
+}
+DNEpie(DNE1, convexCol='seashell', concaveCol='purple', main='Vervet Tooth')
+DNEpie(DNE1, convexCol='seashell', concaveCol='purple', main='Vervet Tooth', type='DNE')
+```
+</center>
+The domination of the surface by the convex area is pretty typical of Cercopithecoid teeth. Note that the concave areas of the tooth account for slightly more of the total DNE value than is expected based on the percentage of concave surface area. This is a very different arrangement as compared to the `Hills` object. 
+
+```{r HillsDNE}
+Hills1 <- DNE(Hills)
+```
+```{r DNEpieHills, eval=FALSE}
+DNEpie(Hills1, convexCol='seashell', concaveCol='purple', main='Vervet Tooth Area')
+DNEpie(Hills1, convexCol='seashell', concaveCol='purple', main='Vervet Tooth DNE', type='DNE')
+```
+<center>
+(Plot not shown to save data volume)
+</center>
+Note how much more of the surface is contained within the concave portions of the `Hills` surface. And as before, the total DNE contained within the concave portion of the surface is slightly higher than would be predicted based purely on the amount of area contained within each partition. 
+
+
+### `DNEDensities()`
+`DNEDensities()` works on an object made by the `DNE()` function and produces density plots of face DNEs (Dirichlet normal energy per face, i.e. Dirichlet normal energy density) or face areas within the concave and convex partitions. The partitioning is determined by the user supplied `kappa` value from the original `DNE()` analysis. DNE densities is the default plot, but users can plot face area densities with `type=area`. The default location of the legend is topright, but users can adjust this with the `legendPos` argument, which accepts keywords (i.e., 'topleft', 'bottomright', etc). Users can customize the colors in the plot with the arguments `convexCol` and `concaveCol`. Titles can be added with the `main` argument.
+```{r DNEDensities, eval=FALSE}
+DNEDensities(DNE1, convexCol='seashell', concaveCol='purple', main='Vervet Tooth DNEs')
+DNEDensities(DNE1, convexCol='seashell', concaveCol='purple', main='Vervet Tooth \nFace Areas', type='area')
+```
+<center>
+```{r DNEDensities_plot, echo=FALSE, fig.show='hold', out.width='40%'}
+DNEDensities <- function(DNE_File, main='', type='DNE', legendPos='topright', convexCol='hotpink', concaveCol='deepskyblue') {
+DNE_object <- DNE_File
+concaves <- which(DNE_object$Face_Values$Kappa_Values<DNE_object$Kappa)
+if(type=='DNE') {
+cavs <- log(DNE_object$Face_Values$Dirichlet_Energy_Densities[concaves])}
+if(type=='area') {
+cavs <- log(DNE_object$Face_Values$Face_Areas[concaves])	
+}
+dcavs <- density(cavs)
+convexs <- which(DNE_object$Face_Values$Kappa_Values>DNE_object$Kappa)
+if(type=='DNE') {
+vexs <- log(DNE_object$Face_Values$Dirichlet_Energy_Densities[convexs])}
+if(type=='area') {
+vexs <- log(DNE_object$Face_Values$Face_Areas[convexs])	
+}
+dvexs <- density(vexs)
+yuplim <- max(max(dvexs$y), max(dcavs$y))
+xuplim <- max(max(dvexs$x), max(dcavs$x))
+
+xlolim <- min(min(dvexs$x), min(dcavs$x))
+if (type=='DNE') {
+lab <- 'Log(DNE-Face Densities)'
+}
+if(type=='area') {
+lab <- 'Log(Face Area)'	
+}
+plot(dvexs, ylim=c(0, yuplim), xlim=c(xlolim, xuplim), main=main, xlab=lab)
+col1 <- col2rgb(convexCol)/255
+col2 <- col2rgb(concaveCol)/255
+polygon(dvexs, col=rgb(col1[1], col1[2], col1[3], 9/10))
+polygon(dcavs, col=rgb(col2[1], col2[2], col2[3], 6/10))
+
+
+if(type=='DNE') {
+	legtex <- c('Convex DNEs', 'Concave DNEs')
+}
+if(type=='area') {
+	legtex <- c('Convex Areas', 'Concave Areas')
+}
+legend(legendPos,legend=legtex, cex=0.5, fill=c(col=rgb(col1[1], col1[2], col1[3], 9/10), col=rgb(col2[1], col2[2], col2[3], 6/10)))
+
+}
+
+DNEDensities(DNE1, convexCol='seashell', concaveCol='purple', main='Vervet Tooth DNEs')
+DNEDensities(DNE1, convexCol='seashell', concaveCol='purple', main='Vervet Tooth \nFace Areas', type='area')
+```
+</center>
+The density plots can be very useful for examining whether outliers have been appropriately excluded from the surface, and to determine whether or not the faces are of relatively equal size with a normal(ish) distribution. As we can see here, there is only a small leftward skew in face DNE values (very small numbers) and not much of a rightward skew towards very large face values. This indicates that the Total Surface DNE value is well representative of the surface *gestalt*. Furthermore, the face areas plot shows a normal distribution, suggesting that the surface is well processed with faces of roughly equal size throughout. 
+
+Keen users should be able to associate specific features on the mesh surface with particular aspects of the density plots. 
+
+
+
+### `DNEbar()`
+The function `DNEbar()` is made to quickly compare DNE values across multiple surfaces. `DNEbar()` plots bar charts of surface DNE. Charts can display any of three options, convex DNE total, concave DNE total, and a stacked barplot of both convex and concave DNE surface totals. Users can toggle between these options using the `type` argument which accepts 'Concave', 'Convex', or 'both' (default). Users can title their plot with `main`, relocate the position of the legend with `legendPos` and `legendInset` as well as customize the plot colors with `convexCol` and `concaveCol`.
+This function works best when applied to a list of  `DNE()` produced objects, but will also plot a single surface if applied to an output of the `DNE()` function directly. When using a list, the names of each item in the list will be used for the labels below each bar in the plot. Users can alter the orientation of the names with the `las` argument, text size with the `cex.names` argument, and can optionally decide to supply their own names for the bar, which will need to be inserted with the arugment `names.arg=c()`. All of these customizing arguments are passed to and works as it does in the `barplot()` base R function.
+
+```{r DNEbar_list, eval=FALSE}
+DNEs <- list()
+
+DNE1 <- DNE(Tooth)
+DNE2 <- DNE(Hills)
+
+DNEs$Tooth <- DNE1
+DNEs$Hills <- DNE2
+
+DNEbar(DNEs, convexCol='seashell', concaveCol='purple')
+```
+
+
+```{r DNEbar_plot_prep, echo=FALSE}
+DNEs <- list()
+
+DNE1 <- DNE(Tooth)
+DNE2 <- DNE(Hills)
+
+DNEs$Tooth <- DNE1
+DNEs$Hills <- DNE2
+```
+
+<center>
+```{r DENbar_plot, echo=FALSE}
+DNEbar(DNEs, convexCol='seashell', concaveCol='purple')
+```
+</center>
+
+
+
+
 
 ## Relief Index (RFI)
 
-The `RFI()` function will measure the three dimensional surface area of the tooth crown and the two dimensional area of the tooth's planimetric footprint, then use these values to calculate the relief index. The `molaR` `RFI()` function relies on an alpha-shape convex hull algorithm which sometimes requires adjustment to properly measure the 2D footprint area. Thus `RFI()` has one argument, `alpha` which by default is set to the value `0.06`. 
+The `RFI()` function will measure the three dimensional surface area of the tooth crown and the two dimensional area of the tooth's planimetric footprint, then use these values to calculate the relief index. The `molaR` `RFI()` function relies on an alpha-shape convex hull algorithm which sometimes requires adjustment to properly measure the 2D footprint area. Thus `RFI()` has two arguments both centered around the alpha value. The first is `alpha` which by default is set to the value `0.06` (more below). The second is the logical `findAlpha` which uses an iterative search to identify the optimal alpha value. Default is `FALSE` for `findAlpha`. 
 
 ### `alpha`
 
 To calculate the 2D footprint area, all mesh vertices are compressed into a single X-Y plane. The `ahull()` algorithm from the package [`alphahull`](https://CRAN.R-project.org/package=alphahull) then traces the boundaries of the 2D footprint through successively linking points together in a step-wise manner. The upper left-most vertex is typically the starting point, and a radius equal to a percentage of the distance between the 2 furthest points then pivots around the starting point in a counter-clockwise fashion until it contacts another vertex. The newly contacted vertex is the next point in the convex hull succession and identified as part of the footprint boundary.
 
-The size of the radius used to seek the next point in the succession is determined by the `alpha` argument. Too small an `alpha` could result in stranding the succession on a point where the next is too far to reach. Too small an `alpha` sometimes results in finding a point which is interior to the boundary because the next boundary point is further away than the length of the radius. Alternatively, too large an `alpha` can result in 'short-cutting' an infolding, causing the footprint to be erroneously large.
+The size of the radius used to seek the next point in the succession is determined by the `alpha` argument. Too small an `alpha` could result in stranding the succession on a point where the next is too far to reach (i.e. shorter than the search radius). Too small an `alpha` may also result in finding a point which is interior to the boundary because the next boundary point is further away than the length of the radius. Alternatively, too large an `alpha` can result in 'short-cutting' an infolding, causing the footprint to be erroneously large. 
+For these reasons, surfaces with very short vertical sidewalls tend to have issues calculating RFI because the boundaries of the 2D planimetric footprint are relatively bereft of vertices. Provided there are no significant infoldings, it is often best to increase the size of `alpha` when working with such surfaces.
 
-Experimentation has shown, that for the particular example tooth provided in `molaR`, the best `alpha` value is `0.08`.
+Calculating RFI with `molaR`'s `RFI()` function is a bit different than the other calculations in that it can be performed on surfaces of any vertex and face count. This is not the case for current iteration of `DNE()` and `OPC()` because the calculations are based around individual faces, and very high face counts encounter computational limits. 
+
+Experimentation has shown, that for the particular example tooth provided in `molaR`, the best `alpha` value is `0.08`, but on most surfaces a value of 0.06 seems to work best.
 ```{r RFI_basic}
 RFI1 <- RFI(Tooth, alpha=0.08)
 ```
@@ -104,10 +301,7 @@ To ensure the proper `alpha` value has been chosen for your surface, it is often
 Check2D(RFI1)
 ```
 <center>
-```{r Check2D_plot, echo=FALSE}
-Check2D(RFI1)
-rglwidget()
-```
+(plot not shown to save on data volume)
 </center>
 
 `Check2D()` plots the points identified as being on the boundary, and then plots slice-shaped triangles originating from the footprint center to each successive pair of the identified boundary points. The colorized footprint is the one calculated and used by the `RFI()` function. When using `Check2D()`, the user should inspect the boundary points to make sure the colorized footprint accurately and closely traces the boundary points. Additionally, users should rotate the surface looking for glinting rays originating from the central point or vertices (other than the center) located inside the apparent footprint boundary. These are indicative of extra slice-shaped triangles layered onto the 2D footprint by errant recycling of boundary points by the `ahull()` function. When it appears that infoldings are 'short-cut' by the `ahull()` function, users should reduce the alpha-value with the `alpha` argument. When there are extra pie-slice shaped triangles (see above), or the identified boundary clearly infiltrates the actual boundary of the surface, the alpha-value should be increased. 
@@ -119,11 +313,13 @@ The three dimensional surface and its two dimensional footprint can be plotted a
 ```{r RFI_plot, eval=FALSE}
 RFI3d(RFI1)
 ```
+<center>
 (plot not shown to save on data volume)
+</center>
 
 ## Orientation Patch Count (OPC)
 
-The `OPC()` function bins each triangular face on a mesh surface into one of 8 groups based on the X-Y orientation of the face normal, then determines the number of resulting contiguous "patches" composed of adjacent faces sharing the same orientation. Once all the patches have been identified, they are summed to get the OPC value.
+The `OPC()` function bins each triangular face on a mesh surface into one of 8 groups based on the X-Y orientation of the face normal, then determines the number of resulting contiguous "patches" composed of adjacent faces sharing the same orientation. Once all the patches have been identified, they are counted to get the OPC value.
 
 The OPC function has 3 arguments: `rotation` is how many degrees in the X-Y plane the surface will be rotated prior to assessing face orientations, default is `0`. `minimum_faces` sets the minimum number of faces a patch must possess to be counted for the total OPC value. Default for `minimum_faces` is `3`, following the original 2.5D implementation of OPC. Alternatively, users can disable the `minimum_faces` argument by supplying a positive value to the `minimum_area` argument, which stipulates a minimum proportion of the total surface area of the tooth each patch must meet to be counted in the total OPC. 
 
@@ -131,7 +327,7 @@ The OPC function has 3 arguments: `rotation` is how many degrees in the X-Y plan
 OPC1 <- OPC(Tooth)
 ```
 
-### OPC patch parameters
+### `OPC patch parameters`
 
 As noted above, the default for the `OPC()` function counts any patch consisting of three or more faces. This can be changed using the `minimum_faces` parameter or overridden by the `minimum_area` parameter, which sets the minimum proportion of total surface area a patch must contain to be counted.
 
@@ -140,7 +336,7 @@ OPC2 <- OPC(Tooth, minimum_faces = 20)
 OPC3 <- OPC(Tooth, minimum_area = 0.01)
 ```
 
-### Orientation Patch Count Rotated (OPCr)
+### `Orientation Patch Count Rotated (OPCr)`
 
 Due to the somewhat arbitrary boundaries of bins, differences in specimen orientation during analysis can result in minor variations of OPC. The `OPCr()` function attempts to account for this by iteratively rotating the tooth (default is 8 iterative rotations spanning a total of 45&deg;) and calculating the OPC of each iteration. A mean OPC is reported. Users can alter the number of rotations with the `Steps` argument, and the size of each rotation (in degrees) with the `stepSize` argument.
 
@@ -164,16 +360,15 @@ OPCr_Example2$Each_Run
 
 With an object created by the `OPC()` function, (but importantly, **NOT** the `OPCr()` function), users can plot OPC onto their surfaces with the function `OPC3d()`.
 
-`OPC3d()` has several arguments that allow the user to customize their plots. `binColors` is a string of colors users can customize to achieve the desired appearance of their plots; default is set to a rainbow array. `patchOutline` is a logical argument that when enabled traces patches with an outline (default `FALSE`), while `outlineColor` sets the tracing color (default is black). 
+`OPC3d()` has several arguments that allow the user to customize their plots. `binColors` is a string of colors users can customize to achieve the desired appearance of their plots; default is set to a rainbow array. If users supply fewer colors than orientation bins, then the additional bins will be colored white. `patchOutline` is a logical argument that when enabled traces patches with an outline (default is `FALSE`), while `outlineColor` sets the tracing color (default is 'black'). 
+
+Other plotting options include the logical `maskDiscard` which blacks out faces excluded from the analysis for being part of an undersized patch. The logical `legend` enables users to disable the legend. Alternatively when the logical `scaleLegend` is engaged, the sector radii of the legend pie plot will be scaled to the relative surface area contained in each orientation bin (colored correspondingly, of course, default is false). 
 
 ```{r OPC_plot, eval=FALSE}
-OPC3d(OPC1)
+OPC3d(OPC1, scaleLegend=TRUE, main='Vervet Tooth')
 ```
 <center>
-```{r OPC_plot1, echo=FALSE}
-OPC3d(OPC1)
-rglwidget()
-```
+(Plot not shown to save on data volume)
 </center>
 
 OPC plots are highly customizable with color palettes and patch outlines: 
@@ -184,7 +379,28 @@ colors <- c('firebrick', 'whitesmoke', 'deeppink', 'darkorchid', 'cornflowerblue
 ```{r OPC_Custplot, eval=FALSE}
 OPC3d(OPC1, binColors=colors, patchOutline=T, outlineColor='yellow')
 ```
+<center>
 (plot not shown to save data)
+</center>
+
+
+### `OPCbinareas()`
+The function `OPCbinareas()` produces either a barplot or a pie chart of the surface areas for each bin in the OPC analysis. Users can choose a pie chart by including `type=pie`. Titles can be included using the `main` argument, and users can modify the colors of the plot by entering a string of color key words in the order of the bins. 
+
+```{r OPCbinareas_code, eval=FALSE}
+OPCbinareas(OPC1, main='Vervet Tooth')
+OPCbinareas(OPC1, main='Vervet Tooth', type='pie')
+```
+
+<center>
+```{r OPCbinareas_plots, echo=FALSE, fig.show='hold', out.width='40%'}
+OPCbinareas(OPC1, main='Vervet Tooth')
+OPCbinareas(OPC1, main='Vervet Tooth', type='pie')
+```
+</center>
+
+
+
 
 ## Slope
 
@@ -208,8 +424,103 @@ The slope of each face can be plotted with the `Slope3d()` function. Color contr
 Slope3d(Slope1)
 ```
 <center>
-```{r Slope_plot1, echo=FALSE}
-Slope3d(Slope1)
-rglwidget()
-```
+(Plot not shown to save on data volume)
 </center>
+
+
+
+## Note for Mac users
+
+If you use a Mac, you may run into some unique problems when trying to install and use molaR. Two common problems are discussed here. 
+
+In order to produce the three-D visual maps of topographic surfaces in a Mac OS 10.14 or later, users will need to download and keep updated [`XQuartz`](https://www.xquartz.org/). 
+
+Some users may run into problems trying to install the molaR dependency [`alphahull`](https://CRAN.R-project.org/package=alphahull) or its dependencies. If the resulting error includes the term `xcrun` this indicates that the Mac OS the user is running doesn't include Xcode, which offers many features but importantly for `alphahull` Xcode translates commands between code languages. Something necessary for some of the `alphahull` calculations. To install Xcode on a Mac, open Terminal and run: `xcode-select --install`. This will download and install Xcode. If that does not work you may need to reset Xcode. Do that by opening Terminal and running: `sudo xcode-select --reset`. 
+The easiest way to open Terminal on Mac is to hold the command key and hit the space bar. 
+
+
+## Tips and Concluding Thoughts
+
+Do you need to process a lot of surfaces all at once? Do you want a simple way to output them all together? Then you want to explore using `molaR_Batch()`. 
+
+Basically, `molaR_Batch()` will apply your desired dental topography analyses to a folder full of *.ply files and output a 
+*.csv file of the numbers. Its quick and dirty and really meant as a kind of exploratory tool for a quick numbers. He's an example of how you could code it:
+
+```{r molaR_Batchex, eval=FALSE}
+molaR_Batch(pathName=~PathToYourFolder, filename=DNEBatch.csv, DNE=TRUE, RFI=FALSE, OPCr=FALSE, Slope=FALSE)
+```
+This chunk of code would produce a .csv file of DNE values from all the *.ply files in the folder at the end of ~PathToYourFolder. I have a much more useful bit of code further down in this section. 
+
+Are you running into a surface which is giving you some problems? After importing it as an object, try overwriting the original file after running it through the `molaR_Clean()` function. For example:
+
+```{r molaR_Clean1, eval=FALSE}
+Tooth.cleaned <- molaR_Clean(Tooth)
+```
+
+```{r molaR_Clean2, echo=FALSE}
+Tooth.cleaned <- molaR_Clean(Tooth)
+```
+
+This is a poor example because the Vervet Tooth file we provide is a high quality mesh and the `molaR_Clean()` function cannot identify any problematic faces or vertecies. A face which has no area (i.e. two legs of the face are on top of one another), or vertices which are not associated with any faces ('floating' vertices) need to be removed or they can foul up many of `molaR`'s functions. These types of defects can be removed with `molaR_Clean()`, which has two arguments (`cleanType`, and `verbose`). `cleanType` is a string with three arguments defining what to clean: 'Vertices', 'Faces', or 'Both'. 
+`verbose` is a logical which toggles on and off the printing to the console of the alterations made to the ply file. Often this is a good check to make sure that was the problem with your analysis. 
+
+The quality of the surface is everything. The tools packaged here in `molaR` cannot work around problems related to the surfaces themselves. 
+
+
+
+
+If you're like me, and you want to really explore your data when you analyze it so that you are certain you understand the story it is telling, then consider using some `list()` objects in combination with the tools in `molaR`. 
+
+For example. Here is a little piece of code you can use if you have a folder full of *.ply files and you want to play around with them in R with `molaR`. 
+
+Lets assume you have a folder on your desktop called 'teeth' and its full of *.ply files. You can read them into R with the following bit of code. 
+```{r PLYs_to_list, eval=FALSE}
+files.teeth <- list.files(path='/Desktop/teeth', pattern='.ply')
+
+files <- list()
+
+l.files <- length(files.teeth)
+
+for(i in 1:l.files) {
+  file <- paste('~/Desktop/teeth/', files.teeth[i], sep='')
+  temp <- vcgPlyRead(file)
+  files[[i]] <- molaR_Clean(temp)
+  names(files)[i] <- files.teeth[i]
+}
+```
+That bit of code just created a list object `files` which is a set of *.ply files all read in together into a single object. This can be real handy now. For example, you can now make similar objects of this one, but with the completed dental topography analyses from molaR. 
+
+
+Here is a useful set of examples using DNE and its related functions. 
+
+```{r DNEList_Object, eval=FALSE}
+DNEs <- list()
+for(i in 1:length(names(files))) {
+  DNEs[[i]] <- DNE(files[[i]])
+  names(DNEs)[i] <- names(files)[i]
+}
+```
+`DNEs` is now an object similar to `files` in which all the surfaces have been analyzed for DNE and is as list of DNE_Objects. 
+
+Try running:
+``` {r DNEList_Object1, eval=FALSE}
+DNEbar(DNEs)
+
+DNEpie(DNEs[[1]], main=as.character(names(DNEs)[1]))
+
+DNE3d(DNEs[[1]], main=as.character(names(DNEs)[1]))
+
+DNE3dDiscard(DNEs[[1]], main=as.character(names(DNEs)[1]))
+
+DNEDensities(DNEs[[1]], main=as.character(names(DNEs)[1]))
+```
+If you ran these commands and properly produced the `DNEs` list object, then you should see how easy it is to index the DNE_Objects out of that list. This should make keeping track of your data, anlyzinging, plotting it, and understanding it, much easier (well, maybe not that last part...).
+
+
+
+There are problems, for sure. We are amateur coders; anatomists and anthropologists by original training and self taught developers, sorry. But still, we believe this is an excellent set of dental topography tools, which may as yet find many new applications. We have seen so many creative applications since `molaR` was first published. Additionally, please, feel free to find creative new extensions of this work, so that it too may evolve as a tool.
+
+
+
+
+

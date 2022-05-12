@@ -1,91 +1,90 @@
 #' Plot results of a DNE analysis of a surface 
 #' 
-#' A function that produces a three-dimensional rendering of surface DNE.
-#' The DNE function will identify amount of change in mesh face normal orientation
-#' between adjacent faces, and associate these values (adjusted for face size) to
-#' each face on the surface. It must be performed prior to using the DNE3d function.
+#' a molaR surface plotting function
 #' 
-#' @param DNE_File An object that stores the output of the DNE
+#' @param DNE_File An object that stores the output of the `DNE()`
 #' function
-#' @param setRange User-defined range for plotting color scheme, see
+#' @param setMax User-defined upper range for plotting color scheme, see
 #' Details
 #' @param logColors Logical that log transforms the color scheme
-#' @param edgeMask Logical that colors edge faces black to indicate their
-#' lack of contribution to the total Dirichlet normal energy
-#' @param outlierMask Logical that colors outlier faces dark gray to
-#' indicate their lack of contribution to the Dirichlet normal energy
-#' @param legend Logical indicating whether or not a legend
-#' should be displayed
-#' @param legendScale numeric value setting the relative size of the legend,
-#' similar in function to cex
-#' @param leftOffset numeric value between -1 and 1 setting the degree of
-#' offset for the plotted surface to the left; larger values set further to left
-#' while 0 is centered
-#' @param fieldofview Passes an argument to par3d changing the field of
-#' view in degrees of the resulting surface plot
+#' @param signColor Logical indicating whether or not to plot by 
+#' concavity vs convexity. Plotting by curve orientation is the default. 
+#' @param main String indicating plot title
+#' @param cex Numeric setting the relative size of the legend
+#' @param cex.main Numeric setting the size of the title
+#' @param legend Logical indicating whether or not a legend should be displayed
+#' @param leftOffset Numeric between -1 and 1 setting the amount of offset for
+#' the plotted surface to the left. Larger values push surface farther to right. 
+#' @param fieldofview Passes an argument to `par3d()` changing the field of
+#' view (in degrees) of the resulting 3D plot
 #' @param fileName String indicating a name to save the plotted surface to as a
 #' *.ply file; default of 'NA' will not save a file
 #' @param binary Logical indicating whether or not the saved surface plot should
-#' be binary, passed to vcgPlyWrite
+#' be binary, passed to `vcgPlyWrite()`
 #'
 #' @details This function creates a heat map on the mesh surface
-#' corresponding to the Dirichlet normal energy of each face calculated by
-#' the DNE function. Hottest colors represent highest normal energy
+#' corresponding to the Dirichlet energy density of each face calculated by
+#' the `DNE()` function. Hottest colors represent highest normal energy
 #' values.
 #'
-#' Dirichlet normal energies for the faces of a mesh surface tend to be
+#' Dirichlet energy densities for the faces of a mesh surface tend to be
 #' positively skewed, with a small proportion of the faces contributing
-#' much of the total energy for the surface. When logColors is enabled the
-#' function colorizes based on the log-transformed Dirichlet normal
-#' energies, allowing for finer visual discriminiation between faces near the
-#' mode of the energy per face distribution. Disabling logColors will display the
-#' untransformed Dirichlet normal energies.
+#' most of the total energy for the surface. When `logColors` is enabled, the
+#' function colorizes based on the log-transformed Dirichlet energy
+#' densities, allowing for finer resolution between faces near the mode of
+#' the energy per face distribution. Disabling `logColors` will display the
+#' un-transformed Dirichlet energy densities.
 #'
-#' The legend reflects the other arguments chosen by the user, including log
-#' transformation, and whether or not an outlier or edge mask is enabled.
-#' 
-#' By default, the function sets the lowest Dirichlet normal energy
-#' calculated among all faces to a cool color and the highest normal energy
-#' calculated among all faces to red, and then colors the remaining faces
-#' on a continuous color spectrum between these two end points using
-#' either absolute or log-transformed Dirichlet normal energy values
-#' (depending on the value of logColors). Since the scale is relative to the
+#' The legend will update to reflect the other arguments chosen by the
+#' user. By default, the function sets the lowest Dirichlet energy density
+#' calculated among all faces to a cool color and the absolute highest normal
+#' energy calculated among all faces to a hot color, and then colors the remaining
+#' faces on a continuous color spectrum between these two end points using
+#' either absolute or log transformed Dirichlet energy density values
+#' (depending on the status of `logColors`). Since the scale is relative to the
 #' energies of the input surface, visual comparisons cannot directly be
-#' made between multiple plots of different surfaces. The setRange
-#' argument allows users to define the minimum and maximum of the
-#' plotting color scheme and use it in multiple plots. This enables the
+#' made between multiple plots of different surfaces.
+#' 
+#' The `setMax` argument allows users to define the maximum of the
+#' plotting color scheme for use across multiple plots. This enables the
 #' direct comparison of different surfaces to one another with red equal to
-#' the user-defined maximum and a cool color equal to the user-defined
-#' minimum. The user should choose reasonable bounds for the
-#' maximum and minimum that are near the maximum and minimum
-#' Dirichlet normal energies calculated for their surfaces. setRange will
-#' not accept negative values.
+#' the user-defined maximum and a cool color equal to the minimum. The user 
+#' should choose a reasonable upper bound for the maximum. `setMax` will not 
+#' accept negative values. If there are faces with Dirichlet normal energy
+#' values higher than the `setMax` value, these faces are marked with the
+#' highest possible color.
+#'
+#' The logical `signColor` colors the surface with two separate gradients,
+#' one for the convex and one for the concave faces (curvature sign). By
+#' default, the plot now makes this distinction.
 #' 
-#' The leftOffset value sets how far to the left the surface will appear, intended
-#' to help avoid overlap with the legend. A value of 0 for this argument will center
-#' the surface in the plotting window and negative values will shift it to the right.
+#' A title can be added to the plot by supplying a character string to the `main`
+#' argument. Title and legend size are controlled with the `cex` argument,
+#' analogous to that in the default R graphics device.
 #' 
-#' legendScale sets the relative size of the legend, analogous to the cex argument
-#' of par {graphics}.
+#' The `leftOffset` value sets how far to the left the surface will plot, intended
+#' to help avoid overlap with the legend. Value of 0 will center the surface and
+#' should be invoked if the `legend` argument is disabled. Higher values will push
+#' the surface farther left and negative values will push it to the right. It is
+#' recommended that these values be restricted between -1 and 1 to avoid plotting
+#' the surface outside of the rgl window.
 #' 
-#' fieldofview is set to a default of 0, which is an isometric parallel projection.
-#' Raising it corresondingly increases the amount of obliquity used to render the
-#' surface in the plotting window, up to a maximum of 179 degrees.
+#' `fieldofview` is set to a default of 0, which is an isometric projection.
+#' Increasing it alters the degree of parallax in the perspective view, up to
+#' a maximum of 179 degrees (see \code{\link[rgl:par3d]{rgl::par3d()}}).
 #' 
 #' The plotted, colorized surface can be saved as a *.ply to the working directory
-#' by changing the fileName argument from NA to a string (e.g., "DNEPlot"). The
+#' by changing the `fileName` argument from `NA` to a string (e.g., "DNEPlot"). The
 #' resultant ply file can be opened and manipulated in other 3D visualizing programs,
-#' such as MeshLab, but will NOT retain its legend (a background of the plotting window).
-#' To retain the legend, the user is encouraged to utilize the snapshot3d function. The
-#' binary argument saves a file in ascii format by default, which is supported by more
-#' 3D visualization software than is binary. However, binary files will be considerably
-#' smaller.
+#' such as \href{https://www.meshlab.net/}{MeshLab}, but will **NOT** retain its legend
+#' (a background of the plotting window). To retain the legend, the user is 
+#' encouraged to utilize the function 'snapshot3d()' in the rgl package. (see \code{\link[rgl:rgl.snapshot]{rgl::rgl.snapshot()}}) 
+#' The `binary` argument saves a file in ascii format by default, which is supported by 
+#' more 3D visualization software than is binary. However, binary files will be
+#' considerably smaller.
 #'
 #' @import
 #' rgl grDevices graphics utils
-#'
-#' @importFrom
-#' Rvcg vcgPlyWrite
 #' 
 #' @export
 #' DNE3d
@@ -94,124 +93,113 @@
 #' DNE_output <- DNE(Tooth)
 #' DNE3d(DNE_output)
 
-DNE3d <- function (DNE_File, setRange = c(0, 0), logColors = TRUE, edgeMask = TRUE, 
-                       outlierMask = TRUE, legend = TRUE, legendScale = 1, leftOffset = 1,
-                       fieldofview = 0, fileName = NA, binary = FALSE)
+DNE3d <- function (DNE_File, setMax = 0, logColors = TRUE, signColor = TRUE,
+                   main = '', cex = 1, cex.main=2, legend = TRUE, leftOffset = 1,
+                   fieldofview = 0, fileName=NA, binary = FALSE) 
 {
-  if(length(DNE_File$Boundary_Values)==1){edgeMask <- FALSE}
   plyFile <- DNE_File$plyFile
   DNEs <- DNE_File$Face_Values$Dirichlet_Energy_Densities*DNE_File$Face_Values$Face_Areas
-  if (setRange[1] == 0 && setRange[2] == 0 && logColors == FALSE) {
-    color_range <- DNEs * (1/max(DNEs))
-    color_range <- (color_range * -1 + 1) * 0.575
-    DNE_colors <- hsv(color_range)
-    legend_labels <- round(seq(max(DNEs), min(DNEs), l = 10), digits = 4)
-    scaled <- FALSE
+  Kappa <- DNE_File$Kappa
+  kappas <- DNE_File$Face_Values$Kappa_Values
+  neg <- which(kappas<Kappa)
+  userMax <- setMax
+  if (setMax < 0) {stop("Negative values not accepted for face energy maximum")}
+  if(setMax == 0) {setMax <- max(DNEs)}
+  if(setMax < max(DNEs)){
+  	DNEs[which(DNEs > setMax)] <- setMax
   }
-  if (setRange[1] == 0 && setRange[2] == 0 && logColors == TRUE) {
-    zeroes <- which(DNEs == 0)
-    DNEs[zeroes] <- 1e-06
+  
+  if (logColors == TRUE) {
+    logcut <- 1e-6;
+    zs <- which(DNEs < logcut)
+    DNEs[zs] <- logcut
     logDNEs <- log(DNEs)
-    logDNEs <- logDNEs + abs(min(logDNEs))
-    color_range <- logDNEs * (1/max(logDNEs))
-    color_range <- (color_range * -1 + 1) * 0.575
-    DNE_colors <- hsv(color_range)
-    legend_labels <- round(exp(seq(log(max(DNEs)), log(min(DNEs)), l = 10)), digits = 4)
-    scaled <- FALSE
+    shift <- -1 * min(logDNEs)
+    logDNEs <- logDNEs + shift
+    Top <- log(setMax) + shift
+    color_range <- logDNEs / Top
   }
-  if (setRange[1] != 0 | setRange[2] != 0 && logColors == FALSE) {
-    setMax <- max(setRange)
-    setMin <- min(setRange)
-    if (setMin < 0) {stop("Negative values not accepted for face energy range")}
-    if (setMax < max(DNEs)) {warning("setRange max is less than highest 
-                                     calculated face energy")}
-    if (setMin > min(DNEs)) {
-      warning("setRange min is greater than lowest calculated face energy")
-    }
-    color_range <- DNEs * (1/setMax)
-    color_range <- (color_range * -1 + 1) * 0.575
-    DNE_colors <- hsv(color_range)
-    legend_labels <- round(seq(setMax, setMin, l = 10), digits = 4)
-    scaled <- TRUE
+  if (logColors==FALSE) {
+    color_range <- DNEs / setMax
   }
-  if (setRange[1] != 0 | setRange[2] != 0 && logColors == TRUE) {
-    setMax <- max(setRange)
-    setMin <- min(setRange)
-    if (setMin < 0) {stop("Negative values not accepted for face energy range")}
-    if (setMax < max(DNEs)) {warning("setRange max is less than highest 
-                                     calculated face energy")}
-    if (setMin > min(DNEs)) {
-      warning("setRange min is greater than lowest calculated face energy")
-    }
-    zeroes <- which(DNEs == 0)
-    DNEs[zeroes] <- 1e-06
-    logDNEs <- log(DNEs)
-    Top <- log(setMax) + abs(min(logDNEs))
-    logDNEs <- logDNEs + abs(min(logDNEs))
-    if (max(logDNEs) > setMax) {
-      Adjustment <- max(logDNEs)/Top
-      color_range <- logDNEs * (1/max(logDNEs)) * Adjustment
-      color_range <- (color_range * -1 + 1) * 0.575
-      DNE_colors <- hsv(color_range)
-    }
-    if (max(logDNEs) <= setMax) {
-      color_range <- logDNEs * (1/setMax)
-      color_range <- (color_range * -1 + 1) * 0.675
-      DNE_colors <- hsv(color_range)
-    }
-    if (setMin == 0) {setMin <- 1e-06}
-    legend_labels <- round(exp(seq(log(setMax), log(setMin), l = 10)), digits = 4)
-    scaled <- TRUE
+  
+  signed_range <- color_range
+  signed_range[neg] <- -1 * color_range[neg]
+  signed_range <- (signed_range + 1) / 2
+     
+  if (signColor==T) {
+    DNE_colors <- signedcolor.gradient(interpolate_faces_to_vertices(signed_range, plyFile))
   }
-  if (edgeMask == TRUE) {
-    edges <- as.numeric(rownames(DNE_File$Boundary_Values))
-    DNE_colors[edges] <- "#000000"
+  if (signColor==F) {
+  	DNE_colors <- ccolor.gradient(interpolate_faces_to_vertices(color_range, plyFile))
   }
-  if (outlierMask == TRUE) {
-    outliers <- as.numeric(rownames(DNE_File$Outliers))
-    DNE_colors[outliers] <- "#505050"
-  }
+  
   open3d()
-  par3d(windowRect = c(100, 100, 900, 900))
-  shade3d(plyFile, color = DNE_colors, meshColor='faces', shininess = 100)
+  layout3d(matrix(c(1,2), byrow=T, nrow=2), heights=c(1,9))
+  par3d(windowRect = c(100, 100, 800, 800/0.9))
+  text3d(0,0,0, main, cex=cex.main, font=2)
+  next3d()
+  shade3d(plyFile, color = DNE_colors, meshColor='vertices', shininess = 110)
+  rgl.viewpoint(fov = fieldofview)
+  
   if (legend == TRUE) {
-    if(legendScale <= 0){stop("legendScale must be a positive number")}
-    if(legendScale > 1.25){
-      warning("legendScale greater than 1.25 will restrict legend visibility")
+    if(cex <= 0){stop("cex must be a positive number")}
+    if(cex > 1.25){
+      warning("cex greater than 1.25 may restrict legend visibility")
     }
-    molaR_bgplot(DNE_Legend(DNELabels = rev(legend_labels), scaled = scaled,
-                            edgeMask = edgeMask, outlierMask = outlierMask,
-                            logColors = logColors, size = legendScale))
+    scaled <- FALSE
+    if(userMax != 0){scaled <- TRUE}
+    if (logColors == TRUE) {
+      x <- seq(log(setMax), log(logcut), l=5)
+      x <- exp(x)
+      x <- c(x,rev(-x))
+    	if(signColor==T) {
+    	  legend_labels <- rev(x)
+    	}
+    	if(signColor==F) {
+    	  y <- seq(log(setMax), log(logcut), l=10)
+    	  y <- exp(y)
+    	  legend_labels <- rev(y)	
+    	}
+    }
+    if (logColors == FALSE) {
+      x <- seq(setMax, 0, l=5)
+      x <- c(x, rev(-x))
+    	if(signColor==T) {
+    	  legend_labels <- rev(x)
+    	}
+    	if(signColor==F) {
+    	  y <- seq(setMax, 0, l=10)
+    	  legend_labels <- rev(y)	
+    	}
+    }
+    molaR_bgplot(DNE_Legend(DNELabels = legend_labels, scaled = scaled, 
+                            logColors = logColors, size = cex, 
+                            signColor=signColor))
   }
+  
   if (leftOffset > 1) {warning("Left offset greater than 1 may restrict mesh visibility")}
   if (leftOffset < -1) {warning("Left offset less than -1 may restrict mesh visibility")}
-  rgl.viewpoint(fov = fieldofview)
   ZView <- par3d("observer")[3]
   XView <- leftOffset * ZView *0.05
   observer3d(XView, 0, ZView)
-  if(!is.na(fileName)){
-    if(!is.character(fileName)){stop("Enter a name for fileName")}
-    if(substr(fileName, nchar(fileName)-3, nchar(fileName))!=".ply"){
-      fileName <- paste(fileName, ".ply", sep="")
+  
+  if (!is.na(fileName)) {
+    if (!is.character(fileName)) {stop("Enter a name for fileName")}
+    if (substr(fileName, nchar(fileName) - 3, nchar(fileName)) != ".ply") {
+      fileName <- paste(fileName, ".ply", sep = "")
     }
-    OutPly <- plyFile
-    NewVertList <- plyFile$vb[,plyFile$it[1:length(plyFile$it)]]
-    NewNormList <- plyFile$normals[,plyFile$it[1:length(plyFile$it)]]
-    NewFaceList <- matrix(1:ncol(NewVertList), nrow=3)
-    colormatrix <- matrix(rep(DNE_colors, 3), nrow = 3, byrow = TRUE)
-    NewColorList <- colormatrix[1:length(colormatrix)]
-    OutPly$vb <- NewVertList
-    OutPly$it <- NewFaceList
-    OutPly$normals <- NewNormList
-    OutPly$material$color <- NewColorList
-    vcgPlyWrite(mesh=OutPly, filename = fileName, binary = binary)
-    if(binary==FALSE){
-      FileText <- readLines(con=paste(getwd(), "/", fileName, sep=""), warn = F)
-      NewCom <- paste("comment DNE plot generated in molaR",
+    plyFile$material$color <- DNE_colors
+    vcgPlyWrite(mesh = plyFile, filename = fileName, binary = binary)
+    if (binary == FALSE) {
+      FileText <- readLines(con = paste(getwd(), "/", 
+                                        fileName, sep = ""), warn = F)
+      NewCom <- paste("comment DNE plot generated in molaR", 
                       packageVersion("molaR"), "for", R.version.string)
-      NewCom <- unlist(strsplit(NewCom, split='\n'))
+      NewCom <- unlist(strsplit(NewCom, split = "\n"))
       NewOut <- c(FileText[1:3], NewCom, FileText[(4):length(FileText)])
-      writeLines(NewOut, con=paste(getwd(), "/", fileName, sep=""))
+      writeLines(NewOut, con = paste(getwd(), "/", 
+                                     fileName, sep = ""))
     }
   }
 }

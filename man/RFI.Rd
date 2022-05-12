@@ -2,40 +2,54 @@
 % Please edit documentation in R/RFI.R
 \name{RFI}
 \alias{RFI}
-\title{Calculate Boyer's (2008) relief index for a surface}
+\title{Calculate relief index for a surface}
 \usage{
-RFI(plyFile, alpha = 0.06)
+RFI(plyFile, alpha = 0.075, findAlpha = FALSE)
 }
 \arguments{
 \item{plyFile}{An object of classes 'mesh3d' and 'shape3d'}
 
-\item{alpha}{Step size for calculating the outline. See details}
+\item{alpha}{Step size for calculating the outline. See details.}
+
+\item{findAlpha}{Logical indicating that alpha will be auto-calculated. See details.}
 }
 \description{
 A function that calculates relief index following Boyer (2008) Relief index of
 second mandibular molars is a correlate of diet among prosimian primates and
-other mammals. J Hum Evol 55:1118-1137 doi: 10.1016/j.jhevol.2008.08.002
+other mammals. J Hum Evol 55:1118-1137 doi:
+\href{https://www.sciencedirect.com/science/article/pii/S0047248408001565}{10.1016/j.jhevol.2008.08.002}
 }
 \details{
 The function requires an object created by reading in a ply file utilizing
-either the read.ply or the read.AVIZO.ply function, with calculated normals.
+either the \code{\link[Rvcg]{vcgPlyRead}} function.
 
 Relief index is calculated by the ratio of three-dimensional surface area to two
 dimensional area on meshes that represent specimen surfaces and have already
-been pre-smoothed in a 3D data editing program. Alignment of the point cloud
-will have a large effect on patch orientation and must be done in a 3D data editing
-program or {auto3dgm} prior to creating and reading in the ply file. The mesh
-must be oriented such that the occlusal plane is parallel to the X- and Y-axes and
-perpendicular to the Z-axis.
+been pre-smoothed in a 3D data editing program. Surface alignment will have a
+large effect on 2D area calculation and must be performed prior to creating and
+reading in the ply file. The mesh must be oriented such that the occlusal plane
+is parallel to the X- and Y-axes and perpendicular to the Z-axis (i.e., tooth
+cusps pointing towards +Z).
 
-Some files may fail with pancake[TempF,] : subscript out
-of bounds. In these files it may be necessary to increase
-the alpha value which is default set to 0.06. Increasing the
-alpha value can cause the RFI function to over-estimate
-the size of the footprint. Caution should be exercised when
-troubleshooting by adjusting alpha
+The \code{alpha} parameter traces the outline of the 2D footprint. An \code{alpha} that is
+too low will result in a tracing error (returning an \code{"Alpha adjustment required"}
+message), while an \code{alpha} value that is too high may result in an overestimate
+of the 2D footprint area by failing to take into account infoldings. The user is
+encouraged to carefully review results using the \code{\link{RFI3d}} or
+\code{\link{Check2D}} functions.
+
+Alternatively, the \code{findAlpha} argument can be used to compute an ideal \code{alpha}
+value for a particular PLY file for use in the RFI calculation. This is defined as the
+lowest value (to the nearest thousandth) returning no error or warning messages.
+This feature ensures accuracy, but may increase computing time significantly,
+depending on the number of \code{alpha} values tested. Unfortunately, there is no way
+to guess an appropriate \code{alpha} value a priori. After 100 unsuccessful attempts to
+find an appropriate \code{alpha}, the function will terminate.
+
+The \code{alpha} value used in the calculation (whether chosen by the user or auto-
+computed with \code{findAlpha}) is returned in the analysis results.
 }
 \examples{
-RFI_output <- RFI(Tooth, alpha=0.5)
+RFI_output <- RFI(Tooth, alpha=0.5, findAlpha = FALSE)
 summary(RFI_output)
 }

@@ -2,7 +2,7 @@
 #'
 #' Get the centroid size
 #' @param x point cloud
-#' cSize
+#' @noRd
 
 cSize <- function(x) {
 	X <- scale(x, scale = FALSE)

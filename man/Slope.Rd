@@ -4,34 +4,35 @@
 \alias{Slope}
 \title{Function to calculate the average slope of a surface}
 \usage{
-Slope(plyFile, Guess = F)
+Slope(plyFile, Guess = FALSE)
 }
 \arguments{
-\item{plyFile}{An oject of classes 'mesh3d' and 'shape3d'}
+\item{plyFile}{An object of classes 'mesh3d' and 'shape3d' with calculated normals}
 
-\item{Guess}{Logical indicating whether the function should 
+\item{Guess}{Logical indicating whether the function should
 'guess' as to the 'up' direction for the surface and to remove negative
 slopes from the calculation}
 }
 \description{
-A function that calcualate the average slope over tooth
-or some other surface
+A function that calculates the average slope over a tooth
+or some other 3D surface
 }
 \details{
-This function requires a PLY file. It will calculate the slope on each face
+This function requires a ply file. It will calculate the slope on each face
 of the surface and will average the slope across the surface. This is functionally
-equivalent to the slope calculation used by Ungar and M'Kirera (2003).
+equivalent to the slope calculation used by Ungar and M'Kirera "A solution to the worn
+tooth conundrum  in primate functional anatomy" PNAS (2003) 100(7):3874-3877
 
-In the case of applying this function to teeth (its intended purpose) the function expects a
-surface with the occlusal plane normal to the Z-axis. 
+In the case of applying this function to teeth (its intended purpose), the function expects a
+surface with the occlusal plane normal to the Z-axis.
 
-The 'Guess' parameter is a logical asking whether or not you want the function to both
-guess as to the right side up of the surface, and to then discard all of the 'negative' slopes
-i.e. surfaces which are over-hangs, as is frequently found on the sidewalls of teeth. If 
-'Guess' is not engaged the mean slope will include the negative values of the overhang
-and will likely underestimate the average slope of the surface. 
+The \code{Guess} parameter is a logical asking whether or not you want the function to both
+guess as to the right side up of the surface, and to then discard all of the 'negative' slopes,
+i.e. surfaces which are over-hangs, as is frequently found on the sidewalls of teeth. If
+\code{Guess} is not engaged the mean slope will include the negative values of the overhang
+and will likely underestimate the average slope of the surface.
 
-Regardless of if the 'Guess' parameter is engaged, the function will also return a vector
+Regardless of if the \code{Guess} parameter is engaged, the function will also return a vector
 containing all of the face slope values ("Face_Slopes")
 }
 \examples{

@@ -3,7 +3,8 @@
 #' bins into 8 directional categories on the basis of their orientations
 #' @param plyFile a stanford PLY file 
 #' @param rotation the amount to rotate the specimen by
-#' Directional_Bins()
+#'
+#' @noRd
 
 
 Directional_Bins <- function(plyFile, rotation=0) {

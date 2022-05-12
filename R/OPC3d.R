@@ -1,12 +1,11 @@
 #' Plot results of OPC analysis of a surface
 #'
 #' A function that produces a three-dimensional rendering of face
-#' orientation on a surface. The OPC function will identify the
+#' orientation on a surface. The `OPC` function will identify the
 #' orientations of mesh faces and assign them to patches. It must be
 #' performed prior to using the OPC3d function. 
 #'
-#' @param OPC_Output_Object An object that stores the output of
-#' the OPC function
+#' @param OPC_File An object that stores the output of the `OPC()` function
 #' @param binColors Allows the user to define the fill colors for
 #' each directional bin 
 #' @param patchOutline Logical whether or not to outline the patches
@@ -15,52 +14,60 @@
 #' patches excluded from the OPC value
 #' @param legend Logical indicating whether or not a legend should
 #' be displayed
-#' @param legendScale numeric value setting the relative size of the legend,
-#' similar in function to cex
+#' @param main String indicating plot title
+#' @param cex Numeric setting the relative size of the legend and title
+#' @param scaleLegend Logical indicating if legend bins should scale to patch counts
 #' @param legendTextCol Parameter defining color for the legend text
 #' @param legendLineCol Parameter defining the color for the legend lines
-#' @param leftOffset numeric value between -1 and 1 setting the degree of
-#' offset for the plotted surface to the left; larger values set further to left
-#' while 0 is centered
-#' @param fieldofview Passes an argument to par3d changing the field of
+#' @param leftOffset Numeric between -1 and 1 setting the amount of offset for
+#' the plotted surface to the left. Larger values push surface farther to right.
+#' @param fieldofview Passes an argument to `par3d()` changing the field of
 #' view in degrees of the resulting surface plot
 #' @param fileName String indicating a name to save the plotted surface to as a
 #' *.ply file; default of 'NA' will not save a file
 #' @param binary Logical indicating whether or not the saved surface plot should
-#' be binary, passed to vcgPlyWrite
+#' be binary, passed to `vcgPlyWrite()`
 #' 
 #' @details This function will assign a uniform color to all faces on the mesh
 #' surface that share one of the orientation bins identified by the OPC function. The
 #' function returns a colored mesh so that patches can be visually inspected.
 #' 
-#' binColors will support any vector of colors, in any coloration scheme. Default
+#' `binColors` will support any vector of colors, in any coloration scheme. Default
 #' draws from the HSV color space to evenly space color information, however the user
 #' can supply a list of RGB values or character strings in place. If there are fewer
 #' colors than directional bins, remaining bins will default to white.
 #' 
-#' Several legend plotting options are availble, including customizing the line and
-#' text colors with legendTextCol and legendLineCol, which both default to black.
+#' A title can be added to the plot by supplying a character string to the `main`
+#' argument. Title and legend size are controlled with the `cex` argument,
+#' analogous to that in the default R graphics device.
 #' 
-#' The leftOffset value sets how far to the left the surface will appear, intended
-#' to help avoid overlap with the legend. A value of 0 for this argument will center
-#' the surface in the plotting window and negative values will shift it to the right.
+#' Several legend plotting options are available. The default legend shape is a
+#' circular pie with sectors indicating the orientation of directional bins, shaded
+#' according to the color scheme in `binColors`. By setting `scaleLegend = TRUE`,
+#' the legend sectors will scale proportionally to the number of patches in each
+#' directional bin. The legend text and line colors can be customized with
+#' `legendTextCol` and `legendLineCol`, which both default to black.
 #' 
-#' legendScale sets the relative size of the legend, analogous to the cex argument
-#' of par {graphics}.
+#' The `leftOffset` value sets how far to the left the surface will plot, intended
+#' to help avoid overlap with the legend. Value of 0 will center the surface and
+#' should be invoked if the `legend` argument is disabled. Higher values will push
+#' the surface farther left and negative values will push it to the right. It is
+#' recommended that these values be restricted between -1 and 1 to avoid plotting
+#' the surface outside of the rgl window.
 #' 
-#' fieldofview is set to a default of 0, which is an isometric parallel projection.
-#' Raising it corresondingly increases the amount of obliquity used to render the
-#' surface in the plotting window, up to a maximum of 179 degrees.
+#' `fieldofview` is set to a default of 0, which is an isometric projection.
+#' Increasing it alters the degree of parallax in the perspective view, up to
+#' a maximum of 179 degrees (see \code{\link[rgl:par3d]{rgl::par3d()}}).
 #' 
 #' The plotted, colorized surface can be saved as a *.ply to the working directory
-#' by changing the fileName argument from NA to a string (e.g., "OPCPlot"). The
+#' by changing the `fileName` argument from `NA` to a string (e.g., "OPCPlot"). The
 #' resultant ply file can be opened and manipulated in other 3D visualizing programs,
-#' such as MeshLab, but will NOT retain its legend (a background of the plotting window).
-#' To retain the legend, the user is encouraged to utilize the snapshot3d function.
-#' Patch outlines are currently not retained with surface saving. The binary argument
-#' saves a file in ascii format by default, which is supported by more 3D
-#' visualization software than is binary. However, binary files will be considerably
-#' smaller.
+#' such as \href{https://www.meshlab.net/}{MeshLab}, but will **NOT** retain its legend
+#' (a background of the plotting window). To retain the legend, the user is 
+#' encouraged to utilize the \code{\link[rgl:snapshot3d]{rgl::snapshot3d()}} function. 
+#' The `binary` argument saves a file in ascii format by default, which is supported by 
+#' more 3D visualization software than is binary. However, binary files will be
+#' considerably smaller.
 #'
 #' @import
 #' rgl
@@ -75,14 +82,40 @@
 #' OPC_output <- OPC(Tooth)
 #' OPC3d(OPC_output)
 
-OPC3d <- function (OPC_Output_Object, 
+OPC3d <- function (OPC_File, 
                    binColors = hsv(h=(seq(10, 290, 40)/360), s=0.9, v=0.85),
                    patchOutline = FALSE, outlineColor = "black", maskDiscard = FALSE,
-                   legend = TRUE, legendScale= 1, legendTextCol = "black",
-                   legendLineCol = "black", leftOffset = 1, fieldofview = 0,
-                   fileName = NA, binary = FALSE)
+                   legend = TRUE, main = '', cex = 1, scaleLegend = FALSE,
+                   legendTextCol = "black", legendLineCol = "black", leftOffset = 1,
+                   fieldofview = 0, fileName = NA, binary = FALSE)
 {
-  plyFile <- OPC_Output_Object$plyFile
+  
+  PD <- OPC_File$Patch_Details
+	
+	bins <- numeric(length=length(PD))
+	
+	param <- OPC_File$Parameters
+	criteria <- which(param!=0)
+	if(length(criteria)==1){
+		criteria <- param[[2]]
+		for (i in 1:length(PD)){
+			legit <- which(PD[[i]][,1]>=criteria)
+			bins[i] <- sum(PD[[i]][legit,2])
+			names(bins) <- names(PD)
+		}
+	}
+	if(length(criteria)==2){
+		criteria <- param[[3]]
+		for (i in 1:length(PD)){
+			legit <- which(PD[[i]][,2]>=criteria)
+			bins[i] <- sum(PD[[i]][legit,2])
+			names(bins) <- names(PD)
+		}
+	}
+  
+ BinSizes <- bins[order(names(bins))]
+    
+  plyFile <- OPC_File$plyFile
   bins <- plyFile$Directional_Bins
   BinCount <- as.numeric(length(unique(plyFile$Directional_Bins)))
   BlackPatch <- NULL
@@ -90,20 +123,20 @@ OPC3d <- function (OPC_Output_Object,
     Bin <- which(bins == i)
     bins[Bin] <- binColors[i]
     if (maskDiscard == TRUE) {
-      if(OPC_Output_Object$Parameters$Minimum_Area==0){
-        PatchList <- unlist(OPC_Output_Object$Patches[i], 
+      if(OPC_File$Parameters$Minimum_Area==0){
+        PatchList <- unlist(OPC_File$Patches[i], 
                             recursive = F)
         SmallPatch <- names(which(lapply(PatchList, length) < 
-                                    OPC_Output_Object$Parameters$Minimum_Faces))
+                                    OPC_File$Parameters$Minimum_Faces))
         Discarded <- as.numeric(unlist(PatchList[SmallPatch]))
         BlackPatch <- c(BlackPatch, Discarded)
       }
-      if(OPC_Output_Object$Parameters$Minimum_Area>0){
-        AreaList <- as.vector(OPC_Output_Object$Patch_Details[[i]][,2])
-        MinAreaPercentage <- sum(OPC_Output_Object$plyFile$Face_Areas)*
-          OPC_Output_Object$Parameters$Minimum_Area
+      if(OPC_File$Parameters$Minimum_Area>0){
+        AreaList <- as.vector(OPC_File$Patch_Details[[i]][,2])
+        MinAreaPercentage <- sum(OPC_File$plyFile$Face_Areas)*
+          OPC_File$Parameters$Minimum_Area
         SmallPatchList <- which(AreaList < MinAreaPercentage)
-        Discarded <- as.numeric(unlist(OPC_Output_Object$Patches[[i]][SmallPatchList]))
+        Discarded <- as.numeric(unlist(OPC_File$Patches[[i]][SmallPatchList]))
       }
       BlackPatch <- c(BlackPatch, Discarded)
     }
@@ -113,10 +146,13 @@ OPC3d <- function (OPC_Output_Object,
     colormatrix[BlackPatch] <- "#000000"
   }
   open3d()
-  par3d(windowRect = c(100, 100, 900, 900))
+  layout3d(matrix(c(1,2), byrow=T, nrow=2), heights=c(1,9))
+  par3d(windowRect = c(100, 100, 800, 800/.9))
+  text3d(0,0,0, main, cex=cex*2.5, font=2)
+  next3d()
   if (patchOutline == TRUE) {
     for (i in 1:BinCount) {
-      Orientation <- OPC_Output_Object$Patches[i]
+      Orientation <- OPC_File$Patches[i]
       PatchCount <- as.numeric(length(Orientation[[1]]))
       for (j in 1:PatchCount) {
         Patch <- Orientation[[1]][j]
@@ -148,22 +184,23 @@ OPC3d <- function (OPC_Output_Object,
       }
     }
   }
-  shade3d(plyFile, meshColor='faces', color = colormatrix, shininess = 100)
+  shade3d(plyFile, meshColor='faces', color = colormatrix, shininess = 110)
+  rgl.viewpoint(fov = fieldofview)
   if (legend == TRUE) {
-    if(legendScale <= 0){stop("legendScale must be a positive number")}
-    if(legendScale > 1.05){
-      warning("legendScale greater than 1.05 will restrict legend visibility")
+    if(cex <= 0){stop("cex must be a positive number")}
+    if(cex > 1.25){
+      warning("cex greater than 1.25 will restrict legend visibility")
     }
     Fills <- rep("#FFFFFF", BinCount)
     for (i in 1:BinCount) {
       Fills[i] <- binColors[i]
     }
-    molaR_bgplot(OPC_Legend(binColors=Fills, binNumber = BinCount, maskDiscard = maskDiscard,
-                            size = legendScale, textCol=legendTextCol, lineCol=legendLineCol))
+    molaR_bgplot(OPC_Legend(binColors=Fills, binSize = BinSizes, scaleLegend = scaleLegend,
+                            maskDiscard = maskDiscard, size = cex, textCol=legendTextCol,
+                            lineCol=legendLineCol))
   }
   if (leftOffset > 1) {warning("Left offset greater than 1 may restrict mesh visibility")}
   if (leftOffset < -1) {warning("Left offset less than -1 may restrict mesh visibility")}
-  rgl.viewpoint(fov = fieldofview)
   ZView <- par3d("observer")[3]
   XView <- leftOffset * ZView *0.055
   observer3d(XView, 0, ZView)

@@ -2,7 +2,8 @@
 #'
 #' This function will gather the patches in each of the 8 bins and ready it for
 #' patches_for_each_direction()
-#' @param indexed_pairs Pairs of touching faces
+#' 
+#' @noRd
 
 patches_for_each_direction <- function(indexed_pairs){
 clusterlist <- list()

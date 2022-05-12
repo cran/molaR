@@ -1,8 +1,7 @@
 Package: molaR
 Title: Dental Surface Complexity Measurement Tools
-Version: 4.5
+Version: 5.0
 Authors@R: c(person("James D.", "Pampush", role = c("aut", "cre", "cph"), email = "jdpampush@gmail.com"),
-  person("Julia M.", "Winchester", role = c("aut", "cph")),
   person("Paul E.", "Morse", role = c("aut", "cph")),
   person("Alexander Q.", "Vining", role = c("aut", "cph")),
   person("Edward", "Fuselier", role=c("aut", "cph")))
@@ -13,20 +12,19 @@ Description: Surface topography calculations of Dirichlet's normal energy,
     work, the scanned tooth files must be oriented with the occlusal plane parallel
     to the x and y axes, and perpendicular to the z axis. The files should also be
     simplified, and smoothed in some other software prior to uploading into R.
-Depends: R (>= 2.10), alphahull, rgl, Rvcg
+Depends: R (>= 2.10), alphahull, rgl, Rvcg, pracma
 License: ACM
 LazyData: true
 Encoding: UTF-8
 Suggests: knitr, rmarkdown, rglwidget
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2020-03-03 12:27:07 UTC; jamespampush
+Packaged: 2022-05-12 22:04:43 UTC; jamespampush
 Author: James D. Pampush [aut, cre, cph],
-  Julia M. Winchester [aut, cph],
   Paul E. Morse [aut, cph],
   Alexander Q. Vining [aut, cph],
   Edward Fuselier [aut, cph]
 Maintainer: James D. Pampush <jdpampush@gmail.com>
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.2
 Repository: CRAN
-Date/Publication: 2020-03-04 00:20:02 UTC
+Date/Publication: 2022-05-12 22:30:02 UTC

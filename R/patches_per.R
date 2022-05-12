@@ -5,7 +5,8 @@
 #' @param patch_details information on each patch
 #' @param minimum_faces minimum number of faces in each counted patch
 #' @param minimum_area minimum area for a patch to be counted
-#' patches_per()
+#'
+#' @noRd
 
 
 patches_per <- function(patch_details, plyFile, minimum_faces=3, minimum_area=0) {

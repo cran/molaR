@@ -1,29 +1,42 @@
-#' Calculate Boyer's (2008) relief index for a surface
+#' Calculate relief index for a surface
 #'
 #' A function that calculates relief index following Boyer (2008) Relief index of
 #' second mandibular molars is a correlate of diet among prosimian primates and
-#' other mammals. J Hum Evol 55:1118-1137 doi: 10.1016/j.jhevol.2008.08.002
+#' other mammals. J Hum Evol 55:1118-1137 doi: 
+#' \href{https://www.sciencedirect.com/science/article/pii/S0047248408001565}{10.1016/j.jhevol.2008.08.002}
 #'
 #' @param plyFile An object of classes 'mesh3d' and 'shape3d'
-#' @param alpha Step size for calculating the outline. See details
+#' @param alpha Step size for calculating the outline. See details.
+#' @param findAlpha Logical indicating that alpha will be auto-calculated. See details.
 #'
 #' @details The function requires an object created by reading in a ply file utilizing
-#' either the read.ply or the read.AVIZO.ply function, with calculated normals.
+#' either the \code{\link[Rvcg]{vcgPlyRead}} function.
 #' 
 #' Relief index is calculated by the ratio of three-dimensional surface area to two
 #' dimensional area on meshes that represent specimen surfaces and have already
-#' been pre-smoothed in a 3D data editing program. Alignment of the point cloud
-#' will have a large effect on patch orientation and must be done in a 3D data editing
-#' program or {auto3dgm} prior to creating and reading in the ply file. The mesh
-#' must be oriented such that the occlusal plane is parallel to the X- and Y-axes and
-#' perpendicular to the Z-axis.
-#'
-#' Some files may fail with pancake[TempF,] : subscript out
-#' of bounds. In these files it may be necessary to increase
-#' the alpha value which is default set to 0.06. Increasing the
-#' alpha value can cause the RFI function to over-estimate
-#' the size of the footprint. Caution should be exercised when
-#' troubleshooting by adjusting alpha
+#' been pre-smoothed in a 3D data editing program. Surface alignment will have a 
+#' large effect on 2D area calculation and must be performed prior to creating and 
+#' reading in the ply file. The mesh must be oriented such that the occlusal plane 
+#' is parallel to the X- and Y-axes and perpendicular to the Z-axis (i.e., tooth 
+#' cusps pointing towards +Z).
+#' 
+#' The `alpha` parameter traces the outline of the 2D footprint. An `alpha` that is 
+#' too low will result in a tracing error (returning an `"Alpha adjustment required"` 
+#' message), while an `alpha` value that is too high may result in an overestimate
+#' of the 2D footprint area by failing to take into account infoldings. The user is 
+#' encouraged to carefully review results using the \code{\link{RFI3d}} or 
+#' \code{\link{Check2D}} functions.
+#' 
+#' Alternatively, the `findAlpha` argument can be used to compute an ideal `alpha` 
+#' value for a particular PLY file for use in the RFI calculation. This is defined as the  
+#' lowest value (to the nearest thousandth) returning no error or warning messages. 
+#' This feature ensures accuracy, but may increase computing time significantly,
+#' depending on the number of `alpha` values tested. Unfortunately, there is no way  
+#' to guess an appropriate `alpha` value a priori. After 100 unsuccessful attempts to 
+#' find an appropriate `alpha`, the function will terminate.
+#' 
+#' The `alpha` value used in the calculation (whether chosen by the user or auto-
+#' computed with `findAlpha`) is returned in the analysis results.
 #'
 #' @importFrom
 #' alphahull ahull
@@ -35,10 +48,14 @@
 #' RFI
 #'
 #' @examples
-#' RFI_output <- RFI(Tooth, alpha=0.5)
+#' RFI_output <- RFI(Tooth, alpha=0.5, findAlpha = FALSE)
 #' summary(RFI_output)
 
-RFI <- function(plyFile, alpha=0.06) {
+RFI <- function(plyFile, alpha=0.075, findAlpha=FALSE) {
+  
+  if(findAlpha==TRUE){
+    warning("Enabling findAlpha will ignore user alpha value input", immediate. = TRUE)
+  }
   
   # Calculates 3D area of the PLY
   ThreeDArea <- vcgArea(plyFile)
@@ -84,8 +101,17 @@ RFI <- function(plyFile, alpha=0.06) {
   pancake2 <- as.matrix(cbind(Shifted2[, 1:2], z2 = rep(0, length(Shifted2[,1]))))
   
   # Calcuate alpha hull of the pancake
+  if(findAlpha==TRUE){
+    tryCatch(withCallingHandlers(alpha <- findA(pancake2, alpha),
+                                  warning = function(war){invokeRestart("muffleWarning")}),
+             error=function(err){
+               cat("Error: Failed to find alpha after 100 attempts!\nCalculating RFI with user input alpha arg:\n")
+               alpha <- alpha
+               }
+             )
+    }
   hull <- ahull(pancake2[, 1:2], alpha = alpha)
-  
+
   # Isolate end-points of each segment comprising the alpha hull
   arcs <- hull$arcs
   if (length(arcs[, 7]) != length(unique(arcs[, 7]))) {
@@ -107,13 +133,14 @@ RFI <- function(plyFile, alpha=0.06) {
   
   # Double-check that triangles are non-overlapping
   EdgePts  <- sort(unique(c(STedges, EDedges)))
+  ACoords <- hull$xahull
   AlphaWarning <- FALSE
   for(i in 1:length(EdgePts)){
-    PtofInt <- unname(pancake2[EdgePts[i],1:2])
+    PtofInt <- unname(ACoords[EdgePts[i],1:2])
     for(j in 1:nrow(slices)){
-      Tri1 <- unname(pancake2[slices[j,1],1:2])
-      Tri2 <- unname(pancake2[slices[j,2],1:2])
-      Tri3 <- unname(pancake2[slices[j,3],1:2])
+      Tri1 <- unname(ACoords[slices[j,1],1:2])
+      Tri2 <- unname(ACoords[slices[j,2],1:2])
+      Tri3 <- unname(ACoords[slices[j,3],1:2])
       BaryA <- (((Tri2[2]-Tri3[2])*(PtofInt[1]-Tri3[1]))+((Tri3[1]-Tri2[1])*(PtofInt[2]-Tri3[2])))/(((Tri2[2]-Tri3[2])*(Tri1[1]-Tri3[1]))+((Tri3[1]-Tri2[1])*(Tri1[2]-Tri3[2])))
       BaryB <- (((Tri3[2]-Tri1[2])*(PtofInt[1]-Tri3[1]))+((Tri1[1]-Tri3[1])*(PtofInt[2]-Tri3[2])))/(((Tri2[2]-Tri3[2])*(Tri1[1]-Tri3[1]))+((Tri3[1]-Tri2[1])*(Tri1[2]-Tri3[2])))
       BaryG <- 1-BaryA-BaryB
@@ -140,10 +167,10 @@ RFI <- function(plyFile, alpha=0.06) {
   }
   TwoDArea <- sum(TwoDFace_areas)
   
-  # Calculate Boyer's RFI and produce output
+  # Calculate RFI and produce output
   RFI <- log(sqrt(ThreeDArea)/sqrt(TwoDArea))
-  Out <- list(Surface_RFI = RFI, Three_D_Area = ThreeDArea, 
-              Two_D_Area = TwoDArea, Alpha_Warning = AlphaWarning, Translated_Pts = Shifted,
+  Out <- list(Surface_RFI = RFI, Three_D_Area = ThreeDArea, Two_D_Area = TwoDArea,
+              Alpha = alpha, Alpha_Warning = AlphaWarning, Translated_Pts = Shifted,
               Flattened_Pts = pancake, Footprint_Triangles = slices, plyFile = plyFile)
   cat("RFI =", RFI, "\n")
   cat("3D Area =", ThreeDArea, "\n")

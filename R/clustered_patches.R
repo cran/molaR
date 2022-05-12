@@ -2,7 +2,8 @@
 #'
 #' This function gathers linked faces into patches
 #' @param Directional_Bin_Face_Pairs the bins of face directions
-#' clustered_patches()
+#' 
+#' @noRd
 
 clustered_patches = function(Directional_Bin_Face_Pairs) {
 	names = Directional_Bin_Face_Pairs[,2]

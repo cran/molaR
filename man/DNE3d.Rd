@@ -6,12 +6,13 @@
 \usage{
 DNE3d(
   DNE_File,
-  setRange = c(0, 0),
+  setMax = 0,
   logColors = TRUE,
-  edgeMask = TRUE,
-  outlierMask = TRUE,
+  signColor = TRUE,
+  main = "",
+  cex = 1,
+  cex.main = 2,
   legend = TRUE,
-  legendScale = 1,
   leftOffset = 1,
   fieldofview = 0,
   fileName = NA,
@@ -19,98 +20,101 @@ DNE3d(
 )
 }
 \arguments{
-\item{DNE_File}{An object that stores the output of the DNE
+\item{DNE_File}{An object that stores the output of the \code{DNE()}
 function}
 
-\item{setRange}{User-defined range for plotting color scheme, see
+\item{setMax}{User-defined upper range for plotting color scheme, see
 Details}
 
 \item{logColors}{Logical that log transforms the color scheme}
 
-\item{edgeMask}{Logical that colors edge faces black to indicate their
-lack of contribution to the total Dirichlet normal energy}
+\item{signColor}{Logical indicating whether or not to plot by
+concavity vs convexity. Plotting by curve orientation is the default.}
 
-\item{outlierMask}{Logical that colors outlier faces dark gray to
-indicate their lack of contribution to the Dirichlet normal energy}
+\item{main}{String indicating plot title}
 
-\item{legend}{Logical indicating whether or not a legend
-should be displayed}
+\item{cex}{Numeric setting the relative size of the legend}
 
-\item{legendScale}{numeric value setting the relative size of the legend,
-similar in function to cex}
+\item{cex.main}{Numeric setting the size of the title}
 
-\item{leftOffset}{numeric value between -1 and 1 setting the degree of
-offset for the plotted surface to the left; larger values set further to left
-while 0 is centered}
+\item{legend}{Logical indicating whether or not a legend should be displayed}
 
-\item{fieldofview}{Passes an argument to par3d changing the field of
-view in degrees of the resulting surface plot}
+\item{leftOffset}{Numeric between -1 and 1 setting the amount of offset for
+the plotted surface to the left. Larger values push surface farther to right.}
+
+\item{fieldofview}{Passes an argument to \code{par3d()} changing the field of
+view (in degrees) of the resulting 3D plot}
 
 \item{fileName}{String indicating a name to save the plotted surface to as a
 *.ply file; default of 'NA' will not save a file}
 
 \item{binary}{Logical indicating whether or not the saved surface plot should
-be binary, passed to vcgPlyWrite}
+be binary, passed to \code{vcgPlyWrite()}}
 }
 \description{
-A function that produces a three-dimensional rendering of surface DNE.
-The DNE function will identify amount of change in mesh face normal orientation
-between adjacent faces, and associate these values (adjusted for face size) to
-each face on the surface. It must be performed prior to using the DNE3d function.
+a molaR surface plotting function
 }
 \details{
 This function creates a heat map on the mesh surface
-corresponding to the Dirichlet normal energy of each face calculated by
-the DNE function. Hottest colors represent highest normal energy
+corresponding to the Dirichlet energy density of each face calculated by
+the \code{DNE()} function. Hottest colors represent highest normal energy
 values.
 
-Dirichlet normal energies for the faces of a mesh surface tend to be
+Dirichlet energy densities for the faces of a mesh surface tend to be
 positively skewed, with a small proportion of the faces contributing
-much of the total energy for the surface. When logColors is enabled the
-function colorizes based on the log-transformed Dirichlet normal
-energies, allowing for finer visual discriminiation between faces near the
-mode of the energy per face distribution. Disabling logColors will display the
-untransformed Dirichlet normal energies.
+most of the total energy for the surface. When \code{logColors} is enabled, the
+function colorizes based on the log-transformed Dirichlet energy
+densities, allowing for finer resolution between faces near the mode of
+the energy per face distribution. Disabling \code{logColors} will display the
+un-transformed Dirichlet energy densities.
 
-The legend reflects the other arguments chosen by the user, including log
-transformation, and whether or not an outlier or edge mask is enabled.
-
-By default, the function sets the lowest Dirichlet normal energy
-calculated among all faces to a cool color and the highest normal energy
-calculated among all faces to red, and then colors the remaining faces
-on a continuous color spectrum between these two end points using
-either absolute or log-transformed Dirichlet normal energy values
-(depending on the value of logColors). Since the scale is relative to the
+The legend will update to reflect the other arguments chosen by the
+user. By default, the function sets the lowest Dirichlet energy density
+calculated among all faces to a cool color and the absolute highest normal
+energy calculated among all faces to a hot color, and then colors the remaining
+faces on a continuous color spectrum between these two end points using
+either absolute or log transformed Dirichlet energy density values
+(depending on the status of \code{logColors}). Since the scale is relative to the
 energies of the input surface, visual comparisons cannot directly be
-made between multiple plots of different surfaces. The setRange
-argument allows users to define the minimum and maximum of the
-plotting color scheme and use it in multiple plots. This enables the
+made between multiple plots of different surfaces.
+
+The \code{setMax} argument allows users to define the maximum of the
+plotting color scheme for use across multiple plots. This enables the
 direct comparison of different surfaces to one another with red equal to
-the user-defined maximum and a cool color equal to the user-defined
-minimum. The user should choose reasonable bounds for the
-maximum and minimum that are near the maximum and minimum
-Dirichlet normal energies calculated for their surfaces. setRange will
-not accept negative values.
+the user-defined maximum and a cool color equal to the minimum. The user
+should choose a reasonable upper bound for the maximum. \code{setMax} will not
+accept negative values. If there are faces with Dirichlet normal energy
+values higher than the \code{setMax} value, these faces are marked with the
+highest possible color.
 
-The leftOffset value sets how far to the left the surface will appear, intended
-to help avoid overlap with the legend. A value of 0 for this argument will center
-the surface in the plotting window and negative values will shift it to the right.
+The logical \code{signColor} colors the surface with two separate gradients,
+one for the convex and one for the concave faces (curvature sign). By
+default, the plot now makes this distinction.
 
-legendScale sets the relative size of the legend, analogous to the cex argument
-of par {graphics}.
+A title can be added to the plot by supplying a character string to the \code{main}
+argument. Title and legend size are controlled with the \code{cex} argument,
+analogous to that in the default R graphics device.
 
-fieldofview is set to a default of 0, which is an isometric parallel projection.
-Raising it corresondingly increases the amount of obliquity used to render the
-surface in the plotting window, up to a maximum of 179 degrees.
+The \code{leftOffset} value sets how far to the left the surface will plot, intended
+to help avoid overlap with the legend. Value of 0 will center the surface and
+should be invoked if the \code{legend} argument is disabled. Higher values will push
+the surface farther left and negative values will push it to the right. It is
+recommended that these values be restricted between -1 and 1 to avoid plotting
+the surface outside of the rgl window.
+
+\code{fieldofview} is set to a default of 0, which is an isometric projection.
+Increasing it alters the degree of parallax in the perspective view, up to
+a maximum of 179 degrees (see \code{\link[rgl:par3d]{rgl::par3d()}}).
 
 The plotted, colorized surface can be saved as a *.ply to the working directory
-by changing the fileName argument from NA to a string (e.g., "DNEPlot"). The
+by changing the \code{fileName} argument from \code{NA} to a string (e.g., "DNEPlot"). The
 resultant ply file can be opened and manipulated in other 3D visualizing programs,
-such as MeshLab, but will NOT retain its legend (a background of the plotting window).
-To retain the legend, the user is encouraged to utilize the snapshot3d function. The
-binary argument saves a file in ascii format by default, which is supported by more
-3D visualization software than is binary. However, binary files will be considerably
-smaller.
+such as \href{https://www.meshlab.net/}{MeshLab}, but will \strong{NOT} retain its legend
+(a background of the plotting window). To retain the legend, the user is
+encouraged to utilize the function 'snapshot3d()' in the rgl package. (see \code{\link[rgl:rgl.snapshot]{rgl::rgl.snapshot()}})
+The \code{binary} argument saves a file in ascii format by default, which is supported by
+more 3D visualization software than is binary. However, binary files will be
+considerably smaller.
 }
 \examples{
 DNE_output <- DNE(Tooth)

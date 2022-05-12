@@ -5,7 +5,9 @@
 \alias{OPCr_Example2}
 \alias{OPCr_Example2.list}
 \title{OPCr_Example2 - object created by OPCr function used as an example.}
-\format{\code{OPCr_Example2}: molaR produced object.}
+\format{
+\code{OPCr_Example2}: molaR produced object.
+}
 \description{
 This object is needed to pass the CRAN upload requirements and still keep the vignette.
 }

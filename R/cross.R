@@ -4,7 +4,8 @@
 #' @param x vector
 #'
 #' @param y vector
-#' cross
+#' 
+#' @noRd
 
 cross <- function(x, y) {
 	if (!is.numeric(x) || !is.numeric(y))

@@ -4,7 +4,7 @@
 #' @param plyFile a stanford PLY file
 #'
 #' 
-#' index_paired_directed_faces()
+#' @noRd
 
 index_paired_directed_faces <- function(plyFile) {
 

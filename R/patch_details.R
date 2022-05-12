@@ -3,7 +3,8 @@
 #' This function does some simple math to lets us know about the patches
 #' @param plyFile a stanford PLY file 
 #' @param clusterlist a list of faces in the cluster
-#' patch_details()
+#'
+#' @noRd
 
 
 patch_details <- function(clusterlist, plyFile) {

@@ -4,21 +4,21 @@
 \alias{OPCr}
 \title{Calculate average orientation patch count after several rotations}
 \usage{
-OPCr(plyFile, Steps = 8, stepSize = 5.625, minimum_faces = 3, minimum_area = 0)
+OPCr(plyFile, steps = 8, stepSize = 5.625, minimum_faces = 3, minimum_area = 0)
 }
 \arguments{
 \item{plyFile}{An object of classes 'mesh3d' and 'shape3d' with
 calculated normals}
 
-\item{Steps}{Number of iterations to run the OPC function on
+\item{steps}{Number of iterations to run the \code{OPC()} function on
 the mesh}
 
-\item{stepSize}{Amount of rotation in degrees about the Z-axis
-to adjust mesh surface by between each iteration of OPC}
+\item{stepSize}{Amount of rotation (in degrees) about the Z-axis
+to adjust mesh surface by between each iteration of \code{OPC()}}
 
-\item{minimum_faces}{Argument to pass to the OPC function}
+\item{minimum_faces}{Argument to pass to the \code{OPC()} function}
 
-\item{minimum_area}{Argument to pass to the OPC function}
+\item{minimum_area}{Argument to pass to the \code{OPC()} function}
 }
 \description{
 A function that calls OPC iteratively after rotating mesh a selected
@@ -27,13 +27,12 @@ number of degrees around the Z-axis following Evans and Jernvall
 complexity and tooth size. J Vert Paleo 29:24A
 }
 \details{
-The function requires an object created by reading in a ply file
-utilizing either the read.ply or the read.AVIZO.ply function, with calculated
-normals.
+The function requires a mesh object created by reading in a ply file utilizing
+either the, \code{\link[Rvcg]{vcgPlyRead}} function.
 
-Default number of Steps is 8, with a stepSize of 5.625 degrees, following the
-original definition of OPCR.
+Default number of steps is 8, with a stepSize of 5.625 degrees, following the
+original published definition of OPCR.
 
-See the details for the OPC function for more information about preparing mesh
-surfaces and the effects of minimum_faces and minimum_area.
+See the details for the \code{\link{OPC}} function for more information about
+preparing mesh surfaces and the effects of \code{minimum_faces} and \code{minimum_area}.
 }

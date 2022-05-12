@@ -5,13 +5,15 @@
 \title{Plot results of OPC analysis of a surface}
 \usage{
 OPC3d(
-  OPC_Output_Object,
+  OPC_File,
   binColors = hsv(h = (seq(10, 290, 40)/360), s = 0.9, v = 0.85),
   patchOutline = FALSE,
   outlineColor = "black",
   maskDiscard = FALSE,
   legend = TRUE,
-  legendScale = 1,
+  main = "",
+  cex = 1,
+  scaleLegend = FALSE,
   legendTextCol = "black",
   legendLineCol = "black",
   leftOffset = 1,
@@ -21,8 +23,7 @@ OPC3d(
 )
 }
 \arguments{
-\item{OPC_Output_Object}{An object that stores the output of
-the OPC function}
+\item{OPC_File}{An object that stores the output of the \code{OPC()} function}
 
 \item{binColors}{Allows the user to define the fill colors for
 each directional bin}
@@ -37,29 +38,31 @@ patches excluded from the OPC value}
 \item{legend}{Logical indicating whether or not a legend should
 be displayed}
 
-\item{legendScale}{numeric value setting the relative size of the legend,
-similar in function to cex}
+\item{main}{String indicating plot title}
+
+\item{cex}{Numeric setting the relative size of the legend and title}
+
+\item{scaleLegend}{Logical indicating if legend bins should scale to patch counts}
 
 \item{legendTextCol}{Parameter defining color for the legend text}
 
 \item{legendLineCol}{Parameter defining the color for the legend lines}
 
-\item{leftOffset}{numeric value between -1 and 1 setting the degree of
-offset for the plotted surface to the left; larger values set further to left
-while 0 is centered}
+\item{leftOffset}{Numeric between -1 and 1 setting the amount of offset for
+the plotted surface to the left. Larger values push surface farther to right.}
 
-\item{fieldofview}{Passes an argument to par3d changing the field of
+\item{fieldofview}{Passes an argument to \code{par3d()} changing the field of
 view in degrees of the resulting surface plot}
 
 \item{fileName}{String indicating a name to save the plotted surface to as a
 *.ply file; default of 'NA' will not save a file}
 
 \item{binary}{Logical indicating whether or not the saved surface plot should
-be binary, passed to vcgPlyWrite}
+be binary, passed to \code{vcgPlyWrite()}}
 }
 \description{
 A function that produces a three-dimensional rendering of face
-orientation on a surface. The OPC function will identify the
+orientation on a surface. The \code{OPC} function will identify the
 orientations of mesh faces and assign them to patches. It must be
 performed prior to using the OPC3d function.
 }
@@ -68,34 +71,42 @@ This function will assign a uniform color to all faces on the mesh
 surface that share one of the orientation bins identified by the OPC function. The
 function returns a colored mesh so that patches can be visually inspected.
 
-binColors will support any vector of colors, in any coloration scheme. Default
+\code{binColors} will support any vector of colors, in any coloration scheme. Default
 draws from the HSV color space to evenly space color information, however the user
 can supply a list of RGB values or character strings in place. If there are fewer
 colors than directional bins, remaining bins will default to white.
 
-Several legend plotting options are availble, including customizing the line and
-text colors with legendTextCol and legendLineCol, which both default to black.
+A title can be added to the plot by supplying a character string to the \code{main}
+argument. Title and legend size are controlled with the \code{cex} argument,
+analogous to that in the default R graphics device.
 
-The leftOffset value sets how far to the left the surface will appear, intended
-to help avoid overlap with the legend. A value of 0 for this argument will center
-the surface in the plotting window and negative values will shift it to the right.
+Several legend plotting options are available. The default legend shape is a
+circular pie with sectors indicating the orientation of directional bins, shaded
+according to the color scheme in \code{binColors}. By setting \code{scaleLegend = TRUE},
+the legend sectors will scale proportionally to the number of patches in each
+directional bin. The legend text and line colors can be customized with
+\code{legendTextCol} and \code{legendLineCol}, which both default to black.
 
-legendScale sets the relative size of the legend, analogous to the cex argument
-of par {graphics}.
+The \code{leftOffset} value sets how far to the left the surface will plot, intended
+to help avoid overlap with the legend. Value of 0 will center the surface and
+should be invoked if the \code{legend} argument is disabled. Higher values will push
+the surface farther left and negative values will push it to the right. It is
+recommended that these values be restricted between -1 and 1 to avoid plotting
+the surface outside of the rgl window.
 
-fieldofview is set to a default of 0, which is an isometric parallel projection.
-Raising it corresondingly increases the amount of obliquity used to render the
-surface in the plotting window, up to a maximum of 179 degrees.
+\code{fieldofview} is set to a default of 0, which is an isometric projection.
+Increasing it alters the degree of parallax in the perspective view, up to
+a maximum of 179 degrees (see \code{\link[rgl:par3d]{rgl::par3d()}}).
 
 The plotted, colorized surface can be saved as a *.ply to the working directory
-by changing the fileName argument from NA to a string (e.g., "OPCPlot"). The
+by changing the \code{fileName} argument from \code{NA} to a string (e.g., "OPCPlot"). The
 resultant ply file can be opened and manipulated in other 3D visualizing programs,
-such as MeshLab, but will NOT retain its legend (a background of the plotting window).
-To retain the legend, the user is encouraged to utilize the snapshot3d function.
-Patch outlines are currently not retained with surface saving. The binary argument
-saves a file in ascii format by default, which is supported by more 3D
-visualization software than is binary. However, binary files will be considerably
-smaller.
+such as \href{https://www.meshlab.net/}{MeshLab}, but will \strong{NOT} retain its legend
+(a background of the plotting window). To retain the legend, the user is
+encouraged to utilize the \code{\link[rgl:snapshot3d]{rgl::snapshot3d()}} function.
+The \code{binary} argument saves a file in ascii format by default, which is supported by
+more 3D visualization software than is binary. However, binary files will be
+considerably smaller.
 }
 \examples{
 OPC_output <- OPC(Tooth)

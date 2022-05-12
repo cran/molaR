@@ -1,12 +1,6 @@
-#' function for building a legend for RFI
-#' 
-#' crucial plotting subfunction for RFI3d
-#' @param surfCol color for the 3D surface defaults to gray
-#' @param footCol color for the 2D footprint defualts to red
-#' @param size cex style scaling parameter
-#' @param opac sets the value for the opacity of the tooth surface when that is
-#' engaged
-#' RFI_Legend()
+#' Internal plotting function for RFI legend
+#'
+#' @noRd
 
 RFI_Legend <- function(surfCol = "gray", footCol = "red", size = 1, opac = 1)
 {

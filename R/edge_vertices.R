@@ -4,7 +4,7 @@
 #' @param plyFile a stanford PLY file
 #'
 #' 
-#' edge_vertices()
+#' @noRd
 
 edge_vertices <- function(plyFile) {
 	Faces <- t(plyFile$it) # extract faces from ply object

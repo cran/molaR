@@ -2,7 +2,7 @@
 #'
 #' This function re-computes the face normals in a way consistent with MorphoTester.
 #' @param plyFile a stanford PLY file  
-#' Face_Normals()
+#' @noRd
 
 Face_Normals <- function(plyFile){
 Faces <- plyFile$it

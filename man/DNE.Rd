@@ -4,17 +4,23 @@
 \alias{DNE}
 \title{Calculate Dirichlet normal energy of a surface}
 \usage{
-DNE(plyFile, outliers = 0.1, BoundaryDiscard = "Vertex")
+DNE(plyFile, outliers = 0.1, kappa = 0, BoundaryDiscard = "Vertex", oex = "c")
 }
 \arguments{
-\item{plyFile}{An object of class 'mesh3d' and 'shape3d' with calculated normals}
+\item{plyFile}{An object of classes 'mesh3d' and 'shape3d' with calculated normals}
 
-\item{outliers}{The percentile of Dirichlet energy density values to be excluded 
+\item{outliers}{The percentile of Dirichlet energy density values to be excluded
 defaults to top 0.1 percent}
 
-\item{BoundaryDiscard}{Logical indicating how to handle the exclusion of 
-boundary faces. Defaults to Leg which exlcudes faces which have a leg on the
-boundary}
+\item{kappa}{An integer value of mean curvature to define concave vs convex faces}
+
+\item{BoundaryDiscard}{String indicating how to handle the exclusion of
+boundary faces. Default of Vertex excludes faces which have at least 1 vertex
+on the boundary}
+
+\item{oex}{String indicating outlier exclusion principle. Defaults to 'c', which
+combines all convex and concave faces and removes the percentage of outliers
+defined by \code{outliers}. See details.}
 }
 \description{
 A function that calculates Dirichlet normal energy following the method of Bunn et
@@ -24,20 +30,32 @@ in isolation and in combination. Am J Phys Anthropol 145:247-261 doi: 10.1002
 ajpa.21489
 }
 \details{
-The function requires an object created by reading in a ply file utilizing
-either the read.ply or the read.AVIZO.ply function, with calculated normals.
+The function requires an object created by reading in a ply file.
 
 Dirichlet normal energy is calculated on meshes that represent specimen surfaces and
-have already been simplified to 10,000 faces and pre-smoothed in a 3D data
-editing program. 
+have already been simplified and pre-smoothed in a 3D data editing program.
 
-In the default settings, the function seeks to discard boundary faces. This can be 
-changed by adjusting the BoundaryDiscard argumen to 'None' which will not discard 
-any faces on on the boundary. Further, there are two ways of excluding boundary faces.
-Either if they have a leg on the boundary by setting BoundaryDiscard='Leg' or by 
-excluding any face which has a vertex on the boundary with BoundaryDiscard='Vertex'.
-The function defaults to remove the top 0.1 percent of calculated energy densities as 
-outliers. Mesh orientation does not affect for this calculation.
+In the default settings, the function seeks to discard boundary faces. This can be
+changed by adjusting the \code{BoundaryDiscard} argument to 'None' which will not discard
+any faces on the boundary. Further, there are two ways of excluding boundary faces.
+Either if they have a leg on the boundary by setting \code{BoundaryDiscard='Leg'} or by
+excluding any face which has a vertex on the boundary with \code{BoundaryDiscard='Vertex'}.
+The function defaults to remove the top 0.1 percent of calculated energy densities as
+outliers. Mesh orientation does not affect this calculation.
+
+Faces are labeled as concave or convex on the basis of the \code{kappa} value, which
+defaults to 0. Each face is assigned a \code{kappa} value, which describes the the localized
+degree of convergence or divergence among the three vertex normals on each face.
+Faces with positive \code{kappa} values have vertex normals that are divergent. Faces with
+negative \code{kappa} values possess vertex normals that are convergent. Users can adjust
+the \code{kappa} value to redefine areas of the tooth assigned to the convex or concave bin.
+
+The mode of Outlier exclusion can be modified with the \code{oex} argument. The default,
+\code{oex='c'} considers the Dirichlet energy density values of all faces on the surface and
+removes those in the top percentile defined by \code{outliers}, regardless of the convexity
+or concavity bins. The alternative, \code{oex='s'}, divides the surface into concave and
+convex portions, then removes the percentile defined by \code{outliers} from each of
+these subsets before calculating total surface DNE.
 }
 \examples{
 DNE_output <- DNE(Tooth)

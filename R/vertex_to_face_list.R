@@ -2,41 +2,27 @@
 #'
 #' crucial function for getting a list of faces which will gather the faces per vertex.
 #' @param plyFile a stanford PLY file  
-#' vertex_to_face_list()
+#'
+#' @noRd
 
 vertex_to_face_list <- function(plyFile){
-	Faces <- t(plyFile$it) ## input the Faces matrix, must be from the read.AVIZO.ply format. 
-	
-	vnum <- max(Faces)     ## Number of vertices
-	fnum <- length(Faces[,1]) ## Number of faces
-	
-	out <- vector('list', vnum) ## empty list length of number of vertices
-	
-	
-	#### Array the face names in the vertex rows
-	for (i in 1:fnum) {
-		n1 <- Faces[i,1] # indexing the vertices from each face
-		n2 <- Faces[i,2]
-		n3 <- Faces[i,3]
-		
-		out[[n1]] <- paste(out[[n1]], i, sep=",") # pasting in the face names to each vertex row
-		out[[n2]] <- paste(out[[n2]], i, sep=",")
-		out[[n3]] <- paste(out[[n3]], i, sep=",")
-		
-	}
-	
-	#### Remove the first comma from each vertex row
-	for (i in 1:vnum) {
-		out[[i]] <- substring(out[[i]], 2)
-		
-	}
-	
-	#### Convert to numbers in each row element
-	for (i in 1:vnum) {
-		out[[i]] <- as.numeric(unlist(strsplit(out[[i]], ",")))
-	}
-	Vs <- plyFile$vb
-	names(out) <- seq(1:length(Vs[1,]))
-	
-	return(out)
+	tri <- plyFile$it; N = size(tri,2)
+I = Reshape(repmat(1:N,3,1),3*N,1) # these are the face indices 
+V = Reshape(tri,3*N,1) # these are the vertex indices
+
+# Combine and sort by vertex index
+VT = cbind(V,I);
+e1 <- sort.int(VT[,1],index.return=TRUE) # sort so that vertex indices are in ascending order
+VT <- VT[e1$ix,]
+
+# Find indices of first occurence of each unique vertex index
+firstoccurence <- order(VT[,1])[!duplicated(sort(VT[,1]))]
+firstoccurence <- sort(firstoccurence) # make sure they're ordered
+
+firstoccurence[length(firstoccurence)+1] = length(VT[,2])+1
+f <- function(I) VT[firstoccurence[I]:(firstoccurence[I+1]-1),2];
+numvertices = size(plyFile$vb,2)
+v2facelist <- arrayfun(f,1:numvertices);
+return(v2facelist)
+
 }

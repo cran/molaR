@@ -5,7 +5,7 @@
 #' @param expression it knows what to do...
 #'
 #' 
-#' molaR_bgplot()
+#' @noRd
 
 molaR_bgplot <- function(expression){
     filename <- tempfile(fileext = ".png")

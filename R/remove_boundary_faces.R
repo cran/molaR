@@ -3,7 +3,8 @@
 #' Important function for masking the edge faces
 #' @param plyFile a stanford PLY file 
 #' @param Energy_Per_Face_Values information on E per face
-#' remove_boundary_faces()
+#'
+#' @noRd
 
 remove_boundary_faces <- function(Energy_Per_Face_Values, plyFile) {
 	

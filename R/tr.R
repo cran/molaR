@@ -2,7 +2,8 @@
 #'
 #' Matrix algebra
 #' @param m a square matrix
-#' tr()
+#'
+#' @noRd
 
 tr <- function(m) {
 	if (!is.matrix(m) | (dim(m)[1] != dim(m)[2])) 

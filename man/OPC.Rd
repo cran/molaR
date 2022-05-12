@@ -8,7 +8,7 @@ OPC(plyFile, rotation = 0, minimum_faces = 3, minimum_area = 0)
 }
 \arguments{
 \item{plyFile}{An object of classes "mesh3d" and "shape3d" with
-calculated normals}
+calculated vertex normals}
 
 \item{rotation}{Rotates the file in degrees about the center vertical
 axis}
@@ -16,29 +16,28 @@ axis}
 \item{minimum_faces}{Minimum number of ply faces required
 for a patch to be counted towards the total patch count}
 
-\item{minimum_area}{Minimum proportion (100%=1.0) of total surface area a
+\item{minimum_area}{Minimum proportion (100\%=1.0) of total surface area a
 patch must occupy to be counted towards the total patch count}
 }
 \description{
 A function that bins patches of a mesh surface that share general orientation and
 sums the number of unique patches given certain parameters Modified into
 3D from the original 2.5D method described by Evans et al. (2007) High-level
-similarity of dentitions in carnivorans and rodents.Nature 445:78-81 doi: 10.1038
-nature05433
+similarity of dentitions in carnivorans and rodents. Nature 445:78-81 doi:
+\href{https://www.nature.com/articles/nature05433}{10.1038/nature05433}
 }
 \details{
 The function requires a mesh object created by reading in a ply file utilizing
- either the read.ply, vcgPlyread, or read.AVIZO.ply function
+either the, \code{\link[Rvcg]{vcgPlyRead}} function.
 
 Orientation patch count is calculated on meshes that represent specimen surfaces
 and have already been downsampled to 10,000 faces and pre-smoothed in a 3D
-data editing program. Alignment of the point cloud will have a large effect on patch
-orientation and must be done in a 3D data editing program such as Avizo, or using
-the R package {auto3dgm} prior to creating and reading in the ply file. The
+data editing program. Alignment of the surface will have a large effect on patch
+orientation and must be performed in a 3D data editing program such as Avizo. The
 occlusal surface of the specimen must be made parallel to the X- and Y-axes and
 perpendicular to the Z-axis.
 
-The default for minimum_faces is to ignore patches consisting of only a single face
+The default for minimum_faces is to ignore patches consisting of two or fewer faces
 on the mesh. Changing the minimum_area value will disable minimum_faces.
 }
 \examples{

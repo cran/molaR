@@ -4,13 +4,15 @@
 \alias{molaR_Clean}
 \title{Clean up problem ply files}
 \usage{
-molaR_Clean(plyFile, cleanType = "Both")
+molaR_Clean(plyFile, cleanType = "Both", verbose = TRUE)
 }
 \arguments{
 \item{plyFile}{An object of classes 'mesh3d' and 'shape3d'}
 
-\item{cleanType}{logical asking what to clean, Verticies,
-Faces or Both. Defaults to Both.}
+\item{cleanType}{String with three arguments defining what to clean: Vertices,
+Faces, or Both. Defaults to Both.}
+
+\item{verbose}{Logical indicating if the function should report changes to ply}
 }
 \description{
 Function will remove floating verticies, and faces with zero
@@ -20,7 +22,7 @@ functions of DNE, RFI, and OPC
 \details{
 This function cleans up problematic ply files. Some
 smoothed files will have faces of zero area, or floating
-verticies. DNE and OPC cannot be calculated on these files.
+vertices. DNE and OPC cannot be calculated on these files.
 Running the plys through this function will allow those
 calculations to be made.
 }
