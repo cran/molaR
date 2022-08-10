@@ -1,4 +1,4 @@
-22feb72f023f938181a00c293a62c99f *DESCRIPTION
+6ab0a6ca9236fba54b8270d5eb339852 *DESCRIPTION
 4d618ca1cb2d93c7e231d78aedf63754 *NAMESPACE
 194d65e608fcbea5e2c5a0458d2fe02e *R/Check2D.R
 8cd08aac0917a35ddb606fa907ad5b27 *R/CurveOrientation.R
@@ -59,7 +59,7 @@ f8830f3b7c508e0c866afcbbd95fd76d *data/Hills.rda
 aa8cb165a543b084655c74481b241a21 *data/Tooth.rda
 7f352d32560888d37132ba99acb74b09 *inst/doc/molaR_vignette.R
 9d9682f303c89fb624a8728648dcc903 *inst/doc/molaR_vignette.Rmd
-92659e45c4267f67bbda1f55d8a6d20f *inst/doc/molaR_vignette.html
+a29887381fbb57b47c7f09f921699742 *inst/doc/molaR_vignette.html
 822ddbc0b5d4b4ffc6d8a7044c9157d7 *man/Check2D.Rd
 29da7d6a55dbe81d07dd01d4007374a3 *man/DNE.Rd
 be2be3320f19a7c994f164effb9e9f62 *man/DNE3d.Rd
