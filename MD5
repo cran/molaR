@@ -1,5 +1,8 @@
-6ab0a6ca9236fba54b8270d5eb339852 *DESCRIPTION
-4d618ca1cb2d93c7e231d78aedf63754 *NAMESPACE
+113caa48aba06c621a8259deb9582ebd *DESCRIPTION
+ac575d2f2ea7802456d0db9cce14cd74 *NAMESPACE
+e1a63d13c041c781e0e0defdede96920 *R/ARC.R
+2c7d550d5a65b986bee48c57954b3e9a *R/ARC3d.R
+be19aa6472f52068fe13cb784d8b53ec *R/ARC_Legend.R
 194d65e608fcbea5e2c5a0458d2fe02e *R/Check2D.R
 8cd08aac0917a35ddb606fa907ad5b27 *R/CurveOrientation.R
 4a98be7496edec00aa7bd1b8a9858554 *R/DNE.R
@@ -52,14 +55,16 @@ dc0c2b7f539f253d8b0940df303544a7 *R/signedcolor.gradient.R
 2f3d49bc7cd93ddc666b02de58ecad0f *R/tr.R
 5569672d513806cb4a1ccd28b231524e *R/triCondition.R
 69d9a2c586b6b535bb3388becbfb8313 *R/vertex_to_face_list.R
-64c85c7958f03aa8a8d8af92e21075d4 *build/vignette.rds
+5375710ca641694a54804a5e78e2a860 *build/vignette.rds
 f8830f3b7c508e0c866afcbbd95fd76d *data/Hills.rda
 9191b29072184f8af2885a3372d3b489 *data/OPCr_Example1.rda
 52457dcee3df0c7e3f1d12da5bee15ce *data/OPCr_Example2.rda
 aa8cb165a543b084655c74481b241a21 *data/Tooth.rda
-7f352d32560888d37132ba99acb74b09 *inst/doc/molaR_vignette.R
-9d9682f303c89fb624a8728648dcc903 *inst/doc/molaR_vignette.Rmd
-a29887381fbb57b47c7f09f921699742 *inst/doc/molaR_vignette.html
+ec59327c4d39777575fe263f85a07ae4 *inst/doc/molaR_vignette.R
+cee5ee0f6c2e39da95e60d837d2dd9ee *inst/doc/molaR_vignette.Rmd
+c5ce4054f9968936a494575916bd33c4 *inst/doc/molaR_vignette.html
+543a5ea8df0a4bee98bf70c9319b6f08 *man/ARC.Rd
+45f37c494b50dcbfe00c083ecc63c8ac *man/ARC3d.Rd
 822ddbc0b5d4b4ffc6d8a7044c9157d7 *man/Check2D.Rd
 29da7d6a55dbe81d07dd01d4007374a3 *man/DNE.Rd
 be2be3320f19a7c994f164effb9e9f62 *man/DNE3d.Rd
@@ -82,4 +87,4 @@ a07e0f2a50aa60219ea52aef8c2454ab *man/Slope3d.Rd
 a2c1d67c315314d77d7713d024643918 *man/molaR_Batch.Rd
 9e32872bee6fd74f2014ab062f98a3f4 *man/molaR_Clean.Rd
 e7c6c90091d08e8d7e32f3a6241fb4f3 *man/plyPlaneCut.Rd
-9d9682f303c89fb624a8728648dcc903 *vignettes/molaR_vignette.Rmd
+cee5ee0f6c2e39da95e60d837d2dd9ee *vignettes/molaR_vignette.Rmd

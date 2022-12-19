@@ -15,7 +15,7 @@ vignette: >
 ---
 
 ### About this document
-This vignette was composed using `rmarkdown` within [RStudio](https://www.rstudio.com/) ver. 1.2.5033. It contains WebGL figures that were produced with `rglwidget()` from the [`rgl`](https://CRAN.R-project.org/package=rgl) package. To properly view WebGL figures, your browser must be running Javascript and WebGL. Visit [https://get.webgl.org](https://get.webgl.org) for further information. 3D plots in this vignette can be rotated using the left mouse button and zoomed with the mouse wheel.
+This vignette was composed using `rmarkdown` within [RStudio](https://posit.co/) ver. 1.2.5033. It contains WebGL figures that were produced with `rglwidget()` from the [`rgl`](https://CRAN.R-project.org/package=rgl) package. To properly view WebGL figures, your browser must be running Javascript and WebGL. Visit [https://get.webgl.org](https://get.webgl.org) for further information. 3D plots in this vignette can be rotated using the left mouse button and zoomed with the mouse wheel.
 
 
 
@@ -422,6 +422,25 @@ The slope of each face can be plotted with the `Slope3d()` function. Color contr
 
 ```{r Slope_plot, eval=FALSE}
 Slope3d(Slope1)
+```
+<center>
+(Plot not shown to save on data volume)
+</center>
+
+
+## Area Relative Curvature (ARC)
+
+Area Relative Curvature (ARC) can be calculated on a surface using the `ARC()` function. ARC is a measure of curviness or possibly sharpness in the vein of DNE. Originally developed by Guy et al. and briefly presented in their 2013 PLoS ONE paper "Prospective in (Primate) Dental Analysis through Tooth 3D Topographical Quantification" ARC is a surface average of the mean measures of principal curvature of every surface face. This measure strongly correlates with DNE and Convex DNE, though both measures are integrals of the surface rather than surface-wide averages as ARC is. 
+
+```{r ARC}
+arc1 <- ARC(Tooth)
+```
+As of the writing of this vignette, there are and have been multiple ways Area Relative Curvature (ARC) has been reported. The function here automatically returns the surface-wide average, the concave-only average, and the convex only average values of relative curvature are all printed and easily found in the resulting ARC-object.
+
+The results of the ARC analysis can also be mapped onto the PLY-file surface, much like othe other plotting functions in this package. To display the map, you must first create the ARC-object using the `ARC()` function.
+
+```{r ARC_plot, eval=FALSE}
+ARC3d(arc1)
 ```
 <center>
 (Plot not shown to save on data volume)

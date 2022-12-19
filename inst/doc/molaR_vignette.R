@@ -194,6 +194,12 @@ Slope1 <- Slope(Tooth)
 ## ----Slope_plot, eval=FALSE---------------------------------------------------
 #  Slope3d(Slope1)
 
+## ----ARC----------------------------------------------------------------------
+arc1 <- ARC(Tooth)
+
+## ----ARC_plot, eval=FALSE-----------------------------------------------------
+#  ARC3d(arc1)
+
 ## ----molaR_Batchex, eval=FALSE------------------------------------------------
 #  molaR_Batch(pathName=~PathToYourFolder, filename=DNEBatch.csv, DNE=TRUE, RFI=FALSE, OPCr=FALSE, Slope=FALSE)
 
