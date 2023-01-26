@@ -66,7 +66,7 @@ colors1[which(colorsref>=0 & colorsref<HighQs[2])] <- colors[5]
   next3d()
 
 shade3d(ARC_object$plyFile, color=colors1, meshColor='faces')
-rgl.viewpoint(fov = fieldofview)
+view3d(fov = fieldofview)
   
   if (legend == TRUE) {
     if(cex <= 0){stop("cex must be a positive number")}

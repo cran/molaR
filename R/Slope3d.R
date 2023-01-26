@@ -91,7 +91,7 @@ Slope3d <- function(Slope_File,
 	text3d(0,0,0, main, cex=cex*2.5, font=2)
 	next3d()
 	shade3d(plyFile, color=slope_colors, meshColor='faces', shininess=100)
-	rgl.viewpoint(fov = fieldofview)
+	view3d(fov = fieldofview)
 	if (legend == TRUE) {
 	  if(cex <= 0){stop("cex must be a positive number")}
 	  if(cex > 1.25){

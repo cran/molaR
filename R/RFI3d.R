@@ -118,7 +118,7 @@ RFI3d <- function (RFI_File, displacement = -1.9, SurfaceColor = "gray",
                     primitivetype="triangle", material=NULL)
   class(Footprint) <- c("mesh3d", "shape3d")
   shade3d(Footprint, meshColor = 'faces', color=FootColor)
-  rgl.viewpoint(fov = fieldofview)
+  view3d(fov = fieldofview)
   if (leftOffset > 1) {warning("Left offset greater than 1 may restrict mesh visibility")}
   if (leftOffset < -1) {warning("Left offset less than -1 may restrict mesh visibility")}
   ZView <- par3d("observer")[3]

@@ -140,7 +140,7 @@ DNE3d <- function (DNE_File, setMax = 0, logColors = TRUE, signColor = TRUE,
   text3d(0,0,0, main, cex=cex.main, font=2)
   next3d()
   shade3d(plyFile, color = DNE_colors, meshColor='vertices', shininess = 110)
-  rgl.viewpoint(fov = fieldofview)
+  view3d(fov = fieldofview)
   
   if (legend == TRUE) {
     if(cex <= 0){stop("cex must be a positive number")}

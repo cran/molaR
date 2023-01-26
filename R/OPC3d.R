@@ -185,7 +185,7 @@ OPC3d <- function (OPC_File,
     }
   }
   shade3d(plyFile, meshColor='faces', color = colormatrix, shininess = 110)
-  rgl.viewpoint(fov = fieldofview)
+  view3d(fov = fieldofview)
   if (legend == TRUE) {
     if(cex <= 0){stop("cex must be a positive number")}
     if(cex > 1.25){

@@ -91,7 +91,7 @@ text3d(0,0,0, main, cex=cex.main, font=2);next3d()
   }
   if (leftOffset > 1) {warning("Left offset greater than 1 may restrict mesh visibility")}
   if (leftOffset < -1) {warning("Left offset less than -1 may restrict mesh visibility")}
-  rgl.viewpoint(fov = fieldofview)
+  view3d(fov = fieldofview)
   ZView <- par3d("observer")[3]
   XView <- leftOffset * ZView *0.05
   observer3d(XView, 0, ZView)

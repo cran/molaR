@@ -144,7 +144,7 @@ plyPlaneCut <- function(plyFile, axis = "Z", vertIndex = NA, keepBoth = FALSE,
     open3d()
     points3d(verts, col = vertCol, size = 3)
     shade3d(plyFile, col = "#FFFFFF", alpha = 0.5)
-    rgl.viewpoint(fov=0)
+    view3d(fov=0)
     cat("Click and drag right mouse button to select points in 3D window.\n")
     selecter <- select3d(button = "right")
     keep <- selecter(verts)
@@ -189,7 +189,7 @@ plyPlaneCut <- function(plyFile, axis = "Z", vertIndex = NA, keepBoth = FALSE,
     }
     newMesh <- meshClip(plyFile, planeNorm[1], planeNorm[2], planeNorm[3], -offset)
     if(displayNew == TRUE){
-      rgl.viewpoint(fov=0)
+      view3d(fov=0)
       clipDisplay(newMesh, c(planeNorm, -offset), cent, keepers = NA, focal = lowPt, keepBoth)
     }
   }
@@ -204,7 +204,7 @@ plyPlaneCut <- function(plyFile, axis = "Z", vertIndex = NA, keepBoth = FALSE,
     if(displayNew == TRUE){
       clipDisplay(newMesh, plane = c(plane[1], plane[2], plane[3], -plane[4]), 
                   cent, keepers = NA, focal = NA, keepBoth)
-      rgl.viewpoint(fov=0)
+      view3d(fov=0)
     }
   }
   if(is.null(newMesh$meshA)){warning("Entire mesh is below plane")}
