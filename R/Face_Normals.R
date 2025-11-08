@@ -1,6 +1,6 @@
 #' Function to find Face Normals
 #'
-#' This function re-computes the face normals in a way consistent with MorphoTester.
+#' This function re-computes the face normals
 #' @param plyFile a stanford PLY file  
 #' @noRd
 

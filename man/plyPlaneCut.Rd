@@ -2,118 +2,91 @@
 % Please edit documentation in R/plyPlaneCut.R
 \name{plyPlaneCut}
 \alias{plyPlaneCut}
-\title{Cut a PLY Mesh Along a Specified Plane}
+\title{Cut a PLY Mesh Along a Specified Plane (HTML widget; no Quartz)}
 \usage{
 plyPlaneCut(
   plyFile,
   axis = "Z",
   vertIndex = NA,
+  cut_value = NA,
   keepBoth = FALSE,
   plane = NA,
-  col = "rainbow",
   flipAxis = FALSE,
-  displayNew = TRUE
+  display = TRUE,
+  kept_col = "#3C8DFF",
+  other_col = "gray70",
+  plane_col = "firebrick",
+  plane_alpha = 0.35,
+  main = "",
+  widget_size_px = 768,
+  scene_zoom = 1.5,
+  leftOffset = 0,
+  fieldofview = 0,
+  title_font_size_px = 30,
+  title_font_family =
+    "system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif"
 )
 }
 \arguments{
 \item{plyFile}{An object of class 'mesh3d'.}
 
-\item{axis}{String indicating the axis plane on which to cut the mesh. May be \code{'X'}, \code{'Y'},
-or \code{'Z'}, Defaults to \code{'Z'}. Ignored if \code{plane} is specified, see details.}
+\item{axis}{Character, one of "X","Y","Z"; used when deriving the plane from a
+vertex index or a numeric cut value (ignored when 'plane' is supplied). Default "Z".}
 
-\item{vertIndex}{Numeric index of a mesh vertex to define clipping plane. Ignored
-if \code{plane} is specified, see details.}
+\item{vertIndex}{Integer index of a mesh vertex used to place an orthogonal plane
+through that vertex along 'axis'. Ignored if 'plane' or 'cut_value' is supplied.}
 
-\item{keepBoth}{Logical indicating if both sides of the cut mesh should be returned,
-defaults to \code{FALSE}. If \code{TRUE} (and the cutting plane intersects the mesh), the function
-output is a list containing \code{meshA} and \code{meshB} representing the two portions.}
+\item{cut_value}{Numeric coordinate along 'axis' at which to place the orthogonal
+plane. Ignored if 'plane' is supplied. (HTML-friendly alternative to interactive pick)}
 
-\item{plane}{Requires four numeric values specifying the coordinates of the plane normal
-(\emph{a, b, c}) and the "offset" (\emph{d}). Overrides input for \code{axis} and \code{vertIndex}, see details.}
+\item{keepBoth}{Logical; if TRUE and the plane intersects the mesh, return both
+sides as a list with elements 'meshA' and 'meshB'. Default FALSE.}
 
-\item{col}{Vector indicating the color for vertex drawing when interactively choosing
-cutting plane. Defaults to \code{"rainbow"}, a magenta-to-red color ramp along the specified
-\code{axis}.}
+\item{plane}{Numeric vector c(a,b,c,d) giving a plane in ax + by + cz + d = 0 form.
+If provided, overrides 'axis', 'vertIndex', and 'cut_value'.}
 
-\item{flipAxis}{Logical indicating whether or not to reverse the output about the
-normal of the plane, defaults to \code{FALSE}.}
+\item{flipAxis}{Logical; reverse the plane normal direction used to decide which
+side is kept when keepBoth = FALSE. Default FALSE.}
 
-\item{displayNew}{Logical indicating whether or not to display the function results
-when a value is supplied to either \code{vertIndex} or \code{plane}, defaults to \code{TRUE}.}
+\item{display}{Logical; if TRUE, render an HTML widget preview. Default TRUE.}
+
+\item{kept_col}{Color for the kept portion in the preview (default "#3C8DFF").}
+
+\item{other_col}{Color for the other portion in the preview (default "gray70").}
+
+\item{plane_col}{Color for the plane polygon in the preview (default "firebrick").}
+
+\item{plane_alpha}{Alpha for the plane polygon (default 0.35).}
+
+\item{main}{Plot title (default "")}
+
+\item{widget_size_px}{Square widget size in pixels (default 768)}
+
+\item{scene_zoom}{Initial zoom for the 3D scene (default 1.5)}
+
+\item{leftOffset}{Horizontal camera nudge (-1..1 recommended) (default 0)}
+
+\item{fieldofview}{Field of view in degrees (0 = isometric) (default 0)}
+
+\item{title_font_size_px}{Title font size in pixels (default 30)}
+
+\item{title_font_family}{CSS font-family list for the title (default system UI stack)}
 }
 \value{
-An object of class 'mesh3d' corresponding to the portion of the mesh on one side
-of the cutting plane. If \code{keepBoth} is enabled, a list of two such objects corresponding
-to the portions from both sides of the plane.
+If keepBoth = FALSE, a 'mesh3d' for the retained side.
+If keepBoth = TRUE, a list with elements 'meshA' and 'meshB'.
+The returned object also carries an attribute 'widget' with the
+\code{htmltools::browsable} preview when \code{display = TRUE}.
 }
 \description{
-\code{plyPlaneCut} permits several different approaches for specifying a cutting plane
-and returns either a portion of the original mesh from one side of the plane, or
-both portions from each side of the plane stored as separate list elements.
+Cuts a mesh by a plane and returns either one side or both sides of the cut.
+The result is also previewed as an HTML widget (no Quartz/X11) with the kept
+side in solid color, the other side semi-transparent, and the cutting plane shown.
 }
 \details{
-\code{plyPlaneCut} draws a cutting plane using the parametrization \emph{ax + by + cz + d = 0}
-(Hesse normal form), wherein <\emph{a, b, c}> constitute the normal to the plane, and \emph{d} is the
-"offset" value. See \code{\link[rgl]{planes3d}} for further information. Users can supply
-any parameters for \code{a}, \code{b}, \code{c}, and \code{d} in the \code{plane} argument to produce an arbitrary
-cutting plane (see Examples), however the function is designed to aid users in choosing a
-cutting plane without foreknowledge of the desired parameters.
-
-When \code{plane} is \code{NA}, the function will cut the mesh along a plane orthogonal to one of
-the primary axes (X, Y, or Z, as indicated by \code{axis}) at the location of a focal vertex.
-The focal vertex can be defined by its index value, supplied to \code{vertIndex}. If no value
-is given for either \code{plane} or \code{vertIndex}, then an interactive 3D window allows the
-user to select the focal vertex. A 3D window will open displaying all mesh vertices,
-colored according to \code{col}, with a semi-transparent mesh surface. The display can be
-rotated with the left mouse button and zoomed with the mouse wheel. The right mouse
-button allows the user to define a rectangular region in which to identify the focal
-vertex. The focal vertex is the vertex in the user-selected region with the \emph{minimum value}
-in the dimension indicated by the \code{axis} argument. A preview of the resulting cutting
-will be supplied, and for the function to finish users must supply a "Y" or "y"
-confirmation to the \verb{Cut mesh?:} prompt in the terminal. Any other response will
-restart the selection process.
-
-The \code{col} argument is only invoked when choosing a focal vertex in an interactive 3D
-window (i.e., \code{vertIndex} and \code{plane} are set to \code{NA}). This argument will apply any
-acceptable color vector to the displayed vertices. Alternatively, users can specify
-a color ramp by supplying a string, including: \code{"rainbow"}, \code{"heat.colors"},
-\code{"terrain.colors"}, \code{"topo.colors"}, \code{"cm.colors"}, or \code{"gray.colors"}; see
-\code{\link[grDevices]{hcl.colors}} and \code{\link[grDevices]{gray.colors}} for
-further details. Color ramps will plot along the axis specified by \code{axis} and reverse
-if \code{flipAxis = TRUE}.
-
-If users prefer that the function is inverted with respect to mesh geometry (i.e., that it
-identifies the focal vertex as the \emph{maximum value} with respect to \code{axis}, or that the
-resulting mesh be that along the \emph{negative} normal to the plane), then they should set
-\code{flipAxis = TRUE}. If \code{keepBoth} is enabled, the function will return a list of two
-'mesh3d' objects: \code{meshA}, and \code{meshB}. Enabling \code{keepBoth} but providing a plane
-that does not intersect the mesh will result in a list with one of the objects set
-to \code{NULL} (see Examples).
-
-This function can be used to cut meshes representing tooth surfaces so as to retain
-only the area of the tooth crown above the lowest point of the occlusal basin. This
-cropping procedure is consistent with the one used to prepare surfaces for
-measurement of occlusal relief (OR) by Ungar & M'Kirera (2003) "A solution to the
-worn tooth conundrum in primate functional anatomy" PNAS 100(7):3874-3877
-Unreferenced vertices can cause errors, so users are encouraged to clean their mesh
-with \code{\link{molaR_Clean}} prior to using this function.
-}
-\examples{
-# Result from providing plane parameters and keeping meshes from both sides of plane
-
-cutMesh <- plyPlaneCut(Tooth, plane = c(0.5, 0.5, 0.5, -4), keepBoth = TRUE)
-open3d()
-shade3d(cutMesh$meshA, col = "gray")
-wire3d(cutMesh$meshB)
-planes3d(0.5, 0.5, 0.5, -4, col = "red", alpha = 0.66)
-
-
-# Result from providing parameters for a plane that does not intersect the mesh
-
-cutMesh <- plyPlaneCut(Tooth, plane = c(1, 0.75, 0.5, -11))
-identical(Tooth, cutMesh)
-
-cutMesh <- plyPlaneCut(Tooth, plane = c(1, 0.75, 0.5, -11), keepBoth = TRUE)
-identical(Tooth, cutMesh)
-
+This HTML-widget version avoids opening a native rgl window and mirrors the
+device-and-layout pattern you used in your updated \code{DNE3d}. Interactive vertex
+picking (\code{select3d}) isn’t supported in widget mode; supply the cut as \code{plane},
+\code{vertIndex} + \code{axis}, or \code{cut_value} + \code{axis}. The kept side selection is
+controlled by the normal direction and \code{flipAxis}.
 }

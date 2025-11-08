@@ -2,11 +2,11 @@
 % Please edit documentation in R/OPC3d.R
 \name{OPC3d}
 \alias{OPC3d}
-\title{Plot results of OPC analysis of a surface}
+\title{Plot results of OPC analysis of a surface (3D HTML widget; numbered legend; distinct colors)}
 \usage{
 OPC3d(
   OPC_File,
-  binColors = hsv(h = (seq(10, 290, 40)/360), s = 0.9, v = 0.85),
+  binColors = NULL,
   patchOutline = FALSE,
   outlineColor = "black",
   maskDiscard = FALSE,
@@ -16,99 +16,88 @@ OPC3d(
   scaleLegend = FALSE,
   legendTextCol = "black",
   legendLineCol = "black",
-  leftOffset = 1,
+  leftOffset = 0,
   fieldofview = 0,
+  widget_size_px = 768,
+  scene_zoom = 1.5,
+  title_font_size_px = 30,
+  title_font_family =
+    "system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif",
+  legend_magnify = 1,
   fileName = NA,
   binary = FALSE
 )
 }
 \arguments{
-\item{OPC_File}{An object that stores the output of the \code{OPC()} function}
+\item{OPC_File}{An object that stores the output of \code{OPC()}}
 
-\item{binColors}{Allows the user to define the fill colors for
-each directional bin}
+\item{binColors}{Optional character vector of colors for each directional bin. If not supplied,
+a high-contrast set is generated automatically (Okabe–Ito <= 12 bins; vivid HCL rainbow for more).}
 
-\item{patchOutline}{Logical whether or not to outline the patches}
+\item{patchOutline}{Logical; draw patch boundary outlines on the mesh (default \code{FALSE})}
 
-\item{outlineColor}{Parameter defining the patch outline color}
+\item{outlineColor}{Color for patch outlines (default \code{"black"})}
 
-\item{maskDiscard}{Logical indicating whether or not to mask (in black) the
-patches excluded from the OPC value}
+\item{maskDiscard}{Logical; color discarded/small patches black in the mesh (default \code{FALSE})}
 
-\item{legend}{Logical indicating whether or not a legend should
-be displayed}
+\item{legend}{Logical; show a right-hand legend (default \code{TRUE})}
 
-\item{main}{String indicating plot title}
+\item{main}{Character; plot title (default \code{""})}
 
-\item{cex}{Numeric setting the relative size of the legend and title}
+\item{cex}{Numeric; relative size multiplier for legend text (default \code{1})}
 
-\item{scaleLegend}{Logical indicating if legend bins should scale to patch counts}
+\item{scaleLegend}{Logical; scale legend pie wedges by patch counts (default \code{FALSE})}
 
-\item{legendTextCol}{Parameter defining color for the legend text}
+\item{legendTextCol}{Color for legend text (default \code{"black"})}
 
-\item{legendLineCol}{Parameter defining the color for the legend lines}
+\item{legendLineCol}{Color for legend ring/lines (default \code{"black"})}
 
-\item{leftOffset}{Numeric between -1 and 1 setting the amount of offset for
-the plotted surface to the left. Larger values push surface farther to right.}
+\item{leftOffset}{Numeric (-1..1); small horizontal camera nudge (default \code{0})}
 
-\item{fieldofview}{Passes an argument to \code{par3d()} changing the field of
-view in degrees of the resulting surface plot}
+\item{fieldofview}{Numeric; field of view in degrees; 0 = isometric (default \code{0})}
 
-\item{fileName}{String indicating a name to save the plotted surface to as a
-*.ply file; default of 'NA' will not save a file}
+\item{widget_size_px}{Integer; square size of the 3D widget in pixels (default \code{768})}
 
-\item{binary}{Logical indicating whether or not the saved surface plot should
-be binary, passed to \code{vcgPlyWrite()}}
+\item{scene_zoom}{Numeric; initial zoom on the 3D scene (default \code{1.5})}
+
+\item{title_font_size_px}{Integer; title font size in pixels (default \code{30})}
+
+\item{title_font_family}{CSS font-family for title/legend (default system UI stack)}
+
+\item{legend_magnify}{Numeric; additional legend scale factor (default \code{1})}
+
+\item{fileName}{Character or \code{NA}; if non-\code{NA}, write a colored *.ply to disk (default \code{NA})}
+
+\item{binary}{Logical; write PLY as binary (default \code{FALSE}, i.e., ascii)}
+}
+\value{
+\itemize{
+\item \strong{Interactive}: an \code{htmltools}-browsable object (title, 3D widget, legend).
+\item \strong{Non-interactive}: (invisibly) a list with class \code{"OPC3d_spec"} containing:
+\code{title}, \code{bin_colors}, \code{face_colors}, \code{bin_sizes}, \code{bin_labels}, \code{legend}, \code{scaled}.
+}
 }
 \description{
-A function that produces a three-dimensional rendering of face
-orientation on a surface. The \code{OPC} function will identify the
-orientations of mesh faces and assign them to patches. It must be
-performed prior to using the OPC3d function.
+Produces a three-dimensional rendering of face orientation on a surface and
+returns an HTML widget with a clean, numbered pie legend
+Wedges can be scaled by patch counts. Default colors emphasize clarity.
 }
 \details{
-This function will assign a uniform color to all faces on the mesh
-surface that share one of the orientation bins identified by the OPC function. The
-function returns a colored mesh so that patches can be visually inspected.
+Run \code{OPC()} first to compute patches and directional bins.
 
-\code{binColors} will support any vector of colors, in any coloration scheme. Default
-draws from the HSV color space to evenly space color information, however the user
-can supply a list of RGB values or character strings in place. If there are fewer
-colors than directional bins, remaining bins will default to white.
+\strong{Legend}
+Wedges are \strong{numbered (1..N)} and can be \strong{scaled} to patch counts.
 
-A title can be added to the plot by supplying a character string to the \code{main}
-argument. Title and legend size are controlled with the \code{cex} argument,
-analogous to that in the default R graphics device.
-
-Several legend plotting options are available. The default legend shape is a
-circular pie with sectors indicating the orientation of directional bins, shaded
-according to the color scheme in \code{binColors}. By setting \code{scaleLegend = TRUE},
-the legend sectors will scale proportionally to the number of patches in each
-directional bin. The legend text and line colors can be customized with
-\code{legendTextCol} and \code{legendLineCol}, which both default to black.
-
-The \code{leftOffset} value sets how far to the left the surface will plot, intended
-to help avoid overlap with the legend. Value of 0 will center the surface and
-should be invoked if the \code{legend} argument is disabled. Higher values will push
-the surface farther left and negative values will push it to the right. It is
-recommended that these values be restricted between -1 and 1 to avoid plotting
-the surface outside of the rgl window.
-
-\code{fieldofview} is set to a default of 0, which is an isometric projection.
-Increasing it alters the degree of parallax in the perspective view, up to
-a maximum of 179 degrees (see \code{\link[rgl:par3d]{rgl::par3d()}}).
-
-The plotted, colorized surface can be saved as a *.ply to the working directory
-by changing the \code{fileName} argument from \code{NA} to a string (e.g., "OPCPlot"). The
-resultant ply file can be opened and manipulated in other 3D visualizing programs,
-such as \href{https://www.meshlab.net/}{MeshLab}, but will \strong{NOT} retain its legend
-(a background of the plotting window). To retain the legend, the user is
-encouraged to utilize the \code{\link[rgl:snapshot3d]{rgl::snapshot3d()}} function.
-The \code{binary} argument saves a file in ascii format by default, which is supported by
-more 3D visualization software than is binary. However, binary files will be
-considerably smaller.
+\strong{Saving a PLY}
+When \code{fileName} is provided, a colorized PLY is written. Colors are assigned per face via a
+vertex-duplication strategy so external tools (e.g., MeshLab) show the same appearance. For ascii
+PLY, a comment line notes the generator/version.
 }
 \examples{
-OPC_output <- OPC(Tooth)
-OPC3d(OPC_output)
+# OPC_out <- OPC(Tooth)
+if (interactive()) {
+  OPC3d(OPC_out, legend = TRUE, scaleLegend = TRUE,
+        main = "OPC -- Numbered Bins")
+}
+
 }

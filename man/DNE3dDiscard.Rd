@@ -2,7 +2,7 @@
 % Please edit documentation in R/DNE3dDiscard.R
 \name{DNE3dDiscard}
 \alias{DNE3dDiscard}
-\title{Plot advanced results of a DNE surface analysis}
+\title{Plot discarded-face results of a DNE analysis (HTML widget; no Quartz)}
 \usage{
 DNE3dDiscard(
   DNE_File,
@@ -12,69 +12,91 @@ DNE3dDiscard(
   concaveCol = baseCol,
   main = "",
   cex = 1,
-  cex.main = 2.5,
-  legend = T,
-  leftOffset = 1,
+  legend = TRUE,
+  widget_size_px = 768,
+  scene_zoom = 1.5,
+  leftOffset = 0,
   fieldofview = 0,
+  title_font_size_px = 30,
+  legend_magnify = 1,
+  legendTextCol = "black",
+  legendLineCol = "black",
   fileName = NA,
   binary = FALSE
 )
 }
 \arguments{
-\item{DNE_File}{An object that stores the output of the \code{DNE()}
-function}
+\item{DNE_File}{An object that stores the output of \code{DNE()}}
 
-\item{baseCol}{Base color for typical face on surface. Default is gray}
+\item{baseCol}{Base color for typical faces (default \code{"gray"})}
 
-\item{boundCol}{Color for the boundary faces discarded from
-the DNE calculation. Default is red.}
+\item{boundCol}{Color for boundary faces discarded from DNE (default \code{"red"})}
 
-\item{outlierCol}{Color for the faces discarded as outliers from
-the DNE calculation. Default is lawngreen}
+\item{outlierCol}{Color for faces discarded as outliers (default \code{"lawngreen"})}
 
-\item{concaveCol}{Color of the Concave faces on the surface.
-When left in default concave faces remain undistinguished on
-the plotted surface and are colored the same as baseCol.}
+\item{concaveCol}{Color for concave faces; when left equal to \code{baseCol} the
+concave category is not distinguished or shown in the legend (default = \code{baseCol})}
 
-\item{main}{string indicating plot title. Defaults to empty}
+\item{main}{Character; plot title (default \code{""})}
 
-\item{cex}{numeric value setting the relative size of the legend, default=1}
+\item{cex}{Numeric; relative size multiplier for legend text (default \code{1})}
 
-\item{cex.main}{numeric value setting the relative size of the plot title,}
+\item{legend}{Logical; show legend panel (default \code{TRUE})}
 
-\item{legend}{Logical indicating whether or not a legend
-shold be displayed. Default=T}
+\item{widget_size_px}{Integer; square size of the 3D widget in pixels (default \code{768})}
 
-\item{leftOffset}{numeric value between -1 and 1 setting the degree of
-offset for the plotted surface to the left. Larger values set further to right.
-Default=1}
+\item{scene_zoom}{Numeric; initial zoom on the 3D scene (default \code{1.5})}
 
-\item{fieldofview}{Passes an argument to \code{par3d()} changing the field of
-view (in degrees) of the resulting 3D plot}
+\item{leftOffset}{Numeric (-1..1); small horizontal camera nudge (default \code{0})}
 
-\item{fileName}{String indicating a name to save the plotted surface to as a
-*.ply file; default of 'NA' will not save a file}
+\item{fieldofview}{Numeric; field of view in degrees; 0 = isometric (default \code{0})}
 
-\item{binary}{Logical indicating whether or not the saved surface plot should
-be binary, passed to \code{vcgPlyWrite()}}
+\item{title_font_size_px}{Integer; title font size in pixels (default \code{30})}
+
+\item{legend_magnify}{Numeric; additional legend scale factor (default \code{1})}
+
+\item{legendTextCol}{Color for legend text (default \code{"black"})}
+
+\item{legendLineCol}{Color for legend swatch borders/lines (default \code{"black"})}
+
+\item{fileName}{Character or \code{NA}; if non-\code{NA}, write a colorized *.ply to disk (default \code{NA})}
+
+\item{binary}{Logical; write PLY as binary (default \code{FALSE}, i.e., ascii)}
+}
+\value{
+An htmltools-browsable object containing the title, 3D widget, and legend.
 }
 \description{
-a molaR surface plotting function
+Produces a three-dimensional rendering that highlights the faces discarded from
+the DNE calculation---boundary faces and statistical outliers---along with optional
+concavity marking. The plot is returned as an HTML widget with a simple, readable
+legend panel to the right.
 }
 \details{
-This function creates a surface map of the discarded DNE faces.
-DNE calculations typically discard the top 1 tenth of one percent of faces,
-associated with extreme pockets and broken parts of surfaces. DNE
-calculations also typically discard the boundary faces from the calculation,
-either on the basis of 2 vertices on the boundary, or at least one vertext on
-the boundary. concaveCol defaults to gray and therefore is turned off. When
-an alternative color is provided, the function will identify the the areas of the
-tooth that are concave vs convex.
+Run \code{DNE()} first to compute per-face values and discard sets.
 
-Details of the other function arguments can be found in the DNE3d() description
-and identical terms are organized to function the same way.
+\strong{What this shows}
+\itemize{
+\item \emph{Boundary faces} (e.g., with >=1 boundary vertex) and \emph{outlier faces} (top extreme
+tail) that were excluded from DNE are colored distinctly; all other faces get
+\code{baseCol}. If \code{concaveCol} differs from \code{baseCol}, concave regions are tinted
+accordingly and labeled in the legend.
+}
+
+\strong{HTML widget}
+\itemize{
+\item Uses a headless rgl device and returns an \code{rglwidget} embedded beside a simple HTML
+legend (no Quartz window). Layout and centering mirror the updated \code{DNE3d}.
+}
+
+\strong{Saving a PLY}
+\itemize{
+\item If \code{fileName} is provided, a colorized PLY is written. For ascii PLY, a comment
+line noting the generator/version is inserted (as in the updated \code{DNE3d}).
+}
 }
 \examples{
-DNE_output <- DNE(Tooth)
-DNE3dDiscard(DNE_output)
+# DNE_out <- DNE(Tooth)
+if(interactive()){DNE3dDiscard(DNE_out, main = "DNE -- Discarded Faces")}
+
 }

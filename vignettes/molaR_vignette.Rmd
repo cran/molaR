@@ -1,18 +1,30 @@
+
+
 ---
 title: "Using molaR"
 author: "James D. Pampush & Paul E. Morse"
 date: "`r format(Sys.time(), '%B %d, %Y')`"
 output:
-  html_document: {}
-  rmarkdown:
-    toc: yes
-    fig_width: 5
-    fig_height: 5
+  rmarkdown::html_vignette:
+    toc: true
+    number_sections: false
 vignette: >
- %\VignetteIndexEntry{Using molaR}
- %\VignetteEngine{knitr::rmarkdown}
-
+  %\VignetteIndexEntry{Using molaR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
+
+```{r setup, include=FALSE}
+options(rgl.useNULL = TRUE, rgl.printRglwidget = FALSE)
+if (requireNamespace("rgl", quietly = TRUE)) rgl::setupKnitr()
+knitr::opts_chunk$set(
+  echo = FALSE, message = FALSE, warning = FALSE,
+  fig.width = 5, fig.height = 5
+)
+library(molaR)
+```
+
+
 
 ### About this document
 This vignette was composed using `rmarkdown` within [RStudio](https://posit.co/) ver. 1.2.5033. It contains WebGL figures that were produced with `rglwidget()` from the [`rgl`](https://CRAN.R-project.org/package=rgl) package. To properly view WebGL figures, your browser must be running Javascript and WebGL. Visit [https://get.webgl.org](https://get.webgl.org) for further information. 3D plots in this vignette can be rotated using the left mouse button and zoomed with the mouse wheel.
@@ -25,8 +37,7 @@ The R package `molaR` provides functions that allow the user to quantitatively m
 
 `molaR` analyzes three-dimensional embedded triangular mesh files (\*.ply files). These files can be imported into R with the function `vcgPlyRead()` from the package [`Rvcg`](https://CRAN.R-project.org/package=Rvcg), which can also clean meshes for users. Two sample mesh data files are provided with the `molaR` package for function demonstration and for users to experiment with: 'Tooth' is a scanned M<sub>1</sub> of *Chlorocebus sabaeus* (a vervet monkey: [USNM 112176](https://n2t.net/ark:/65665/3248bf80f-9f01-44a3-ab1c-26b6d0da2abb)). 'Hills' is an undulating plane produced with the formula: `z = 3cos(x/2) + 3sin(y/2)`.
 Please note that many of embedded graphics have been left out of this document to save on data volume. CRAN only allows packages to be 5mb in size and the inclusion of these large complex rgl surfaces required too much data, and so many have been removed. 
-```{r setup, message = FALSE}
-library(molaR)
+
 str(Tooth)
 ```
 Above demonstrates the data  of a typical *.ply file. The `$vb` component is a data frame containing the locations in x-, y-, z- space (in that order) for each of the vertices of the surface. The rows represent from top to bottom the x-, y-, and z- cooridnates for each vertex. The first set of cooridnates corresponds to the first vertex. The second to the second and so on. 
@@ -39,7 +50,7 @@ The `$it` component stores the face information. Each face is defined through a 
 ```{r faces, message=FALSE}
 Tooth$it[,1:10]
 ```
-The last important part of the *.ply file is the data frame containing the vertex normals (`$normals`). Each column entry contains information about the x-, y-, z- orientation of the vertex normal and the legnth of the normal. The top 3 rows are ordered x-, y-, z- like the vertex information, and the bottom row contains the length of the normal. Typically the normals are all of unit length. 
+The last important part of the *.ply file is the data frame containing the vertex normals (`$normals`). Each column entry contains information about the x-, y-, z- orientation of the vertex normal and the length of the normal. The top 3 rows are ordered x-, y-, z- like the vertex information, and the bottom row contains the length of the normal. Typically the normals are all of unit length. 
 ```{r normals, message=FALSE}
 Tooth$normals[,1:10]
 ```
@@ -90,8 +101,8 @@ DNE3d(DNE1, main='Vervet Tooth')
 ```
 <center>
 ```{r DNE_plot1, fig.align='center', echo=FALSE}
-DNE3d(DNE1, main='Vervet Tooth')
-rglwidget()
+if(interactive()){DNE3d(DNE1, main='Vervet Tooth')}
+
 ```
 </center>
 
@@ -421,7 +432,7 @@ Slope1 <- Slope(Tooth)
 The slope of each face can be plotted with the `Slope3d()` function. Color control is achieved with a colorramp assembled from a sequential input string of colors, which can be adjusted with the `colors` argument. The default is a string of colors as follows: `colors=c('blue', 'cornflowerblue', 'green', 'yellowgreen', 'yellow', 'orangered', 'red')`. Negative slope faces that do not contribute to the overall surface Slope value are by default masked in black, which users can adjust with the `maskNegatives` parameter.
 
 ```{r Slope_plot, eval=FALSE}
-Slope3d(Slope1)
+if(interactive()){Slope3d(Slope1)}
 ```
 <center>
 (Plot not shown to save on data volume)
@@ -527,9 +538,9 @@ DNEbar(DNEs)
 
 DNEpie(DNEs[[1]], main=as.character(names(DNEs)[1]))
 
-DNE3d(DNEs[[1]], main=as.character(names(DNEs)[1]))
+if(interactive()){DNE3d(DNEs[[1]], main=as.character(names(DNEs)[1]))}
 
-DNE3dDiscard(DNEs[[1]], main=as.character(names(DNEs)[1]))
+if(interactive()){DNE3dDiscard(DNEs[[1]], main=as.character(names(DNEs)[1]))}
 
 DNEDensities(DNEs[[1]], main=as.character(names(DNEs)[1]))
 ```
@@ -538,8 +549,6 @@ If you ran these commands and properly produced the `DNEs` list object, then you
 
 
 There are problems, for sure. We are amateur coders; anatomists and anthropologists by original training and self taught developers, sorry. But still, we believe this is an excellent set of dental topography tools, which may as yet find many new applications. We have seen so many creative applications since `molaR` was first published. Additionally, please, feel free to find creative new extensions of this work, so that it too may evolve as a tool.
-
-
 
 
 

@@ -2,55 +2,87 @@
 % Please edit documentation in R/ARC3d.R
 \name{ARC3d}
 \alias{ARC3d}
-\title{Plot Area Relative Curvature on Tooth Mesh}
+\title{Plot Area Relative Curvature (ARC) on a surface (HTML widget; continuous bar legend)}
 \usage{
 ARC3d(
   ARC_object,
   main = "",
-  cex.main = 2,
   cex = 1,
   colors = c("darkblue", "blue", "powderblue", "gray", "gray", "tan", "orange",
     "darkorange1"),
   fieldofview = 0,
-  legend = T
+  legend = TRUE,
+  widget_size_px = 768,
+  scene_zoom = 1.5,
+  leftOffset = 0,
+  title_font_size_px = 30,
+  legend_magnify = 1,
+  legendTextCol = "black",
+  legendLineCol = "black",
+  fileName = NA,
+  binary = FALSE
 )
 }
 \arguments{
-\item{ARC_object}{An object that stores the output of the \code{ARC()}
-function}
+\item{ARC_object}{An object that stores the output of ARC(), including
+$Mean_Face_Curvature and $plyFile (an rgl::mesh3d).}
 
-\item{main}{string indicating plot title. Defaults to empty}
+\item{main}{Character; plot title (default "")}
 
-\item{cex.main}{numeric value setting the relative size of the plot title,}
+\item{cex}{Numeric; relative size multiplier for legend text (default 1)}
 
-\item{cex}{numeric value setting the relative size of the legend, default=1}
+\item{colors}{Character vector of length >= 8 with the eight display colors
+for the curvature bands. Defaults match the classic ARC3d:
+c("darkblue","blue","powderblue","gray","gray","tan","orange","darkorange1").
+These eight colors are used both for the surface and for the legend bar.}
 
-\item{colors}{a concatenated string of colors for plotting different values of
-positive and negative curvature.}
+\item{fieldofview}{Numeric; field of view in degrees; 0 = isometric (default 0)}
 
-\item{fieldofview}{Passes an argument to \code{par3d()} changing the field of
-view (in degrees) of the resulting 3D plot}
+\item{legend}{Logical; show legend panel (default TRUE)}
 
-\item{legend}{Logical indicating whether or not a legend
-shold be displayed. Default=T}
+\item{widget_size_px}{Integer; square size of the 3D widget in pixels (default 768)}
+
+\item{scene_zoom}{Numeric; initial zoom on the 3D scene (default 1.5)}
+
+\item{leftOffset}{Numeric (-1..1); small horizontal camera nudge (default 0)}
+
+\item{title_font_size_px}{Integer; title font size in pixels (default 30)}
+
+\item{legend_magnify}{Numeric; additional legend scale factor (default 1)}
+
+\item{legendTextCol}{Legend text color (default "black")}
+
+\item{legendLineCol}{Legend border color for the bar box (default "black")}
+
+\item{fileName}{Character or NA; if non-NA, write a colorized *.ply to disk (default NA)}
+
+\item{binary}{Logical; write PLY as binary (default FALSE, i.e., ascii)}
+}
+\value{
+An htmltools::browsable object containing the title, 3D widget, and legend.
 }
 \description{
-a molaR surface plotting function
+Creates a three-dimensional rendering of Area Relative Curvature (ARC)
+on a mesh and returns an HTML widget with a continuous, vertical color-bar
+legend. Curvature is split into four negative and four positive bands
+(quantiles on each side of zero) for per-face coloring. The legend uses a
+single blended bar assembled from the same eight colors used on the surface,
+with negative values at the bottom and positive values at the top.
 }
 \details{
-This function creates a surface map of the discarded DNE faces.
-DNE calculations typically discard the top 1 tenth of one percent of faces,
-associated with extreme pockets and broken parts of surfaces. DNE
-calculations also typically discard the boundary faces from the calculation,
-either on the basis of 2 vertices on the boundary, or at least one vertext on
-the boundary. concaveCol defaults to gray and therefore is turned off. When
-an alternative color is provided, the function will identify the the areas of the
-tooth that are concave vs convex.
+Run ARC() first to compute per-face ARC values.
 
-Details of the other function arguments can be found in the DNE3d() description
-and identical terms are organized to function the same way.
+Binning scheme:
+The mean face curvature values are split by sign. For negative values, the
+empirical quartiles (Q1..Q3) define three internal boundaries, creating four
+bins below zero; the same is done for positive values above zero. The eight
+bins map to the eight provided colors. The legend bar is a continuous CSS
+gradient built from those same colors so that the bar visually matches the
+surface and blends smoothly from one band to the next. Tick labels are shown
+at LowQs, 0, and HighQs (top to bottom = high to low).
 }
 \examples{
-ARC_output <- ARC(Tooth)
-ARC3d(ARC_output)
+# ARC_out <- ARC(Tooth)
+if(interactive()){ARC3d(ARC_out, main = "Area Relative Curvature")}
+
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/RFI3d.R
 \name{RFI3d}
 \alias{RFI3d}
-\title{Plot 3D and 2D areas of a mesh used to calculate relief index}
+\title{Plot 3D and 2D areas of a mesh used to calculate relief index (HTML widget)}
 \usage{
 RFI3d(
   RFI_File,
@@ -12,96 +12,79 @@ RFI3d(
   FootPts = FALSE,
   FootPtsColor = "black",
   Opacity = 1,
-  legend = F,
+  legend = TRUE,
   main = "",
   cex = 1,
+  widget_size_px = 768,
+  scene_zoom = 1.5,
   leftOffset = 0,
   fieldofview = 0,
+  title_font_size_px = 30,
+  title_font_family =
+    "system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif",
+  legend_magnify = 1,
   fileName = NA,
   binary = FALSE
 )
 }
 \arguments{
-\item{RFI_File}{An object that stores the output of the RFI
-function}
+\item{RFI_File}{An object that stores the output of the RFI function}
 
-\item{displacement}{Numeric that moves the surface footprint some
-proportion of the height of the mesh. 0 is in the vertical center of the
-surface, negative values displace the footprint downward.}
+\item{displacement}{Numeric that moves the surface footprint some proportion
+of the height of the mesh. 0 is vertical center; negative values displace
+the footprint downward. Default -1.9.}
 
-\item{SurfaceColor}{String that controls the color of the 3D surface mesh}
+\item{SurfaceColor}{Color for the 3D surface mesh}
 
-\item{FootColor}{String that controls the color of the 2D surface footprint}
+\item{FootColor}{Color for the 2D surface footprint}
 
-\item{FootPts}{Logical indicating whether to plot the
-flattened points of the footprint from the original ply file}
+\item{FootPts}{Logical; if TRUE, plot the flattened points used for the footprint}
 
-\item{FootPtsColor}{Color of the plotted footprint points if \code{FootPts = TRUE}}
+\item{FootPtsColor}{Color of plotted footprint points when \code{FootPts = TRUE}}
 
-\item{Opacity}{Numeric that adjusts the opacity of the 3D mesh surface}
+\item{Opacity}{Numeric from 0 to 1 controlling the opacity of the 3D surface}
 
-\item{legend}{Logical indicating whether or not to include a
-legend of the colors chosen to represent the 3D surface and
-footprint}
+\item{legend}{Logical; draw a legend (right side of the widget)}
 
-\item{main}{String indicating plot title}
+\item{main}{Plot title}
 
-\item{cex}{Numeric setting the relative size of the legend and title}
+\item{cex}{Base scaling for legend/ticks (relative multiplier)}
 
-\item{leftOffset}{Numeric between -1 and 1 setting the amount of offset for
-the plotted surface to the left. Larger values push surface farther to right.}
+\item{widget_size_px}{Square widget size in pixels (default 768)}
 
-\item{fieldofview}{Passes an argument to \code{par3d()} changing the field of
-view in degrees of the resulting surface plot}
+\item{scene_zoom}{Initial zoom for the 3d scene (default 1.5)}
 
-\item{fileName}{String indicating a name to save the plotted surface to as a
-*.ply file; default of 'NA' will not save a file}
+\item{leftOffset}{Horizontal camera nudge (-1..1 recommended)}
 
-\item{binary}{Logical indicating whether or not the saved surface plot should
-be binary, passed to \code{vcgPlyWrite()}}
+\item{fieldofview}{Field of view in degrees (0 = isometric)}
+
+\item{title_font_size_px}{Title font size in pixels (default 30)}
+
+\item{title_font_family}{CSS font-family list for the title}
+
+\item{legend_magnify}{Additional scale factor for the legend text}
+
+\item{fileName}{Optional file base name to save a colored *.ply (no legend)}
+
+\item{binary}{Binary PLY if TRUE (smaller files)}
 }
 \description{
-A function that plots a three-dimensional model of the mesh
-surface and includes a footprint of the two-dimensional area for
-visual comparison.
+Renders a three-dimensional model of the mesh surface and a footprint of the
+two-dimensional area side-by-side for visual comparison. The \code{RFI()} function
+must be performed prior to using \code{RFI3d()}.
 }
 \details{
-This function can help to visualize the three-dimensional and two
-dimensional areas that are used in calculating the relief index of a surface by
-displaying both at the same time. The RFI function must be performed first.
+This function helps visualize the 3D surface area (numerator) and the 2D
+projected area (denominator) that comprise the relief index, by displaying
+both at once. Adjust \code{Opacity} to make the footprint more visible through
+the surface. The footprint plane can be moved along Z via \code{displacement}.
 
-\code{Opacity} can be adjusted in a range from fully opaque (\code{1}) to fully
-transparent (\code{0}) in order to help visualize the footprint. The vertical
-placement of the footprint along the Z axis can be altered with \code{displacement},
-depending on how the user wishes to view the surface, or on the original
-mesh orientation.
-
-A title can be added to the plot by supplying a character string to the \code{main}
-argument. Title and legend size are controlled with the \code{cex} argument,
-analogous to that in the default R graphics device.
-
-The \code{leftOffset} value sets how far to the left the surface will plot, intended
-to help avoid overlap with the legend. Value of 0 will center the surface and
-should be invoked if the \code{legend} argument is disabled. Higher values will push
-the surface farther left and negative values will push it to the right. It is
-recommended that these values be restricted between -1 and 1 to avoid plotting
-the surface outside of the rgl window.
-
-\code{fieldofview} is set to a default of 0, which is an isometric projection.
-Increasing it alters the degree of parallax in the perspective view, up to
-a maximum of 179 degrees (see \code{\link[rgl:par3d]{rgl::par3d()}}).
-
-The plotted, colorized surface can be saved as a *.ply to the working directory
-by changing the \code{fileName} argument from \code{NA} to a string (e.g., "RFIPlot"). The
-resultant ply file can be opened and manipulated in other 3D visualizing programs,
-such as \href{https://www.meshlab.net/}{MeshLab}, but will \strong{NOT} retain its legend
-(a background of the plotting window). To retain the legend, the user is
-encouraged to utilize the function 'snapshot3d()' in the rgl package. (see \code{\link[rgl:rgl.snapshot]{rgl::rgl.snapshot()}})
-The \code{binary} argument saves a file in ascii format by default, which is supported by
-more 3D visualization software than is binary. However, binary files will be
-considerably smaller.
+The plotting window is an HTML widget. The legend is rendered in HTML/CSS
+and aligned vertically at the right of the scene.
 }
 \examples{
-RFI_File <- RFI(Tooth, alpha=0.5)
-RFI3d(RFI_File)
+if(interactive()){
+  rfi <- RFI(Tooth, alpha = 0.5)
+  RFI3d(rfi)
+}
 }

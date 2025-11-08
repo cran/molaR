@@ -1,153 +1,313 @@
-#' Plot 3D and 2D areas of a mesh used to calculate relief index
+#' Plot 3D and 2D areas of a mesh used to calculate relief index (HTML widget)
 #'
-#' A function that plots a three-dimensional model of the mesh
-#' surface and includes a footprint of the two-dimensional area for
-#' visual comparison. 
-#' 
-#' @param RFI_File An object that stores the output of the RFI
-#' function
-#' @param displacement Numeric that moves the surface footprint some
-#' proportion of the height of the mesh. 0 is in the vertical center of the
-#' surface, negative values displace the footprint downward. 
-#' @param SurfaceColor String that controls the color of the 3D surface mesh
-#' @param FootColor String that controls the color of the 2D surface footprint
-#' @param FootPts Logical indicating whether to plot the
-#' flattened points of the footprint from the original ply file
-#' @param FootPtsColor Color of the plotted footprint points if `FootPts = TRUE`
-#' @param Opacity Numeric that adjusts the opacity of the 3D mesh surface
-#' @param legend Logical indicating whether or not to include a
-#' legend of the colors chosen to represent the 3D surface and
-#' footprint
-#' @param main String indicating plot title
-#' @param cex Numeric setting the relative size of the legend and title
-#' @param leftOffset Numeric between -1 and 1 setting the amount of offset for
-#' the plotted surface to the left. Larger values push surface farther to right.
-#' @param fieldofview Passes an argument to `par3d()` changing the field of
-#' view in degrees of the resulting surface plot
-#' @param fileName String indicating a name to save the plotted surface to as a
-#' *.ply file; default of 'NA' will not save a file
-#' @param binary Logical indicating whether or not the saved surface plot should
-#' be binary, passed to `vcgPlyWrite()`
-#' 
-#' @details This function can help to visualize the three-dimensional and two
-#' dimensional areas that are used in calculating the relief index of a surface by
-#' displaying both at the same time. The RFI function must be performed first.
-#' 
-#' `Opacity` can be adjusted in a range from fully opaque (`1`) to fully
-#' transparent (`0`) in order to help visualize the footprint. The vertical
-#' placement of the footprint along the Z axis can be altered with `displacement`,
-#' depending on how the user wishes to view the surface, or on the original
-#' mesh orientation.
-#' 
-#' A title can be added to the plot by supplying a character string to the `main`
-#' argument. Title and legend size are controlled with the `cex` argument,
-#' analogous to that in the default R graphics device.
-#' 
-#' The `leftOffset` value sets how far to the left the surface will plot, intended
-#' to help avoid overlap with the legend. Value of 0 will center the surface and
-#' should be invoked if the `legend` argument is disabled. Higher values will push
-#' the surface farther left and negative values will push it to the right. It is
-#' recommended that these values be restricted between -1 and 1 to avoid plotting
-#' the surface outside of the rgl window.
-#' 
-#' `fieldofview` is set to a default of 0, which is an isometric projection.
-#' Increasing it alters the degree of parallax in the perspective view, up to
-#' a maximum of 179 degrees (see \code{\link[rgl:par3d]{rgl::par3d()}}).
+#' Renders a three-dimensional model of the mesh surface and a footprint of the
+#' two-dimensional area side-by-side for visual comparison. The `RFI()` function
+#' must be performed prior to using `RFI3d()`.
 #'
-#' The plotted, colorized surface can be saved as a *.ply to the working directory
-#' by changing the `fileName` argument from `NA` to a string (e.g., "RFIPlot"). The
-#' resultant ply file can be opened and manipulated in other 3D visualizing programs,
-#' such as \href{https://www.meshlab.net/}{MeshLab}, but will **NOT** retain its legend
-#' (a background of the plotting window). To retain the legend, the user is 
-#' encouraged to utilize the function 'snapshot3d()' in the rgl package. (see \code{\link[rgl:rgl.snapshot]{rgl::rgl.snapshot()}}) 
-#' The `binary` argument saves a file in ascii format by default, which is supported by 
-#' more 3D visualization software than is binary. However, binary files will be
-#' considerably smaller.
+#' @param RFI_File An object that stores the output of the RFI function
+#' @param displacement Numeric that moves the surface footprint some proportion
+#'   of the height of the mesh. 0 is vertical center; negative values displace
+#'   the footprint downward. Default -1.9.
+#' @param SurfaceColor Color for the 3D surface mesh
+#' @param FootColor Color for the 2D surface footprint
+#' @param FootPts Logical; if TRUE, plot the flattened points used for the footprint
+#' @param FootPtsColor Color of plotted footprint points when `FootPts = TRUE`
+#' @param Opacity Numeric from 0 to 1 controlling the opacity of the 3D surface
+#' @param legend Logical; draw a legend (right side of the widget)
+#' @param main Plot title
+#' @param cex Base scaling for legend/ticks (relative multiplier)
+#' @param widget_size_px Square widget size in pixels (default 768)
+#' @param scene_zoom Initial zoom for the 3d scene (default 1.5)
+#' @param leftOffset Horizontal camera nudge (-1..1 recommended)
+#' @param fieldofview Field of view in degrees (0 = isometric)
+#' @param title_font_size_px Title font size in pixels (default 30)
+#' @param title_font_family CSS font-family list for the title
+#' @param legend_magnify Additional scale factor for the legend text
+#' @param fileName Optional file base name to save a colored *.ply (no legend)
+#' @param binary Binary PLY if TRUE (smaller files)
 #'
-#' @import
-#' rgl
-#' 
+#' @details
+#'
+#' This function helps visualize the 3D surface area (numerator) and the 2D
+#' projected area (denominator) that comprise the relief index, by displaying
+#' both at once. Adjust `Opacity` to make the footprint more visible through
+#' the surface. The footprint plane can be moved along Z via `displacement`.
+#'
+#' The plotting window is an HTML widget. The legend is rendered in HTML/CSS
+#' and aligned vertically at the right of the scene.
+#'
+#' @import grDevices graphics utils
+#' @import htmltools
 #' @export
-#' RFI3d
-#'
 #' @examples
-#' RFI_File <- RFI(Tooth, alpha=0.5)
-#' RFI3d(RFI_File)
-
-
-RFI3d <- function (RFI_File, displacement = -1.9, SurfaceColor = "gray",
-                   FootColor = "red", FootPts = FALSE, FootPtsColor = "black",
-                   Opacity = 1, legend = F, main = '', cex = 1, leftOffset = 0,
-                   fieldofview = 0, fileName=NA, binary=FALSE) 
-{
+#' if(interactive()){
+#'   rfi <- RFI(Tooth, alpha = 0.5)
+#'   RFI3d(rfi)
+#' }
+RFI3d <- function(
+  RFI_File,
+  displacement = -1.9,
+  SurfaceColor = "gray",
+  FootColor = "red",
+  FootPts = FALSE,
+  FootPtsColor = "black",
+  Opacity = 1,
+  legend = TRUE,
+  main = "",
+  cex = 1,
+  widget_size_px = 768,
+  scene_zoom = 1.5,
+  leftOffset = 0,
+  fieldofview = 0,
+  title_font_size_px = 30,
+  title_font_family = "system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif",
+  legend_magnify = 1,
+  fileName = NA,
+  binary = FALSE
+){
+  # ---- inputs & validation ---------------------------------------------------
   plyFile <- RFI_File$plyFile
-  Vertices <- plyFile$vb
-  x <- Vertices[1, ] - mean(Vertices[1, ])
-  y <- Vertices[2, ] - mean(Vertices[2, ])
-  z <- Vertices[3, ] - mean(Vertices[3, ])
-  n <- rep(1, length(Vertices))
-  Shifted <- as.matrix(rbind(x, y, z, n))
-  ShiftedPly <- plyFile
-  ShiftedPly$vb <- Shifted
-  open3d()
-  layout3d(matrix(c(1,2), byrow=T, nrow=2), heights=c(1,9))
-  par3d(windowRect = c(100, 100, 800, 800/.9))
-  text3d(0,0,0, main, cex=cex*2.5, font=2)
-  next3d()
-  shade3d(ShiftedPly, meshColor = 'faces', color = SurfaceColor,
-          alpha = Opacity, shininess=110)
-  if (legend == T) {
-    if(cex <= 0){stop("cex must be a positive number")}
-    if(cex > 1.25){
-      warning("cex greater than 1.25 will restrict legend visibility")
-    }
-    molaR_bgplot(RFI_Legend(surfCol = SurfaceColor, footCol = FootColor,
-                                   size = cex, opac = Opacity))
-  }
+  if (!inherits(plyFile, "mesh3d"))
+    stop("RFI_File$plyFile must be an rgl 'mesh3d'.")
+  if (!is.numeric(displacement) || length(displacement) != 1L)
+    stop("displacement must be numeric length 1.")
+  if (!is.numeric(Opacity) || length(Opacity) != 1L || Opacity < 0 || Opacity > 1)
+    stop("Opacity must be a number in [0, 1].")
+  if (!is.logical(FootPts) || length(FootPts) != 1L)
+    stop("FootPts must be TRUE/FALSE.")
+  if (!is.logical(legend) || length(legend) != 1L)
+    stop("legend must be TRUE/FALSE.")
+  if (!is.numeric(cex) || cex <= 0)
+    stop("cex must be > 0.")
+  if (!is.numeric(scene_zoom) || scene_zoom <= 0)
+    stop("scene_zoom must be > 0.")
+  if (!is.numeric(widget_size_px) || widget_size_px <= 0)
+    stop("widget_size_px must be > 0.")
+  if (!is.numeric(title_font_size_px) || title_font_size_px <= 0)
+    stop("title_font_size_px must be > 0.")
+  if (!is.numeric(legend_magnify) || legend_magnify <= 0)
+    stop("legend_magnify must be > 0.")
+  if (!is.numeric(leftOffset) || length(leftOffset) != 1L)
+    stop("leftOffset must be numeric length 1.")
+
+  # ---- center mesh & small left bias to accommodate legend ------------------
+  vb <- plyFile$vb
+  mesh_centered <- plyFile
+  xr <- range(vb[1, ], na.rm = TRUE)
+  zr <- range(vb[3, ], na.rm = TRUE)
+  T_center_xz   <- rgl::translationMatrix(-mean(xr), 0, -mean(zr))
+  mesh_centered <- rgl::transform3d(mesh_centered, T_center_xz)
+
+  LEFT_BIAS_FRAC <- 0.08
+  vb2    <- mesh_centered$vb
+  xr2    <- range(vb2[1, ], na.rm = TRUE)
+  x_width <- diff(xr2)
+  x_left  <- -LEFT_BIAS_FRAC * x_width
+  T_left  <- rgl::translationMatrix(x_left, 0, 0)
+  mesh_centered <- rgl::transform3d(mesh_centered, T_left)
+
+  # center in y
+  vb3 <- mesh_centered$vb
+  yr  <- range(vb3[2, ], na.rm = TRUE)
+  T_center_y   <- rgl::translationMatrix(0, -mean(yr), 0)
+  mesh_centered <- rgl::transform3d(mesh_centered, T_center_y)
+
+  # ---- footprint geometry ----------------------------------------------------
   FootprintPts <- RFI_File$Flattened_Pts
-  MeshHeight <- abs(max(plyFile$vb[3, ]) - min(plyFile$vb[3, ]))
-  displaceDist <- displacement*0.5*MeshHeight
-  zpts <- FootprintPts[,3] + displaceDist
-  xyz <- cbind(FootprintPts[,1:2], zpts)
-  if(FootPts==TRUE){
-    points3d(xyz, color=FootPtsColor)
-  }
+  MeshHeight   <- abs(max(plyFile$vb[3, ]) - min(plyFile$vb[3, ]))
+  displaceDist <- displacement * 0.5 * MeshHeight
+  zpts <- FootprintPts[, 3] + displaceDist
+  xyz  <- cbind(FootprintPts[, 1:2], zpts)
   FootprintVertices <- t(cbind(xyz, rep(1, length(zpts))))
   triangles <- t(RFI_File$Footprint_Triangles)
-  Footprint <- list(vb=FootprintVertices, it=triangles,
-                    primitivetype="triangle", material=NULL)
+  Footprint <- list(vb = FootprintVertices, it = triangles,
+                    primitivetype = "triangle", material = NULL)
   class(Footprint) <- c("mesh3d", "shape3d")
-  shade3d(Footprint, meshColor = 'faces', color=FootColor)
-  view3d(fov = fieldofview)
-  if (leftOffset > 1) {warning("Left offset greater than 1 may restrict mesh visibility")}
-  if (leftOffset < -1) {warning("Left offset less than -1 may restrict mesh visibility")}
-  ZView <- par3d("observer")[3]
-  XView <- leftOffset * ZView *0.055
-  observer3d(XView, 0, ZView)
-  
-    if(!is.na(fileName)){
-    if(!is.character(fileName)){stop("Enter a name for fileName")}
-    if(substr(fileName, nchar(fileName)-3, nchar(fileName))!=".ply"){
-      fileName <- paste(fileName, ".ply", sep="")
+
+  # ---- optional: save colored PLY (surface only; no legend) -----------------
+  if (!is.na(fileName)) {
+    if (!is.character(fileName) || length(fileName) != 1L)
+      stop("Enter a single character string for fileName.")
+    if (substr(fileName, nchar(fileName) - 3, nchar(fileName)) != ".ply") {
+      fileName <- paste0(fileName, ".ply")
     }
-    OutPly <- plyFile
-    NewVertList <- plyFile$vb[,plyFile$it[1:length(plyFile$it)]]
-    NewNormList <- plyFile$normals[,plyFile$it[1:length(plyFile$it)]]
-    NewFaceList <- matrix(1:ncol(NewVertList), nrow=3)
-    colormatrix <- matrix(rep(colormatrix, 3), nrow = 3, byrow = TRUE)
-    NewColorList <- colormatrix[1:length(colormatrix)]
-    OutPly$vb <- NewVertList
-    OutPly$it <- NewFaceList
-    OutPly$normals <- NewNormList
-    OutPly$material$color <- NewColorList
-    vcgPlyWrite(mesh=OutPly, filename = fileName, binary = binary)
-    if(binary==FALSE){
-      FileText <- readLines(con=paste(getwd(), "/", fileName, sep=""), warn = F)
-      NewCom <- paste("comment OPC plot generated in molaR",
-                      packageVersion("molaR"), "for", R.version.string)
-      NewCom <- unlist(strsplit(NewCom, split='\n'))
-      NewOut <- c(FileText[1:3], NewCom, FileText[(4):length(FileText)])
-      writeLines(NewOut, con=paste(getwd(), "/", fileName, sep=""))
+    # Save the surface with its uniform color
+    outMesh <- mesh_centered
+    outMesh$material$color <- SurfaceColor
+    Rvcg::vcgPlyWrite(mesh = outMesh, filename = fileName, binary = binary)
+    if (!binary) {
+      path <- file.path(getwd(), fileName)
+      txt  <- readLines(con = path, warn = FALSE)
+      com  <- paste("comment RFI plot generated in molaR",
+                    utils::packageVersion("molaR"), "for", R.version.string)
+      com  <- unlist(strsplit(com, split = "\n"))
+      out  <- c(txt[1:3], com, txt[4:length(txt)])
+      writeLines(out, con = path)
     }
   }
+
+  # ============================ INTERACTIVE ONLY ==============================
+  if (interactive()) {
+    # rgl device setup (headless): minimal, scoped, auto-restore
+    old_opts <- options(c("rgl.useNULL", "rgl.printRglwidget"))
+    options(rgl.useNULL = TRUE, rgl.printRglwidget = FALSE)
+    on.exit(options(old_opts), add = TRUE)
+
+    # --- scene ----------------------------------------------------------------
+    rgl::open3d()
+    rgl::par3d(windowRect = c(100, 100, 100 + widget_size_px, 100 + widget_size_px))
+    rgl::par3d(userMatrix = diag(4), zoom = 1)
+    rgl::shade3d(mesh_centered, meshColor = "faces",
+                 color = SurfaceColor, alpha = Opacity, shininess = 110)
+    rgl::shade3d(Footprint, meshColor = "faces", color = FootColor)
+    if (isTRUE(FootPts)) rgl::points3d(xyz, color = FootPtsColor)
+    rgl::view3d(fov = fieldofview)
+    rgl::aspect3d("iso")
+    rgl::par3d(zoom = scene_zoom)
+    rgl::bg3d(col = "white")
+
+    # Optional small horizontal camera nudge
+    if (!isTRUE(all.equal(leftOffset, 0))) {
+      ZView <- rgl::par3d("observer")[3]
+      XView <- leftOffset * ZView * 0.05
+      rgl::observer3d(XView, 0, ZView)
+    }
+
+    # rglwidget
+    w <- rgl::rglwidget(minimal = FALSE, width = widget_size_px, height = widget_size_px)
+
+    # HTML legend (vertical, right)
+    rfi_legend_html <- function(surfCol, footCol, footPts, footPtsCol,
+                                cex = 1, magnify = 1,
+                                font_family = title_font_family,
+                                box_px = 14,
+                                spacing_px = 6) {
+      font_px <- 12 * cex * magnify
+      swatch <- function(color) {
+        htmltools::tags$span(
+          style = paste0(
+            "display:inline-block;width:", box_px, "px;height:", box_px, "px;",
+            "background:", color, ";border:1px solid #999;margin-right:8px;"
+          )
+        )
+      }
+      pt_swatch <- function(color) {
+        htmltools::tags$span(
+          style = paste0(
+            "display:inline-block;width:", box_px, "px;height:", box_px, "px;",
+            "border-radius:", floor(box_px/2), "px;background:", color, ";",
+            "border:1px solid #999;margin-right:8px;"
+          )
+        )
+      }
+      rows <- list(
+        htmltools::div(
+          style = paste0("display:flex;align-items:center;gap:8px;margin-bottom:", spacing_px, "px;"),
+          swatch(surfCol), htmltools::tags$span("Surface")
+        ),
+        htmltools::div(
+          style = paste0("display:flex;align-items:center;gap:8px;margin-bottom:", spacing_px, "px;"),
+          swatch(footCol), htmltools::tags$span("Footprint")
+        )
+      )
+      if (isTRUE(footPts)) {
+        rows <- c(rows, list(
+          htmltools::div(
+            style = "display:flex;align-items:center;gap:8px;",
+            pt_swatch(footPtsCol), htmltools::tags$span("Footprint points")
+          )
+        ))
+      }
+      htmltools::div(
+        style = paste0(
+          "display:flex;flex-direction:column;gap:", spacing_px + 2, "px;",
+          "font-family:", font_family, ";font-size:", round(font_px), "px;color:#222;"
+        ),
+        htmltools::div(
+          style = paste0(
+            "font-weight:600;font-size:", round(font_px * 1.05), "px;",
+            "line-height:1.2;text-align:center;margin-bottom:", spacing_px, "px;"
+          ),
+          "Layers"
+        ),
+        rows,
+        htmltools::div(
+          style = paste0("margin-top:", spacing_px + 2, "px;color:#444;"),
+          paste0("Opacity (surface): ", format(Opacity, trim = TRUE))
+        )
+      )
+    }
+
+    # Title (optional)
+    title_div <- if (nzchar(main)) {
+      htmltools::div(
+        style = paste0(
+          "font-weight:700;",
+          "font-size:", title_font_size_px, "px;",
+          "font-family:", title_font_family, ";",
+          "line-height:1.25;",
+          "margin:0 0 10px 0;",
+          "text-align:center;"
+        ),
+        main
+      )
+    } else NULL
+
+    # Right-column legend width
+    legend_panel_px <- max(140, round(70 * cex * legend_magnify))
+
+    row_div <- if (isTRUE(legend)) {
+      htmltools::div(
+        style = paste0(
+          "display:flex; flex-direction:row; align-items:center; gap:12px; ",
+          "width:", widget_size_px + legend_panel_px, "px; margin:0 auto;"
+        ),
+        # Left: 3D scene
+        htmltools::div(
+          style = paste0("width:", widget_size_px, "px; height:", widget_size_px, "px;"),
+          w
+        ),
+        # Right: vertical legend
+        htmltools::div(
+          style = paste0("width:", legend_panel_px, "px;"),
+          rfi_legend_html(SurfaceColor, FootColor, FootPts, FootPtsColor,
+                          cex = cex, magnify = legend_magnify,
+                          font_family = title_font_family)
+        )
+      )
+    } else {
+      htmltools::div(
+        style = paste0("width:", widget_size_px, "px; margin:0 auto;"),
+        w
+      )
+    }
+
+    container <- htmltools::div(
+      style = "width:100%;",
+      title_div,
+      row_div
+    )
+
+    return(htmltools::browsable(container))
+  }
+
+  # ---------------------- NON-INTERACTIVE RETURN ------------------------------
+  # No HTML or widget created; return a lightweight spec
+  out <- structure(
+    list(
+      title            = main,
+      surface_color    = SurfaceColor,
+      foot_color       = FootColor,
+      foot_points      = isTRUE(FootPts),
+      foot_points_color= FootPtsColor,
+      opacity          = Opacity,
+      displacement     = displacement,
+      legend           = isTRUE(legend),
+      widget_size_px   = widget_size_px,
+      scene_zoom       = scene_zoom,
+      fieldofview      = fieldofview
+    ),
+    class = "RFI3d_spec"
+  )
+  invisible(out)
 }

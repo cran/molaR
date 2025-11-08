@@ -2,7 +2,7 @@
 % Please edit documentation in R/Slope3d.R
 \name{Slope3d}
 \alias{Slope3d}
-\title{Plot results of a Slope analysis of a surface}
+\title{Plot results of a Slope analysis of a surface (HTML widget)}
 \usage{
 Slope3d(
   Slope_File,
@@ -12,80 +12,59 @@ Slope3d(
   legend = TRUE,
   main = "",
   cex = 1,
-  leftOffset = 1,
+  widget_size_px = 768,
+  scene_zoom = 1.5,
+  leftOffset = 0,
   fieldofview = 0,
+  title_font_size_px = 30,
+  legend_magnify = 1,
   fileName = NA,
   binary = FALSE
 )
 }
 \arguments{
-\item{Slope_File}{An object that stores the output of the
-Slope function}
+\item{Slope_File}{An object that stores the output of the Slope function}
 
-\item{colors}{String of colors to build the color gradient}
+\item{colors}{Character vector of colors to build a continuous color gradient}
 
-\item{maskNegatives}{Logical indicating whether or not to mask (in  black)
-negative slopes, or to reflect them into positive slopes}
+\item{maskNegatives}{Logical; if TRUE, negative slopes are masked in black.
+If FALSE, negatives are reflected into the positive range (original behavior).}
 
-\item{legend}{Logical indicating whether or not a legend
-should be displayed}
+\item{legend}{Logical; draw a legend (right side of the widget)}
 
-\item{main}{String indicating plot title}
+\item{main}{Plot title}
 
-\item{cex}{Numeric setting the relative size of the legend and title}
+\item{cex}{Base scaling for legend/ticks (relative multiplier)}
 
-\item{leftOffset}{Numeric between -1 and 1 setting the amount of offset for
-the plotted surface to the left. Larger values push surface farther to right.}
+\item{widget_size_px}{Square widget size in pixels (default 768)}
 
-\item{fieldofview}{Passes an argument to \code{par3d()} changing the field of
-view in degrees of the resulting surface plot}
+\item{scene_zoom}{Initial zoom for the 3d scene (default 1.5)}
 
-\item{fileName}{String indicating a name to save the plotted surface to as a
-*.ply file; default of 'NA' will not save a file}
+\item{leftOffset}{Horizontal camera nudge (-1..1 recommended)}
 
-\item{binary}{Logical indicating whether or not the saved surface plot should
-be binary, passed to \code{vcgPlyWrite()}}
+\item{fieldofview}{Field of view in degrees (0 = isometric)}
+
+\item{title_font_size_px}{Title font size in pixels (default 30)}
+
+\item{legend_magnify}{Additional scale factor for the legend/tick text}
+
+\item{fileName}{Optional file base name to save a colored *.ply (no legend)}
+
+\item{binary}{Binary PLY if TRUE (smaller files)}
 }
 \description{
-A function that produces a three-dimensional rendering of surface slope.
-The Slope function will identify the slope of each mesh face. It must be
-performed prior to using the Slope3d function.
+A function that produces a three-dimensional HTML-based rendering of surface slope.
+The \code{Slope()} function must be performed prior to using \code{Slope3d()}.
 }
 \details{
-This function creates a heat map on the mesh surface
-corresponding to the slope of each face calculated by
-the Slope function.
+Colors represent face slope magnitudes. With \code{maskNegatives = TRUE}, negative
+slopes are shown in black. With \code{maskNegatives = FALSE}, negative magnitudes
+are reflected into the positive range for coloring continuity (original behavior).
 
-Colors are taken as a series inputs to define a color ramp and can be customized
-indefinitely in value or order. The default is suggested as an intuitive display
-of increasing color heat corresponding with steeper face slope.
-
-A title can be added to the plot by supplying a character string to the \code{main}
-argument. Title and legend size are controlled with the \code{cex} argument,
-analogous to that in the default R graphics device.
-
-The \code{leftOffset} value sets how far to the left the surface will plot, intended
-to help avoid overlap with the legend. Value of 0 will center the surface and
-should be invoked if the \code{legend} argument is disabled. Higher values will push
-the surface farther left and negative values will push it to the right. It is
-recommended that these values be restricted between -1 and 1 to avoid plotting
-the surface outside of the rgl window.
-
-\code{fieldofview} is set to a default of 0, which is an isometric projection.
-Increasing it alters the degree of parallax in the perspective view, up to
-a maximum of 179 degrees (see \code{\link[rgl:par3d]{rgl::par3d()}}).
-
-The plotted, colorized surface can be saved as a *.ply to the working directory
-by changing the \code{fileName} argument from \code{NA} to a string (e.g., "SlopePlot"). The
-resultant ply file can be opened and manipulated in other 3D visualizing programs,
-such as \href{https://www.meshlab.net/}{MeshLab}, but will \strong{NOT} retain its legend
-(a background of the plotting window). To retain the legend, the user is
-encouraged to utilize the function 'snapshot3d()' in the rgl package. (see \code{\link[rgl:rgl.snapshot]{rgl::rgl.snapshot()}})
-The \code{binary} argument saves a file in ascii format by default, which is supported by
-more 3D visualization software than is binary. However, binary files will be
-considerably smaller.
+The plotting window is an HTML widget (no Quartz/rgl window). The legend is
+rendered in HTML/CSS and aligned vertically at the right of the scene.
 }
 \examples{
-Slope_output <- Slope(Tooth)
-Slope3d(Slope_output)
+s <- Slope(Tooth)
+if(interactive()){Slope3d(s)}
 }

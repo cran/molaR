@@ -1,218 +1,210 @@
-#' Cut a PLY Mesh Along a Specified Plane
+#' Cut a PLY Mesh Along a Specified Plane (HTML widget; no Quartz)
 #'
-#' `plyPlaneCut` permits several different approaches for specifying a cutting plane 
-#' and returns either a portion of the original mesh from one side of the plane, or 
-#' both portions from each side of the plane stored as separate list elements.
-#' 
+#' Cuts a mesh by a plane and returns either one side or both sides of the cut.
+#' The result is also previewed as an HTML widget (no Quartz/X11) with the kept
+#' side in solid color, the other side semi-transparent, and the cutting plane shown.
+#'
 #' @param plyFile An object of class 'mesh3d'.
-#' @param axis String indicating the axis plane on which to cut the mesh. May be `'X'`, `'Y'`, 
-#' or `'Z'`, Defaults to `'Z'`. Ignored if `plane` is specified, see details.
-#' @param vertIndex Numeric index of a mesh vertex to define clipping plane. Ignored 
-#' if `plane` is specified, see details.
-#' @param keepBoth Logical indicating if both sides of the cut mesh should be returned, 
-#' defaults to `FALSE`. If `TRUE` (and the cutting plane intersects the mesh), the function 
-#' output is a list containing `meshA` and `meshB` representing the two portions.
-#' @param plane Requires four numeric values specifying the coordinates of the plane normal 
-#' (*a, b, c*) and the "offset" (*d*). Overrides input for `axis` and `vertIndex`, see details.
-#' @param col Vector indicating the color for vertex drawing when interactively choosing
-#' cutting plane. Defaults to `"rainbow"`, a magenta-to-red color ramp along the specified 
-#' `axis`.
-#' @param flipAxis Logical indicating whether or not to reverse the output about the 
-#' normal of the plane, defaults to `FALSE`. 
-#' @param displayNew Logical indicating whether or not to display the function results 
-#' when a value is supplied to either `vertIndex` or `plane`, defaults to `TRUE`.
-#' 
-#' @details `plyPlaneCut` draws a cutting plane using the parametrization *ax + by + cz + d = 0* 
-#' (Hesse normal form), wherein <*a, b, c*> constitute the normal to the plane, and *d* is the 
-#' "offset" value. See \code{\link[rgl]{planes3d}} for further information. Users can supply 
-#' any parameters for `a`, `b`, `c`, and `d` in the `plane` argument to produce an arbitrary 
-#' cutting plane (see Examples), however the function is designed to aid users in choosing a 
-#' cutting plane without foreknowledge of the desired parameters.
-#' 
-#' When `plane` is `NA`, the function will cut the mesh along a plane orthogonal to one of 
-#' the primary axes (X, Y, or Z, as indicated by `axis`) at the location of a focal vertex. 
-#' The focal vertex can be defined by its index value, supplied to `vertIndex`. If no value 
-#' is given for either `plane` or `vertIndex`, then an interactive 3D window allows the 
-#' user to select the focal vertex. A 3D window will open displaying all mesh vertices, 
-#' colored according to `col`, with a semi-transparent mesh surface. The display can be 
-#' rotated with the left mouse button and zoomed with the mouse wheel. The right mouse 
-#' button allows the user to define a rectangular region in which to identify the focal 
-#' vertex. The focal vertex is the vertex in the user-selected region with the *minimum value* 
-#' in the dimension indicated by the `axis` argument. A preview of the resulting cutting 
-#' will be supplied, and for the function to finish users must supply a "Y" or "y" 
-#' confirmation to the `Cut mesh?:` prompt in the terminal. Any other response will 
-#' restart the selection process.
-#' 
-#' The `col` argument is only invoked when choosing a focal vertex in an interactive 3D 
-#' window (i.e., `vertIndex` and `plane` are set to `NA`). This argument will apply any 
-#' acceptable color vector to the displayed vertices. Alternatively, users can specify 
-#' a color ramp by supplying a string, including: `"rainbow"`, `"heat.colors"`, 
-#' `"terrain.colors"`, `"topo.colors"`, `"cm.colors"`, or `"gray.colors"`; see 
-#' \code{\link[grDevices]{hcl.colors}} and \code{\link[grDevices]{gray.colors}} for 
-#' further details. Color ramps will plot along the axis specified by `axis` and reverse 
-#' if `flipAxis = TRUE`.
-#' 
-#' If users prefer that the function is inverted with respect to mesh geometry (i.e., that it 
-#' identifies the focal vertex as the *maximum value* with respect to `axis`, or that the 
-#' resulting mesh be that along the *negative* normal to the plane), then they should set 
-#' `flipAxis = TRUE`. If `keepBoth` is enabled, the function will return a list of two 
-#' 'mesh3d' objects: `meshA`, and `meshB`. Enabling `keepBoth` but providing a plane 
-#' that does not intersect the mesh will result in a list with one of the objects set 
-#' to `NULL` (see Examples).
-#' 
-#' This function can be used to cut meshes representing tooth surfaces so as to retain 
-#' only the area of the tooth crown above the lowest point of the occlusal basin. This 
-#' cropping procedure is consistent with the one used to prepare surfaces for 
-#' measurement of occlusal relief (OR) by Ungar & M'Kirera (2003) "A solution to the 
-#' worn tooth conundrum in primate functional anatomy" PNAS 100(7):3874-3877 
-#' Unreferenced vertices can cause errors, so users are encouraged to clean their mesh 
-#' with \code{\link{molaR_Clean}} prior to using this function.
-#' 
-#' @return 
-#' An object of class 'mesh3d' corresponding to the portion of the mesh on one side 
-#' of the cutting plane. If `keepBoth` is enabled, a list of two such objects corresponding 
-#' to the portions from both sides of the plane.
-#' 
-#' @importFrom 
-#' Rvcg vcgClost
-#' 
-#' @import
-#' rgl
+#' @param axis Character, one of "X","Y","Z"; used when deriving the plane from a
+#'   vertex index or a numeric cut value (ignored when 'plane' is supplied). Default "Z".
+#' @param vertIndex Integer index of a mesh vertex used to place an orthogonal plane
+#'   through that vertex along 'axis'. Ignored if 'plane' or 'cut_value' is supplied.
+#' @param cut_value Numeric coordinate along 'axis' at which to place the orthogonal
+#'   plane. Ignored if 'plane' is supplied. (HTML-friendly alternative to interactive pick)
+#' @param keepBoth Logical; if TRUE and the plane intersects the mesh, return both
+#'   sides as a list with elements 'meshA' and 'meshB'. Default FALSE.
+#' @param plane Numeric vector c(a,b,c,d) giving a plane in ax + by + cz + d = 0 form.
+#'   If provided, overrides 'axis', 'vertIndex', and 'cut_value'.
+#' @param flipAxis Logical; reverse the plane normal direction used to decide which
+#'   side is kept when keepBoth = FALSE. Default FALSE.
+#' @param display Logical; if TRUE, render an HTML widget preview. Default TRUE.
 #'
+#' @param kept_col Color for the kept portion in the preview (default "#3C8DFF").
+#' @param other_col Color for the other portion in the preview (default "gray70").
+#' @param plane_col Color for the plane polygon in the preview (default "firebrick").
+#' @param plane_alpha Alpha for the plane polygon (default 0.35).
+#'
+#' @param main Plot title (default "")
+#' @param widget_size_px Square widget size in pixels (default 768)
+#' @param scene_zoom Initial zoom for the 3D scene (default 1.5)
+#' @param leftOffset Horizontal camera nudge (-1..1 recommended) (default 0)
+#' @param fieldofview Field of view in degrees (0 = isometric) (default 0)
+#' @param title_font_size_px Title font size in pixels (default 30)
+#' @param title_font_family CSS font-family list for the title (default system UI stack)
+#'
+#' @return If keepBoth = FALSE, a 'mesh3d' for the retained side.
+#'   If keepBoth = TRUE, a list with elements 'meshA' and 'meshB'.
+#'   The returned object also carries an attribute 'widget' with the
+#'   `htmltools::browsable` preview when `display = TRUE`.
+#'
+#' @details
+#' This HTML-widget version avoids opening a native rgl window and mirrors the
+#' device-and-layout pattern you used in your updated `DNE3d`. Interactive vertex
+#' picking (`select3d`) isn’t supported in widget mode; supply the cut as `plane`,
+#' `vertIndex` + `axis`, or `cut_value` + `axis`. The kept side selection is
+#' controlled by the normal direction and `flipAxis`.
+#'
+#' @import htmltools
 #' @export
-#' plyPlaneCut
-#' 
-#' @examples 
-#' # Result from providing plane parameters and keeping meshes from both sides of plane
-#' 
-#' cutMesh <- plyPlaneCut(Tooth, plane = c(0.5, 0.5, 0.5, -4), keepBoth = TRUE)
-#' open3d()
-#' shade3d(cutMesh$meshA, col = "gray")
-#' wire3d(cutMesh$meshB)
-#' planes3d(0.5, 0.5, 0.5, -4, col = "red", alpha = 0.66)
-#' 
-#' 
-#' # Result from providing parameters for a plane that does not intersect the mesh
-#' 
-#' cutMesh <- plyPlaneCut(Tooth, plane = c(1, 0.75, 0.5, -11))
-#' identical(Tooth, cutMesh)
-#' 
-#' cutMesh <- plyPlaneCut(Tooth, plane = c(1, 0.75, 0.5, -11), keepBoth = TRUE)
-#' identical(Tooth, cutMesh)
-#'
+plyPlaneCut <- function(
+  plyFile,
+  axis = "Z",
+  vertIndex = NA,
+  cut_value = NA,
+  keepBoth = FALSE,
+  plane = NA,
+  flipAxis = FALSE,
+  display = TRUE,
+  kept_col = "#3C8DFF",
+  other_col = "gray70",
+  plane_col = "firebrick",
+  plane_alpha = 0.35,
+  main = "",
+  widget_size_px = 768,
+  scene_zoom = 1.5,
+  leftOffset = 0,
+  fieldofview = 0,
+  title_font_size_px = 30,
+  title_font_family = "system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif"
+) {
+  # ---- rgl device setup (headless): minimal, scoped, auto-restore ------------
+  old_opts <- options("rgl.useNULL", "rgl.printRglwidget")
+  options(rgl.useNULL = TRUE, rgl.printRglwidget = FALSE)
+  on.exit(options(old_opts), add = TRUE)
 
-plyPlaneCut <- function(plyFile, axis = "Z", vertIndex = NA, keepBoth = FALSE, 
-                           plane = NA, col = "rainbow", flipAxis = FALSE, displayNew = TRUE){
-  answer <- "Y"
-  verts <- t(plyFile$vb[1:3,])
-  faces <- t(plyFile$it)
-  cent <- c(mean(plyFile$vb[1,]), mean(plyFile$vb[2,]), mean(plyFile$vb[3,]))
-  if(length(plane)==1 && is.na(plane)){
-    cropDim <- rep(c(1, 2, 3), 2)[which(c(letters[24:26], LETTERS[24:26]) %in% axis)]
-    if(length(cropDim)==0){stop("Axis argument must be set to either X, Y, or Z")}
+  # ---- validation & helpers ---------------------------------------------------
+  if (!inherits(plyFile, "mesh3d"))
+    stop("plyFile must be an rgl 'mesh3d' object.")
+
+  axis_to_dim <- function(ax) {
+    ax <- toupper(trimws(ax))
+    if (ax %in% c("X","Y","Z")) return(match(ax, c("X","Y","Z")))
+    stop("axis must be one of 'X','Y','Z'.")
   }
-  ## If no vertex index or plane pre-defined, then user manually chooses clipping location
-  if(is.na(vertIndex) && length(plane)==1 && is.na(plane)){answer <- "N"}
-  while(answer == "N"){
-    vertCol <- col
-    if(length(vertCol) == 1){
-      if(col == "gray.colors"){
-        if(flipAxis == TRUE){vertCol[order(verts[,cropDim])] <- gray.colors(nrow(verts), start = 0.1, rev = TRUE)}
-        else{vertCol[order(verts[,cropDim])] <- gray.colors(nrow(verts), start = 0.1)}
-      }
-      if(col == "rainbow"){
-        if(flipAxis == TRUE){vertCol[order(verts[,cropDim])] <- rainbow(nrow(verts), end = 0.9)}
-        else{vertCol[order(verts[,cropDim])] <- rainbow(nrow(verts), end = 0.9, rev = TRUE)}
-      }
-      if(col == "heat.colors"){
-        if(flipAxis == TRUE){vertCol[order(verts[,cropDim])] <- heat.colors(nrow(verts), rev = TRUE)}
-        else{vertCol[order(verts[,cropDim])] <- heat.colors(nrow(verts))}
-      }
-      if(col == "terrain.colors"){
-        if(flipAxis == TRUE){vertCol[order(verts[,cropDim])] <- terrain.colors(nrow(verts), rev = TRUE)}
-        else{vertCol[order(verts[,cropDim])] <- terrain.colors(nrow(verts))}
-      }
-      if(col == "topo.colors"){
-        if(flipAxis == TRUE){vertCol[order(verts[,cropDim])] <- topo.colors(nrow(verts), rev = TRUE)}
-        else{vertCol[order(verts[,cropDim])] <- topo.colors(nrow(verts))}
-      }
-      if(col == "cm.colors"){
-        if(flipAxis == TRUE){vertCol[order(verts[,cropDim])] <- cm.colors(nrow(verts), rev = TRUE)}
-        else{vertCol[order(verts[,cropDim])] <- cm.colors(nrow(verts))}
-      }
+  dim_idx <- axis_to_dim(axis)
+
+  vb    <- plyFile$vb
+  verts <- t(vb[1:3, , drop = FALSE])
+
+  # Determine plane coefficients (a,b,c,d)
+  use_plane <- !(length(plane) == 1 && is.na(plane))
+  if (use_plane) {
+    if (!is.numeric(plane) || length(plane) != 4)
+      stop("plane must be numeric c(a,b,c,d) for ax + by + cz + d = 0")
+    abc <- plane[1:3]
+    d   <- plane[4]
+    if (isTRUE(flipAxis)) abc <- -abc
+    plane_abcd <- c(abc, d)
+  } else {
+    # derive orthogonal plane from vertIndex or cut_value along 'axis'
+    if (!is.na(vertIndex)) {
+      if (vertIndex < 1 || vertIndex > nrow(verts))
+        stop("vertIndex out of range for vertices.")
+      cut_at <- verts[vertIndex, dim_idx]
+    } else if (!is.na(cut_value)) {
+      if (!is.numeric(cut_value) || length(cut_value) != 1L)
+        stop("cut_value must be a single numeric coordinate.")
+      cut_at <- cut_value
+    } else {
+      stop("Provide either 'plane', 'vertIndex', or 'cut_value' (HTML mode does not support interactive selection).")
     }
-    open3d()
-    points3d(verts, col = vertCol, size = 3)
-    shade3d(plyFile, col = "#FFFFFF", alpha = 0.5)
-    view3d(fov=0)
-    cat("Click and drag right mouse button to select points in 3D window.\n")
-    selecter <- select3d(button = "right")
-    keep <- selecter(verts)
-    if(sum(keep)==0){rgl.close(); stop("No points selected!")}
-    planeNorm <- c(0, 0, 0)
-    if(flipAxis == FALSE){
-      lowPt <- which(verts[keep, cropDim] == min(verts[keep, cropDim]))
-      lowPt <- verts[which(keep)[lowPt],]
-      planeNorm[cropDim] <- 1
-      offset <- lowPt[cropDim]
-    }
-    if(flipAxis == TRUE){
-      lowPt <- which(verts[keep, cropDim] == max(verts[keep, cropDim]))
-      lowPt <- verts[which(keep)[lowPt],]
-      planeNorm[cropDim] <- -1
-      offset <- lowPt[cropDim]*-1
-    }
-    newMesh <- meshClip(plyFile, planeNorm[1], planeNorm[2], planeNorm[3], -offset)
-    rgl.clear()
-    clipDisplay(newMesh, c(planeNorm, -offset), cent, keepers = verts[keep,], focal = lowPt, keepBoth)
-    ActiveWin <- rgl.cur()[[1]]
-    cat("User-selected points appear in black; solid mesh(es) will be retained.
-        Enter \'Y\' to cut mesh; all other input will restart operation.\n")
-    response <- readline(prompt = "Cut mesh?: ")
-    if(rgl.cur() == ActiveWin){rgl.close()}
-    if(response == "Y" || response == "y"){answer <- "Y"}
+    nrm <- c(0,0,0); nrm[dim_idx] <- if (isTRUE(flipAxis)) -1 else 1
+    # ax+by+cz+d=0; through coordinate 'cut_at' on chosen axis -> d = -cut_at * nrm[dim_idx]
+    d <- -cut_at * nrm[dim_idx]
+    plane_abcd <- c(nrm, d)
   }
-  ## If vertIndex is defined, clip to that location according to defined axis
-  if(!is.na(vertIndex) && (length(plane)==1 && is.na(plane))){
-    if(vertIndex < 1 || vertIndex > ncol(plyFile$vb)){
-      stop("Invalid vertex index.")
-    }
-    planeNorm <- c(0, 0, 0)
-    lowPt <- verts[vertIndex,]
-    if(flipAxis == FALSE){
-      planeNorm[cropDim] <- 1
-      offset <- lowPt[cropDim]
-    }
-    if(flipAxis == TRUE){
-      planeNorm[cropDim] <- -1
-      offset <- lowPt[cropDim]*-1
-    }
-    newMesh <- meshClip(plyFile, planeNorm[1], planeNorm[2], planeNorm[3], -offset)
-    if(displayNew == TRUE){
-      view3d(fov=0)
-      clipDisplay(newMesh, c(planeNorm, -offset), cent, keepers = NA, focal = lowPt, keepBoth)
-    }
+
+  # ---- perform the clip (meshClip expected to return list(meshA, meshB)) -----
+  # Note: mirrors original logic; we don't open an interactive display
+  newMesh <- meshClip(plyFile, plane_abcd[1], plane_abcd[2], plane_abcd[3], plane_abcd[4])
+  if (is.null(newMesh$meshA)) warning("Entire mesh is below plane")
+  if (is.null(newMesh$meshB)) warning("Entire mesh is above plane")
+
+  if (isTRUE(keepBoth)) {
+    out <- newMesh
+  } else {
+    # take first non-NULL side
+    out <- if (is.null(newMesh[[1]])) newMesh[[2]] else newMesh[[1]]
   }
-  ## if plane is defined, ignore other user input and simply populate meshClip
-  if(!(length(plane)==1 && is.na(plane))){
-    if(!is.numeric(plane) || length(plane)!=4){
-      stop("Plane must be defined using Hesse normal form, with parameterization ax + by + cz + d = 0
-           Please supply numeric values for a, b, c, and d.")
+
+  # ---- HTML preview (no Quartz) ----------------------------------------------
+  widget_obj <- NULL
+  if (isTRUE(display)) {
+    mesh_center <- function(mesh) {
+      if (is.null(mesh)) return(NULL)
+      m  <- mesh
+      xr <- range(m$vb[1, ], na.rm = TRUE)
+      zr <- range(m$vb[3, ], na.rm = TRUE)
+      T_center_xz <- rgl::translationMatrix(-mean(xr), 0, -mean(zr))
+      m  <- rgl::transform3d(m, T_center_xz)
+      LEFT_BIAS_FRAC <- 0.08
+      xr2    <- range(m$vb[1, ], na.rm = TRUE)
+      x_left <- -LEFT_BIAS_FRAC * diff(xr2)
+      m  <- rgl::transform3d(m, rgl::translationMatrix(x_left, 0, 0))
+      yr <- range(m$vb[2, ], na.rm = TRUE)
+      T_center_y <- rgl::translationMatrix(0, -mean(yr), 0)
+      rgl::transform3d(m, T_center_y)
     }
-    if(flipAxis == TRUE){plane[1:3] <- -plane[1:3]}
-    newMesh <- meshClip(plyFile, plane[1], plane[2], plane[3], plane[4])
-    if(displayNew == TRUE){
-      clipDisplay(newMesh, plane = c(plane[1], plane[2], plane[3], -plane[4]), 
-                  cent, keepers = NA, focal = NA, keepBoth)
-      view3d(fov=0)
+
+    A <- mesh_center(newMesh$meshA)
+    B <- mesh_center(newMesh$meshB)
+
+    rgl::open3d()
+    rgl::par3d(windowRect = c(100, 100, 100 + widget_size_px, 100 + widget_size_px))
+    rgl::par3d(userMatrix = diag(4), zoom = 1)
+
+    if (!is.null(A)) rgl::shade3d(A, color = kept_col, meshColor = "faces", shininess = 110)
+    if (!is.null(B)) rgl::shade3d(B, color = other_col, meshColor = "faces", alpha = 0.33, shininess = 60)
+
+    # plane visual cue (finite display grid generated by rgl)
+    rgl::planes3d(plane_abcd[1], plane_abcd[2], plane_abcd[3], plane_abcd[4],
+                  col = plane_col, alpha = plane_alpha)
+
+    rgl::view3d(fov = fieldofview)
+    rgl::aspect3d("iso")
+    rgl::par3d(zoom = scene_zoom)
+    rgl::bg3d(col = "white")
+
+    if (!isTRUE(all.equal(leftOffset, 0))) {
+      ZView <- rgl::par3d("observer")[3]
+      XView <- leftOffset * ZView * 0.05
+      rgl::observer3d(XView, 0, ZView)
     }
+
+    w <- rgl::rglwidget(minimal = FALSE, width = widget_size_px, height = widget_size_px)
+
+    title_div <- if (nzchar(main)) {
+      htmltools::div(
+        style = paste0(
+          "font-weight:700;",
+          "font-size:", title_font_size_px, "px;",
+          "font-family:", title_font_family, ";",
+          "line-height:1.25;",
+          "margin:0 0 10px 0;",
+          "text-align:center;"
+        ),
+        main
+      )
+    } else NULL
+
+    row_div <- htmltools::div(
+      style = paste0(
+        "display:flex; flex-direction:row; align-items:center; justify-content:center;",
+        "width:", widget_size_px, "px; margin:0 auto;"
+      ),
+      htmltools::div(
+        style = paste0("width:", widget_size_px, "px; height:", widget_size_px, "px;"),
+        w
+      )
+    )
+
+    container  <- htmltools::div(style = "width:100%;", title_div, row_div)
+    widget_obj <- htmltools::browsable(container)
+    if (interactive()) print(widget_obj)
   }
-  if(is.null(newMesh$meshA)){warning("Entire mesh is below plane")}
-  if(is.null(newMesh$meshB)){warning("Entire mesh is above plane")}
-  if(keepBoth == FALSE){
-    if(is.null(newMesh[[1]])){out <- newMesh[[2]]}
-    else{out <- newMesh[[1]]}
-  }
-  if(keepBoth == TRUE){out <- newMesh}
+
+
+
+  attr(out, "widget") <- widget_obj
   return(out)
 }

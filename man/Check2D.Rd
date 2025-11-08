@@ -2,37 +2,77 @@
 % Please edit documentation in R/Check2D.R
 \name{Check2D}
 \alias{Check2D}
-\title{Plot 2D footprint and footprint triangle points to check for erros in 2D calculation}
+\title{Visual check of 2D footprint triangles (HTML widget; no Quartz)}
 \usage{
-Check2D(RFI_Output, FootColor = "red", TriPointsColor = "black")
+Check2D(
+  RFI_Output,
+  FootColor = "red",
+  TriPointsColor = "black",
+  main = "",
+  cex = 1,
+  legend = TRUE,
+  widget_size_px = 768,
+  scene_zoom = 1.5,
+  leftOffset = 0,
+  fieldofview = 0,
+  title_font_size_px = 30,
+  legend_magnify = 1,
+  point_size = 5,
+  alpha = 0.35
+)
 }
 \arguments{
-\item{RFI_Output}{An object that stores the output of the RFI
-function}
+\item{RFI_Output}{An object that stores the output of \code{RFI()}}
 
-\item{FootColor}{changes color of the 2D surface footprint}
+\item{FootColor}{Character; fill color for the footprint triangles (default \code{"red"})}
 
-\item{TriPointsColor}{color for the points of the footprint triangles}
+\item{TriPointsColor}{Character; point color for footprint triangle vertices (default \code{"black"})}
+
+\item{main}{Character; plot title (default \code{""})}
+
+\item{cex}{Numeric; relative size multiplier for legend text (default \code{1})}
+
+\item{legend}{Logical; show a right-hand legend (default \code{TRUE})}
+
+\item{widget_size_px}{Integer; square size of the widget in pixels (default \code{768})}
+
+\item{scene_zoom}{Numeric; initial zoom of the 3D scene (default \code{1.5})}
+
+\item{leftOffset}{Numeric (-1..1); small horizontal camera nudge (default \code{0})}
+
+\item{fieldofview}{Numeric; field of view in degrees; 0 = isometric (default \code{0})}
+
+\item{title_font_size_px}{Integer; title font size in pixels (default \code{30})}
+
+\item{legend_magnify}{Numeric; additional legend scale factor (default \code{1})}
+
+\item{point_size}{Numeric; size for triangle vertex points (default \code{5})}
+
+\item{alpha}{Numeric between 0 and 1; transparency for the footprint fill (default \code{0.35})}
+}
+\value{
+An htmltools-browsable object containing the title, 3D widget, and legend.
 }
 \description{
-This function will plot the points used for the 2D footprint area
-calculation. This is meant to be a visual checking mechanism to
-ensure that there are no 'extra' triangles within the footprint erroneously
-adding to the total 2D area of the footprint. If a user finds extra points
-within the boundaries of the footprint, they should assume that the alpha
-value used for the RFI calculation was too small, and they are getting
-a 2D footprint calculation which was too large.
+Plot the 2D footprint triangles and their vertices used in the RFI 2D area
+calculation, as a visual QA step to detect spurious triangles inside the
+footprint. The result is an HTML widget (no Quartz/X11 window) with an
+optional legend, suitable for RStudio Viewer, Quarto/HTML, and browsers.
 }
 \details{
-This function will plot the points used for the 2D footprint area
-calculation. This is meant to be a visual checking mechanism to
-ensure that there are no 'extra' triangles within the footprint erroneously
-adding to the total 2D area of the footprint. If a user finds extra points
-within the boundaries of the footprint, they should assume that the alpha
-value used for the RFI calculation was too small, and they are getting
-a 2D footprint calculation which was too large.
+This reproduces the same intent as the classic \code{Check2D()}: it draws the triangles
+from \code{RFI_Output$Footprint_Triangles} and the corresponding 2D coordinates in
+\code{RFI_Output$Flattened_Pts}. The triangles are plotted in the \strong{XY plane} (z = 0).
+If you see points/triangles \strong{inside} the footprint that shouldn’t be there,
+it typically indicates an \strong{alpha} value that is too small in the RFI step, leading
+to an inflated 2D footprint.
+
+The function uses a headless rgl device and returns an \code{rglwidget} embedded in an
+HTML layout (title atop, legend on the right)—matching the approach used in \code{DNE3d()}.
 }
 \examples{
-RFI_output <- RFI(Tooth, alpha=0.5)
-Check2D(RFI_output)
+# RFI_out <- RFI(Tooth, alpha = 0.5)
+# Check2D(RFI_out, FootColor = "tomato", TriPointsColor = "black",
+# main = "RFI 2D Footprint QA")
+
 }
